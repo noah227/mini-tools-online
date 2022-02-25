@@ -1,0 +1,135 @@
+<template>
+    <div id="control-panel">
+        <h3 id="title">迷你小工具</h3>
+        <div v-if="!toolName" id="item-list">
+            <div v-for="{name, text, icon} in tools" class="tool-item" :key="name" @click="toolName=name">
+                <com-svg-loader class="svg-icon" :name="icon"/>
+                <span class="text">{{text || name}}</span>
+            </div>
+        </div>
+        <div v-else id="content">
+            <span id="back" class="iconfont icon-back" @click="toolName=''"></span>
+            <component :is="toolName"/>
+        </div>
+        <footer id="footer">
+            <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-online-tools">mini-online-tools</el-link>
+            <!-- <el-link class="" href="javascript:void(0)">toxicu.com</el-link> -->
+        </footer>
+    </div>
+</template>
+
+<script>
+import Vue from "vue"
+import * as uuid from "uuid"
+import ComSvgLoader from "@/components/svg-loader.vue"
+export default {
+    components: {ComSvgLoader},
+    data(){
+        return {
+            tools: [],
+            toolName: "",
+        }
+    },
+    methods: {
+        loadTools(){
+            const context = require.context("./")
+            const toolImports = context.keys().filter(k => /\.\/com.*\.vue/.test(k)).map(k => require(`${k.replace(".vue", "")}.vue`).default)
+            console.log(toolImports)
+            const tools = toolImports.map(tool => ({name: tool.name, text: tool.text, icon: tool.icon, com: tool}))
+            tools.forEach(tool => {
+                Vue.component(tool.name || `com-${uuid.v4()}`, tool.com)
+            })
+            console.log(tools)
+            this.tools = tools
+        }
+    },
+    created(){
+        this.loadTools()
+
+    }
+}
+</script>
+
+<style lang="scss" scoped>
+div#control-panel {
+    width: 100%;
+    height: 100vh;
+    padding: 3rem 0 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    >#title{
+        text-align: center;
+        padding-bottom: 1rem;
+        box-sizing: border-box;
+        box-shadow: 0 8px 6px -6px #aaa;
+    }
+    >div#item-list{
+        width: 75%;
+        flex-grow: 1;
+        margin: 0 auto;
+        padding: 3rem 0;
+        box-sizing: border-box;
+        // display: grid;
+        .tool-item{
+            display: inline-block;
+            width: 8rem;
+            height: 8rem; 
+            padding: 1rem;
+            box-sizing: border-box;
+            box-shadow: 0 0 5px #aaa;
+            transition: all ease-out .12s;
+            &:hover{
+                box-shadow: 0 0 8px #6af;
+                transform: scale(1.05);
+            }
+            border-radius: .5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            .svg-icon {
+                width: 3rem
+            } 
+            .text{
+                font-weight: bold;
+            }
+        }
+    }
+    >div#content{
+        width: 75%;
+        flex-grow: 1;
+        margin: 0 auto;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        >#back{
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            top: 2rem;
+            width: 3rem;
+            padding: 0 .8rem;
+            font-size: 3rem;
+            border-radius: .5rem;
+            box-shadow: 0 0 3px #888;
+            background-color: #fcfcfc;
+            z-index: 333;
+            cursor: pointer;
+        }
+    }
+    >#footer{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 5rem;
+        font-size: 1.5rem!important;
+        box-shadow: 0 -8px 6px -6px #aaa;
+        .el-link {color: #6af; text-indent: .5rem; margin: 0 .5rem}
+    }
+}
+
+</style>
