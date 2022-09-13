@@ -98,6 +98,9 @@ div#string-converter{
             }
         }
     }
+    @media screen and (max-width: 520px){
+      div#content-area{flex-direction: column}
+    }
 
 } 
 </style>

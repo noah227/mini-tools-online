@@ -70,11 +70,17 @@ div#control-panel {
         margin: 0 auto;
         padding: 3rem 0;
         box-sizing: border-box;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 8.8rem);
+        justify-content: center;
+        justify-items: center;
+        align-content: flex-start;
+        grid-gap: 1.7rem;
         // display: grid;
         .tool-item{
             display: inline-block;
-            width: 8rem;
-            height: 8rem; 
+            width: 8.8rem;
+            height: 8.8rem;
             padding: 1rem;
             box-sizing: border-box;
             box-shadow: 0 0 5px #aaa;
@@ -97,6 +103,12 @@ div#control-panel {
                 font-weight: bold;
             }
         }
+    }
+    @media screen and(max-width: 520px){
+      >div#item-list {
+        grid-template-columns: repeat(2, auto);
+        width: fit-content;
+      }
     }
     >div#content{
         width: 75%;
