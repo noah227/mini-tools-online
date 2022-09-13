@@ -1,10 +1,10 @@
 <template>
   <div id="url-query">
     <h3 id="title">URL参数提取</h3>
-<!--    <div id="filter-area">-->
-<!--      <label>URL地址</label>-->
-<!--      <el-input v-model="sourceUrl"></el-input>-->
-<!--    </div>-->
+    <div id="filter-area">
+      <el-checkbox v-model="decodeValue" label="解码参数值"></el-checkbox>
+      <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
+    </div>
     <div id="content-area">
       <div id="input">
         <el-input v-model.trim="inputValue" type="textarea" placeholder="输入要提取参数的URL地址"></el-input>
@@ -64,7 +64,9 @@ export default {
   data(){
     return {
       sourceUrl: "",
-      inputValue: "https://www.iconfont.cn/manage/index?manage_type=myprojects&projectId=3205580",
+      decodeValue: true,
+      compressOutput: false,
+      inputValue: "https://www.iconfont.cn/search/index?searchType=icon&q=%E6%B5%8B%E8%AF%95",
       options,
     }
   },
@@ -72,10 +74,16 @@ export default {
     converter(){
       return changeCase[this.sourceUrl]
     },
+    decodeType(){
+      return this.decodeValue ? 2 : 0
+    },
+    stringifySpace(){
+      return this.compressOutput ? "" : "\t"
+    },
     outputValue(){
       let data = ""
       try {
-        data = JSON.stringify(getUrlQuery(this.inputValue, 2), null, "\t")
+        data = JSON.stringify(getUrlQuery(this.inputValue, this.decodeType), null, this.stringifySpace)
       }
       catch (e){
         console.log(e)
