@@ -131,6 +131,11 @@ div#control-panel {
             background-color: #fcfcfc;
             z-index: 333;
             cursor: pointer;
+            transition: background-color linear .12s;
+            &:hover{
+              background-color: rgb(140 116 255);
+              color: #fff;
+            }
         }
     }
     >#footer{
