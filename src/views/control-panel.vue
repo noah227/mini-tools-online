@@ -1,51 +1,50 @@
 <template>
     <div id="control-panel">
         <h3 id="title">迷你小工具</h3>
-        <div v-if="!toolName" id="item-list">
-            <div v-for="{name, text, icon} in tools" class="tool-item" :key="name" @click="toolName=name">
+        <div v-if="!showContent" id="item-list">
+            <router-link v-for="{name, text, icon} in tools" class="tool-item" :key="name" :to="{name}">
                 <com-svg-loader class="svg-icon" :name="icon"/>
-                <span class="text">{{text || name}}</span>
-            </div>
+                <span class="text">{{ text || name }}</span>
+            </router-link>
         </div>
         <div v-else id="content">
-            <span id="back" class="iconfont icon-back" @click="toolName=''"></span>
-            <component :is="toolName"/>
+            <router-link id="back" class="iconfont icon-back" to="/control-panel"></router-link>
+            <router-view/>
         </div>
         <footer id="footer">
-            <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-online-tools">mini-online-tools</el-link>
+            <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-online-tools">
+                mini-online-tools
+            </el-link>
             <!-- <el-link class="" href="javascript:void(0)">toxicu.com</el-link> -->
         </footer>
     </div>
 </template>
 
 <script>
-import Vue from "vue"
-import * as uuid from "uuid"
 import ComSvgLoader from "@/components/svg-loader.vue"
+import {tools} from "@/router";
+
 export default {
     components: {ComSvgLoader},
-    data(){
+    data() {
         return {
-            tools: [],
+            tools,
             toolName: "",
+            showContent: false,
+        }
+    },
+    watch: {
+        "$route.path"() {
+            this.updateStatus()
         }
     },
     methods: {
-        loadTools(){
-            const context = require.context("./")
-            const toolImports = context.keys().filter(k => /\.\/com.*\.vue/.test(k)).map(k => require(`${k.replace(".vue", "")}.vue`).default)
-            console.log(toolImports)
-            const tools = toolImports.map(tool => ({name: tool.name, text: tool.text, icon: tool.icon, com: tool}))
-            tools.forEach(tool => {
-                Vue.component(tool.name || `com-${uuid.v4()}`, tool.com)
-            })
-            console.log(tools)
-            this.tools = tools
+        updateStatus() {
+            this.showContent = location.hash.length > 16
         }
     },
-    created(){
-        this.loadTools()
-
+    created() {
+        this.updateStatus()
     }
 }
 </script>
@@ -58,13 +57,15 @@ div#control-panel {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    >#title{
+
+    > #title {
         text-align: center;
         padding-bottom: 1rem;
         box-sizing: border-box;
         box-shadow: 0 8px 6px -6px #aaa;
     }
-    >div#item-list{
+
+    > div#item-list {
         width: 75%;
         flex-grow: 1;
         margin: 0 auto;
@@ -77,7 +78,7 @@ div#control-panel {
         align-content: flex-start;
         grid-gap: 1.7rem;
         // display: grid;
-        .tool-item{
+        .tool-item {
             display: inline-block;
             width: 8.8rem;
             height: 8.8rem;
@@ -85,10 +86,12 @@ div#control-panel {
             box-sizing: border-box;
             box-shadow: 0 0 5px #aaa;
             transition: all ease-out .12s;
-            &:hover{
+
+            &:hover {
                 box-shadow: 0 0 8px #6af;
                 transform: scale(1.05);
             }
+
             border-radius: .5rem;
             display: flex;
             flex-direction: column;
@@ -96,15 +99,18 @@ div#control-panel {
             align-items: center;
             cursor: pointer;
             user-select: none;
+
             .svg-icon {
                 width: 3rem
-            } 
-            .text{
+            }
+
+            .text {
                 font-weight: bold;
             }
         }
     }
-    >div#content{
+
+    > div#content {
         width: 75%;
         flex-grow: 1;
         margin: 0 auto;
@@ -112,7 +118,8 @@ div#control-panel {
         display: flex;
         justify-content: center;
         align-items: center;
-        >#back{
+
+        > #back {
             display: inline-block;
             position: absolute;
             left: 0;
@@ -126,35 +133,57 @@ div#control-panel {
             z-index: 333;
             cursor: pointer;
             transition: background-color linear .12s;
-            &:hover{
-              background-color: rgb(140 116 255);
-              color: #fff;
+
+            &:hover {
+                background-color: rgb(140 116 255);
+                color: #fff;
             }
         }
     }
-    >#footer{
+
+    > #footer {
         display: flex;
         justify-content: center;
         align-items: center;
         height: 5rem;
-        font-size: 1.5rem!important;
+        font-size: 1.5rem !important;
         box-shadow: 0 -8px 6px -6px #aaa;
-        .el-link {color: #6af; text-indent: .5rem; margin: 0 .5rem}
+
+        .el-link {
+            color: #6af;
+            text-indent: .5rem;
+            margin: 0 .5rem
+        }
     }
 }
 
-@media screen and(max-width: 520px){
-  #control-panel {padding-top: 1rem!important;}
-  #footer{height: 3rem!important;}
-  #content{width: 100%!important;}
-  >div#item-list {
-    grid-template-columns: repeat(2, auto);
-    width: fit-content;
-  }
-  // todo这里要不要套个通用容器，子组件全部100%
-  #content > div{
-    width: 90%!important;
-  }
+a {
+    //color: unset!important;
+    color: unset;
+    text-decoration: none;
+}
+
+@media screen and(max-width: 520px) {
+    #control-panel {
+        padding-top: 1rem !important;
+    }
+    #footer {
+        height: 3rem !important;
+    }
+    #content {
+        width: 100% !important;
+    }
+    > div#item-list {
+        grid-template-columns: repeat(2, auto);
+        width: fit-content;
+    }
+    // todo这里要不要套个通用容器，子组件全部100%
+    #content > div {
+        width: 90% !important;
+    }
+    #back {
+        display: none!important;
+    }
 }
 
 </style>
