@@ -40,7 +40,7 @@ export default {
     },
     methods: {
         updateStatus() {
-            this.showContent = location.hash.length > 16
+            this.showContent = location.hash.split("/").length > 2
         }
     },
     created() {
