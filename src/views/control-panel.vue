@@ -104,12 +104,6 @@ div#control-panel {
             }
         }
     }
-    @media screen and(max-width: 520px){
-      >div#item-list {
-        grid-template-columns: repeat(2, auto);
-        width: fit-content;
-      }
-    }
     >div#content{
         width: 75%;
         flex-grow: 1;
@@ -147,6 +141,20 @@ div#control-panel {
         box-shadow: 0 -8px 6px -6px #aaa;
         .el-link {color: #6af; text-indent: .5rem; margin: 0 .5rem}
     }
+}
+
+@media screen and(max-width: 520px){
+  #control-panel {padding-top: 1rem!important;}
+  #footer{height: 3rem!important;}
+  #content{width: 100%!important;}
+  >div#item-list {
+    grid-template-columns: repeat(2, auto);
+    width: fit-content;
+  }
+  // todo这里要不要套个通用容器，子组件全部100%
+  #content > div{
+    width: 90%!important;
+  }
 }
 
 </style>
