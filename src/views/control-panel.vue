@@ -162,7 +162,13 @@ a {
     color: unset;
     text-decoration: none;
 }
-
+@media screen and(max-width: 520px) {
+    #item-list {
+        display: grid!important;
+        grid-template-columns: repeat(2, auto)!important;
+        width: fit-content;
+    }
+}
 @media screen and(max-width: 520px) {
     #control-panel {
         padding-top: 1rem !important;
@@ -174,6 +180,7 @@ a {
         width: 100% !important;
     }
     > div#item-list {
+        display: grid!important;
         grid-template-columns: repeat(2, auto);
         width: fit-content;
     }
