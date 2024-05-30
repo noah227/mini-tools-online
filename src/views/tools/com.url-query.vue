@@ -3,6 +3,15 @@
         <HeadRender></HeadRender>
         <div id="filter-area">
             <el-checkbox v-model="decodeValue" label="解码参数值"></el-checkbox>
+            <template v-if="decodeValue">
+                <el-select v-model="decodeMethod" style="width: 168px;" size="small">
+                    <el-option label="decodeURIComponent" value="decodeURIComponent"></el-option>
+                    <el-option label="decodeURI" value="decodeURI"></el-option>
+                </el-select>
+                <el-select v-model="decodeTimes" style="width: 48px;" size="small" title="解码次数">
+                    <el-option v-for="i in 5" :value="i" :label="i"></el-option>
+                </el-select>
+            </template>
             <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
         </div>
         <div id="content-area">
@@ -31,11 +40,13 @@ import {computed, nextTick, onMounted, ref, watch} from "vue";
 
 const prismJs = require("prismjs")
 const refCode = ref()
-const decodeValue = ref("")
+const decodeValue = ref(false)
+const decodeTimes = ref(1)
 const compressOutput = ref("")
-const inputValue = ref("https://www.iconfont.cn/search/index?searchType=icon&q=%E6%B5%8B%E8%AF%95")
+const inputValue = ref("https://www.iconfont.cn/search/index?searchType=icon&q=%E6%B5%8B%E8%AF%95&message=%25E4%25BD%25A0%25E5%25A5%25BD")
+const decodeMethod = ref<"decodeURI" | "decodeURIComponent">("decodeURIComponent")
 
-const getUrlQuery = (url: string, decodeType = 0) => {
+const getUrlQuery = (url: string) => {
     const query: { [index: string]: any } = {}
     const urlSplit = url.split("?")
     if (urlSplit.length > 1) {
@@ -45,23 +56,29 @@ const getUrlQuery = (url: string, decodeType = 0) => {
             if (itemSplit.length > 1) query[itemSplit[0]] = itemSplit[1]
             else query[itemSplit[0]] = ""
         })
-        if ([2, 3].indexOf(decodeType) >= 0) {
-            let decodeMethod: any
-            if (decodeType === 1) decodeMethod = decodeURI
-            else decodeMethod = decodeURIComponent
+        if (decodeValue.value) {
+            let _decodeMethod = decodeMethod.value === "decodeURI" ? decodeURI : decodeURIComponent
             Object.entries(query).forEach(([k, v]) => {
-                query[k] = decodeMethod(v)
+                query[k] = decodeMultiTimes(_decodeMethod, v, decodeTimes.value)
             })
         }
     }
     return query
 }
-const decodeType = computed(() => decodeValue.value ? 2 : 0)
+
+/**
+ * 多次解码
+ */
+const decodeMultiTimes = (m: (v: string) => string, v: string, t: number): string => {
+    if(t === 0) return v
+    else return decodeMultiTimes(m, m(v), t - 1)
+}
+
 const stringifySpace = computed(() => compressOutput.value ? "" : "\t")
 const outputValue = computed(() => {
-    let data = ""
+    let data: string
     try {
-        data = JSON.stringify(getUrlQuery(inputValue.value, decodeType.value), null, stringifySpace.value)
+        data = JSON.stringify(getUrlQuery(inputValue.value), null, stringifySpace.value)
     } catch (e: any) {
         console.log(e)
         data = e.toString()
@@ -93,9 +110,10 @@ div#url-query {
         align-items: center;
         border-bottom: 1px solid #aaa;
         border-top: 1px solid #aaa;
+        font-size: 14px;
 
-        .el-select {
-            margin-left: 2rem;
+        > * {
+            margin: 0 .8rem;
         }
     }
 
