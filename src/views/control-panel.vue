@@ -20,33 +20,22 @@
     </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import ComSvgLoader from "@/components/svg-loader.vue"
+import {ref, watch} from "vue";
+import {useRoute} from "vue-router";
 import {tools} from "@/router";
 
-export default {
-    components: {ComSvgLoader},
-    data() {
-        return {
-            tools,
-            toolName: "",
-            showContent: false,
-        }
-    },
-    watch: {
-        "$route.path"() {
-            this.updateStatus()
-        }
-    },
-    methods: {
-        updateStatus() {
-            this.showContent = location.hash.split("/").length > 2
-        }
-    },
-    created() {
-        this.updateStatus()
-    }
+const showContent = ref(false)
+const route = useRoute()
+const updateStatus = () => {
+    showContent.value = location.hash.split("/").length > 2
 }
+
+watch(() => route.fullPath, () => {
+    updateStatus()
+})
+updateStatus()
 </script>
 
 <style lang="scss" scoped>
@@ -65,8 +54,11 @@ div#control-panel {
         box-shadow: 0 8px 6px -6px #aaa;
     }
 
-    > div#item-list {
+    > div {
         width: 75%;
+    }
+
+    > div#item-list {
         flex-grow: 1;
         margin: 0 auto;
         padding: 3rem 0;
@@ -79,7 +71,6 @@ div#control-panel {
         grid-gap: 1.7rem;
         // display: grid;
         .tool-item {
-            display: inline-block;
             width: 8.8rem;
             height: 8.8rem;
             padding: 1rem;
@@ -111,13 +102,16 @@ div#control-panel {
     }
 
     > div#content {
-        width: 75%;
         flex-grow: 1;
         margin: 0 auto;
         position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
+
+        > div {
+            width: 100%;
+        }
 
         > #back {
             display: inline-block;
@@ -162,14 +156,16 @@ a {
     color: unset;
     text-decoration: none;
 }
-@media screen and(max-width: 520px) {
+
+@media screen and (max-width: 520px) {
     #item-list {
-        display: grid!important;
-        grid-template-columns: repeat(2, auto)!important;
+        display: grid !important;
+        grid-template-columns: repeat(2, auto) !important;
         width: fit-content;
     }
 }
-@media screen and(max-width: 520px) {
+
+@media screen and (max-width: 520px) {
     #control-panel {
         padding-top: 1rem !important;
     }
@@ -180,7 +176,7 @@ a {
         width: 100% !important;
     }
     > div#item-list {
-        display: grid!important;
+        display: grid !important;
         grid-template-columns: repeat(2, auto);
         width: fit-content;
     }
@@ -189,7 +185,7 @@ a {
         width: 90% !important;
     }
     #back {
-        display: none!important;
+        display: none !important;
     }
 }
 

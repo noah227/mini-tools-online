@@ -17,39 +17,29 @@
         </div>
     </div>
 </template>
-
-<script>
-import * as changeCase from "change-case"
-console.log(changeCase)
-
-const options = Object.keys(changeCase).map(k => ({value: k}))
+<script lang="ts">
 export default {
     name: "string-converter",
     text: "字符转换",
     icon: "string-converter",
-    data(){
-        return {
-            convertMethod: "camelCase",
-            inputValue: "",
-            options,
-        }
-    },
-    computed: { 
-        converter(){
-            return changeCase[this.convertMethod]
-        },
-        outputValue(){
-            return this.converter(this.inputValue.replace(/\n/g, "2233")).replace(/2233/g, "\n")
-        }
-    },
-    created(){
-        console.log(this)
-    }
+    description: ""
 }
+</script>
+<script lang="ts" setup>
+import * as changeCase from "change-case"
+import {computed, ref} from "vue";
+
+const options = Object.keys(changeCase).map(k => ({value: k}))
+const convertMethod = ref("camelCase")
+const inputValue = ref("")
+const converter = computed<(...args: any) => string>(() => (changeCase as any)[convertMethod.value])
+const outputValue = computed(() => {
+    return converter.value(inputValue.value.replace(/\n/g, "2233")).replace(/2233/g, "\n")
+})
 </script>
 
 <style lang="scss">
-div#string-converter{
+div#string-converter {
     width: 70%;
     height: 520px;
     margin: 0 auto;
@@ -57,7 +47,8 @@ div#string-converter{
     flex-direction: column;
     border: 1px solid #3af;
     border-radius: .5rem;
-    >div#filter-area{
+
+    > div#filter-area {
         width: 100%;
         padding: 1rem 0;
         display: flex;
@@ -65,20 +56,25 @@ div#string-converter{
         align-items: center;
         border-bottom: 1px solid #aaa;
         border-top: 1px solid #aaa;
+
         .el-select {
             margin-left: 2rem;
         }
     }
-    >div#content-area{
+
+    > div#content-area {
         flex-grow: 1;
         display: flex;
-        >div{
+
+        > div {
             flex-grow: 1;
-            .el-textarea{
-                width: 100%; 
-                height: 100%; 
-                textarea{
-                    width: 100%; 
+
+            .el-textarea {
+                width: 100%;
+                height: 100%;
+
+                textarea {
+                    width: 100%;
                     height: 100%;
                     font-size: 1.2rem;
                     line-height: 1.2;
@@ -86,9 +82,12 @@ div#string-converter{
             }
         }
     }
-    @media screen and (max-width: 520px){
-      div#content-area{flex-direction: column}
+
+    @media screen and (max-width: 520px) {
+        div#content-area {
+            flex-direction: column
+        }
     }
 
-} 
+}
 </style>

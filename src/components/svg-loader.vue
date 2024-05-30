@@ -4,10 +4,10 @@
     </svg>
 </template>
 
-<script>
-export default {
-    props: {name: String}
-}
+<script lang="ts" setup>
+defineProps({
+    name: {type: String, required: true}
+})
 </script>
 
 <style>

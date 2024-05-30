@@ -15,22 +15,27 @@
         </div>
     </div>
 </template>
-
-<script>
+<script lang="ts">
+export default {
+    name: "json-field-transformer",
+    text: "JSON字段转换",
+    icon: "json-field-transformer",
+    description: ""
+}
+</script>
+<script lang="ts" setup>
 import "prismjs/plugins/toolbar/prism-toolbar.js"
 import "prismjs/themes/prism-coy.min.css"
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 
 const prismJs = require("prismjs")
 
-const isObject = (o) => Object.prototype.toString.call(o) === "[object Object]"
+const refCode = ref()
+const isObject = (o: any) => Object.prototype.toString.call(o) === "[object Object]"
 /**
  * 连接键，一级提升
- * @param {Object} jsonObj
- * @param {Object} ret
- * @param {String}  cacheStr
- * @return {{}}
  */
-const connectField = (jsonObj, ret = {}, cacheStr = "") => {
+const connectField = (jsonObj: object, ret: { [index: string]: any } = {}, cacheStr = "") => {
     const tempCacheStr = cacheStr
     Object.entries(jsonObj).forEach(([k, v]) => {
         cacheStr = cacheStr ? cacheStr + "_" + k : k
@@ -41,9 +46,9 @@ const connectField = (jsonObj, ret = {}, cacheStr = "") => {
     return ret
 }
 
-const deepConstruct = (kSplit = [], cacheObj = {}, setValue) => {
+const deepConstruct = (kSplit: string[] = [], cacheObj: { [index: string]: any } = {}, setValue: any) => {
     if (kSplit.length) {
-        const key = kSplit.pop()
+        const key = kSplit.pop() as string
         if (kSplit.length) {
             cacheObj[key] = cacheObj[key] || {}
             deepConstruct(kSplit, cacheObj[key], setValue)
@@ -53,9 +58,8 @@ const deepConstruct = (kSplit = [], cacheObj = {}, setValue) => {
 }
 /**
  * 反向拆分
- * @param {Object} jsonObj
  */
-const splitField = (jsonObj) => {
+const splitField = (jsonObj: { [index: string]: any }) => {
     let ret = {}
     Object.entries(jsonObj).forEach(([k, v]) => {
         const kSplit = k.split("_")
@@ -64,49 +68,37 @@ const splitField = (jsonObj) => {
     return ret
 }
 
-export default {
-    name: "json-field-transformer",
-    text: "JSON字段转换",
-    icon: "json-field-transformer",
-    data() {
-        return {
-            reverseSplit: false,
-            compressOutput: false,
-            inputValue: "",
-        }
-    },
-    computed: {
-        outputValue() {
-            try {
-                if (this.inputValue) {
-                    let retValue = ""
-                    if (this.reverseSplit) {
-                        retValue = splitField(JSON.parse(this.inputValue))
-                    } else {
-                        retValue = connectField(JSON.parse(this.inputValue))
-                    }
-                    return JSON.stringify(retValue, null, this.compressOutput ? "" : "\t")
-                } else return ""
-            } catch (e) {
-                return e.toString()
+const reverseSplit = ref(false)
+const compressOutput = ref(false)
+const inputValue = ref("")
+const outputValue = computed(() => {
+    try {
+        if (inputValue.value) {
+            let retValue
+            if (reverseSplit.value) {
+                retValue = splitField(JSON.parse(inputValue.value))
+            } else {
+                retValue = connectField(JSON.parse(inputValue.value))
             }
-        }
-    },
-    watch: {
-        outputValue() {
-            this.update()
-        }
-    },
-    methods: {
-        update() {
-            this.$refs.refCode.innerHTML = this.outputValue
-            this.$nextTick(() => prismJs.highlightAll())
-        }
-    },
-    mounted() {
-        this.update()
+            return JSON.stringify(retValue, null, compressOutput.value ? "" : "\t")
+        } else return ""
+    } catch (e: any) {
+        return e.toString()
     }
+})
+
+watch(() => outputValue.value, () => {
+    update()
+})
+
+const update = () => {
+    refCode.value.innerHTML = outputValue.value
+    nextTick(() => {
+        prismJs.highlightAll()
+    })
 }
+
+onMounted(() => update())
 </script>
 
 <style lang="scss">

@@ -1,39 +1,39 @@
 @font-face {
-  font-family: "iconfont"; /* Project id 3205580 */
-  src: url('iconfont.woff2?t=1668569379420') format('woff2'),
-       url('iconfont.woff?t=1668569379420') format('woff'),
-       url('iconfont.ttf?t=1668569379420') format('truetype');
+    font-family: "iconfont"; /* Project id 3205580 */
+    src: url('iconfont.woff2?t=1668569379420') format('woff2'),
+    url('iconfont.woff?t=1668569379420') format('woff'),
+    url('iconfont.ttf?t=1668569379420') format('truetype');
 }
 
 .iconfont {
-  font-family: "iconfont" !important;
-  font-size: 16px;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-family: "iconfont" !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .icon-json-field-transformer:before {
-  content: "\e6d1";
+    content: "\e6d1";
 }
 
 .icon-copy:before {
-  content: "\e706";
+    content: "\e706";
 }
 
 .icon-url-query:before {
-  content: "\e66c";
+    content: "\e66c";
 }
 
 .icon-github:before {
-  content: "\e885";
+    content: "\e885";
 }
 
 .icon-back:before {
-  content: "\e8f4";
+    content: "\e8f4";
 }
 
 .icon-string-converter:before {
-  content: "\e660";
+    content: "\e660";
 }
 

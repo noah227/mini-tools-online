@@ -1,7 +1,4 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-
-Vue.use(VueRouter)
+import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
 
 const loadTools = () => {
     const context = require.context("@/views/tools")
@@ -10,16 +7,7 @@ const loadTools = () => {
 
 export const tools = loadTools()
 
-const createRoutes = () => {
-    return tools.map(tool => ({
-        path: tool.name,
-        name: tool.name,
-        meta: {text: tool.text, icon: tool.icon},
-        component: tool
-    }))
-}
-
-const routes = [
+const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: 'home',
@@ -29,13 +17,17 @@ const routes = [
         path: '/control-panel',
         name: 'control-panel',
         component: () => import('../views/control-panel.vue'),
-        children: createRoutes()
+        children: tools.map(tool => ({
+            path: tool.name,
+            name: tool.name,
+            meta: {text: tool.text, icon: tool.icon},
+            component: tool
+        }))
     }
 ]
 
-const router = new VueRouter({
-    mode: 'hash',
-    base: process.env.BASE_URL,
+const router = createRouter({
+    history: createWebHashHistory(process.env.BASE_URL),
     routes
 })
 
