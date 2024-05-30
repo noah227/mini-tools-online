@@ -14,5 +14,6 @@ const renderBindTitle = computed(() => route.meta.description)
 <style lang="scss" scoped>
 .common-title {
     user-select: none;
+    text-align: center;
 }
 </style>
