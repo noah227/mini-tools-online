@@ -20,7 +20,7 @@ const routes: Array<RouteRecordRaw> = [
         children: tools.map(tool => ({
             path: tool.name,
             name: tool.name,
-            meta: {text: tool.text, icon: tool.icon},
+            meta: {text: tool.text, icon: tool.icon, description: tool.description},
             component: tool
         }))
     }

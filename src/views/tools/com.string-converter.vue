@@ -1,6 +1,6 @@
 <template>
     <div id="string-converter">
-        <h3 id="title">字符格式转换</h3>
+        <HeadRender></HeadRender>
         <div id="filter-area">
             <label>目标格式</label>
             <el-select v-model="convertMethod">
@@ -20,17 +20,20 @@
 <script lang="ts">
 export default {
     name: "string-converter",
-    text: "字符转换",
+    text: "字符格式转换",
     icon: "string-converter",
-    description: ""
+    description: "各种风格的字符转换"
 }
 </script>
 <script lang="ts" setup>
 import * as changeCase from "change-case"
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
+import HeadRender from "@/components/head-render.vue"
 
-const options = Object.keys(changeCase).map(k => ({value: k}))
+const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
+
 const convertMethod = ref("camelCase")
+watch(() => convertMethod.value, v => console.log((changeCase as any)[convertMethod.value]))
 const inputValue = ref("")
 const converter = computed<(...args: any) => string>(() => (changeCase as any)[convertMethod.value])
 const outputValue = computed(() => {
@@ -40,14 +43,6 @@ const outputValue = computed(() => {
 
 <style lang="scss">
 div#string-converter {
-    width: 70%;
-    height: 520px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #3af;
-    border-radius: .5rem;
-
     > div#filter-area {
         width: 100%;
         padding: 1rem 0;
@@ -56,9 +51,12 @@ div#string-converter {
         align-items: center;
         border-bottom: 1px solid #aaa;
         border-top: 1px solid #aaa;
-
+        > label {
+            flex-shrink: 0;
+        }
         .el-select {
-            margin-left: 2rem;
+            margin-left: 1rem;
+            flex-grow: 1;
         }
     }
 

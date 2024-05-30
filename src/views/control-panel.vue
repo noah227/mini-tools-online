@@ -103,21 +103,25 @@ div#control-panel {
 
     > div#content {
         flex-grow: 1;
-        margin: 0 auto;
+        margin: 5% auto;
         position: relative;
         display: flex;
         justify-content: center;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
 
         > div {
+            flex-grow: 1;
             width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #3af;
+            border-radius: .5rem;
         }
 
         > #back {
             display: inline-block;
-            position: absolute;
-            left: 0;
-            top: 2rem;
             width: 3rem;
             padding: 0 .8rem;
             font-size: 3rem;
@@ -127,6 +131,7 @@ div#control-panel {
             z-index: 333;
             cursor: pointer;
             transition: background-color linear .12s;
+            margin-bottom: .5em;
 
             &:hover {
                 background-color: rgb(140 116 255);

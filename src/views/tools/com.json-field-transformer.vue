@@ -1,6 +1,6 @@
 <template>
     <div id="json-field-connector">
-        <h3 id="title">json字段转换</h3>
+        <HeadRender></HeadRender>
         <div id="filter-area">
             <el-checkbox v-model="reverseSplit" label="逆向拆分"></el-checkbox>
             <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
@@ -20,16 +20,16 @@ export default {
     name: "json-field-transformer",
     text: "JSON字段转换",
     icon: "json-field-transformer",
-    description: ""
+    description: "对json进行拍平/逆拍平"
 }
 </script>
 <script lang="ts" setup>
 import "prismjs/plugins/toolbar/prism-toolbar.js"
 import "prismjs/themes/prism-coy.min.css"
 import {computed, nextTick, onMounted, ref, watch} from "vue";
+import HeadRender from "@/components/head-render.vue"
 
 const prismJs = require("prismjs")
-
 const refCode = ref()
 const isObject = (o: any) => Object.prototype.toString.call(o) === "[object Object]"
 /**
@@ -103,13 +103,6 @@ onMounted(() => update())
 
 <style lang="scss">
 div#json-field-connector {
-    width: 70%;
-    height: 520px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #3af;
-    border-radius: .5rem;
     overflow: hidden;
 
     > div#filter-area {
