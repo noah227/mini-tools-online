@@ -1,8 +1,20 @@
 <template>
     <div id="control-panel">
         <h3 id="title">迷你小工具</h3>
+        <div id="filter-area">
+            <el-input
+                ref="refFilterInput" v-model.trim="filterStr"
+                placeholder="/搜索 | Ctrl+U清除 | ESC退出"
+                @keydown.ctrl="handleHandleIfClear"
+                @keydown.esc="blurFocus"
+            ></el-input>
+        </div>
         <div v-if="!showContent" id="item-list">
-            <router-link v-for="{name, text, icon} in tools" class="tool-item" :key="name" :to="{name}">
+            <router-link
+                v-for="{name, text, icon, description} in renderTools"
+                class="tool-item" :key="name" :to="{name}"
+                :title="description"
+            >
                 <com-svg-loader class="svg-icon" :name="icon"/>
                 <span class="text">{{ text || name }}</span>
             </router-link>
@@ -22,10 +34,30 @@
 
 <script lang="ts" setup>
 import ComSvgLoader from "@/components/svg-loader.vue"
-import {ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import {tools} from "@/router";
 
+const refFilterInput = ref()
+const filterStr = ref("")
+const handleHandleIfClear = (e: KeyboardEvent) => {
+    if (e.code === "KeyU") {
+        filterStr.value = ""
+        e.stopPropagation()
+        e.preventDefault()
+    }
+}
+const blurFocus = () => {
+    refFilterInput.value.blur()
+}
+
+const renderTools = computed(() => {
+    const _tools = tools.filter(tool => {
+        const {name, text} = tool
+        return (name + text).includes(filterStr.value)
+    })
+    return _tools.length ? _tools : tools
+})
 const showContent = ref(false)
 const route = useRoute()
 const updateStatus = () => {
@@ -36,6 +68,20 @@ watch(() => route.fullPath, () => {
     updateStatus()
 })
 updateStatus()
+
+onMounted(() => {
+    window.addEventListener("keydown", e => {
+        if (e.code === "Slash") {
+            setTimeout(() => {
+                refFilterInput.value.focus()
+            }, 0)
+        }
+        // 防止想操作清除输入框的误操作
+        else if (e.code === "KeyU") {
+            e.preventDefault()
+        }
+    })
+})
 </script>
 
 <style lang="scss" scoped>
@@ -56,6 +102,27 @@ div#control-panel {
 
     > div {
         width: 75%;
+    }
+
+    > div#filter-area {
+        margin: 0 auto;
+
+        > div {
+            height: 42px;
+        }
+
+        :deep(.el-input__wrapper) {
+            box-shadow: 0 3px 6px #f0f0f0;
+            border-bottom: 1px solid #d0d0d0;
+
+            &.is-focus {
+                box-shadow: 0 3px 6px -3px #6af;
+            }
+
+            input {
+                text-align: center;
+            }
+        }
     }
 
     > div#item-list {
