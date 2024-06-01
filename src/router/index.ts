@@ -6,6 +6,8 @@ const loadTools = () => {
 }
 
 export const tools = loadTools()
+const toolsAsChildren = tools.filter(tool => !tool.isLBlankPage)
+const toolsAsBlankPage = tools.filter(tool => tool.isBlankPage)
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -17,13 +19,19 @@ const routes: Array<RouteRecordRaw> = [
         path: '/control-panel',
         name: 'control-panel',
         component: () => import('../views/control-panel.vue'),
-        children: tools.map(tool => ({
+        children: toolsAsChildren.map(tool => ({
             path: tool.name,
             name: tool.name,
             meta: {text: tool.text, icon: tool.icon, description: tool.description},
             component: tool
         }))
-    }
+    },
+    ...toolsAsBlankPage.map(tool => ({
+        path: "/" + tool.name,
+        name: tool.name,
+        meta: {text: tool.text, icon: tool.icon, description: tool.description},
+        component: tool
+    }))
 ]
 
 const router = createRouter({
