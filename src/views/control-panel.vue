@@ -1,7 +1,7 @@
 <template>
     <div id="control-panel">
         <h3 id="title">迷你小工具</h3>
-        <div id="filter-area">
+        <div v-if="!showContent" id="filter-area">
             <el-input
                 ref="refFilterInput" v-model.trim="filterStr"
                 placeholder="/搜索 | Ctrl+U清除 | ESC退出"
