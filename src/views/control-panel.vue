@@ -55,7 +55,7 @@ const blurFocus = () => {
 const renderTools = computed(() => {
     const _tools = tools.filter(tool => {
         const {name, text} = tool
-        return (name + text).includes(filterStr.value)
+        return (name + text).toLowerCase().includes(filterStr.value.toLowerCase())
     })
     return _tools.length ? _tools : tools
 })
