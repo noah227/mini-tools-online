@@ -25,7 +25,7 @@
             <router-view/>
         </div>
         <footer id="footer">
-            <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-online-tools">
+            <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-tools-online" target="_blank">
                 mini-online-tools
             </el-link>
             <!-- <el-link class="" href="javascript:void(0)">toxicu.com</el-link> -->
