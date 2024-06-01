@@ -5,6 +5,7 @@
             <el-input
                 ref="refFilterInput" v-model.trim="filterStr"
                 placeholder="/搜索 | Ctrl+U清除 | ESC退出"
+                @keydown.stop
                 @keydown.ctrl="handleHandleIfClear"
                 @keydown.esc="blurFocus"
             ></el-input>
