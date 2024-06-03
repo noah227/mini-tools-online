@@ -6,6 +6,13 @@
   "description": "描述-test描述-test描述-test描述-test描述-test描述-test描述-test描述-test",
   "glyphs": [
     {
+      "icon_id": "36750064",
+      "name": "调色板",
+      "font_class": "palette",
+      "unicode": "e7e1",
+      "unicode_decimal": 59361
+    },
+    {
       "icon_id": "11342425",
       "name": "数据检索备份",
       "font_class": "collection-search",

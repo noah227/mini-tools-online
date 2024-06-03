@@ -22,7 +22,10 @@ const routes: Array<RouteRecordRaw> = [
         children: toolsAsChildren.map(tool => ({
             path: tool.name,
             name: tool.name,
-            meta: {text: tool.text, icon: tool.icon, description: tool.description},
+            meta: {
+                text: tool.text, icon: tool.icon, description: tool.description,
+                faqList: tool.faqList
+            },
             component: tool
         }))
     },
