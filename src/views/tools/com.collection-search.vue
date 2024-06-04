@@ -170,10 +170,11 @@ const outputData = computed(() => {
     if (!readyToRender.value) return ""
     const dataList = JSON.parse(inputValue.value) as { [index: string]: any }[]
     if (filterWith.value === "JMESPath") {
-        if (!jmespathStr.value) return ""
+        const value = jmespathStr.value.trim()
+        if (!value) return ""
         try {
             // 使用jmespath之后，输出结果就不是单纯的多少条了，也有可能是对象
-            return jmespath.search(dataList, jmespathStr.value)
+            return jmespath.search(dataList, value)
         } catch (e) {
             console.warn(e)
             return ""
