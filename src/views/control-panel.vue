@@ -171,7 +171,7 @@ div#control-panel {
 
     > div#content {
         flex-grow: 1;
-        margin: 3em auto;
+        margin: 2em auto;
         position: relative;
         display: flex;
         justify-content: center;
