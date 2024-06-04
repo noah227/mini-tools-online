@@ -168,10 +168,10 @@ const inputData = computed<any[]>(() => {
 const refCode = ref()
 const outputData = computed(() => {
     if (!readyToRender.value) return ""
-    const dataList = JSON.parse(inputValue.value) as { [index: string]: any }[]
+    const dataList = JSON.parse(inputValue.value) as any
     if (filterWith.value === "JMESPath") {
         const value = jmespathStr.value.trim()
-        if (!value) return ""
+        if (!value) return dataList
         try {
             // 使用jmespath之后，输出结果就不是单纯的多少条了，也有可能是对象
             return jmespath.search(dataList, value)
@@ -180,7 +180,7 @@ const outputData = computed(() => {
             return ""
         }
     } else {
-        return dataList.filter(item => {
+        return (dataList as { [index: string]: any }[]).filter(item => {
             for (let k in form.value) {
                 const {value, type} = form.value[k]
                 const _value = item[k]
