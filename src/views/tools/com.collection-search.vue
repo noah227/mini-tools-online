@@ -2,39 +2,55 @@
     <div id="collection-search">
         <HeadRender></HeadRender>
         <div id="content-area">
-            <div id="field-area">
-                <el-form :model="form">
-                    <el-form-item v-for="(_, k) in form" :prop="k" :label="k">
-                        <template #label>
-                            {{ k }}&emsp;
-                            <el-checkbox v-model="enumMark[k].value" title="标记enum"
-                                         :disabled="!enumMark[k].canEnum"></el-checkbox>
-                        </template>
-                        <el-select v-if="enumMark[k].value" v-model="_.value">
-                            <el-option v-for="item in getEnumList(k, _.type)" :value="item"
-                                       :label="renderLabel(item)"></el-option>
-                        </el-select>
-                        <template v-else>
-                            <el-input v-if="_.type === 'string'" v-model="_.value"></el-input>
-                            <el-input v-else-if="_.type === 'number'" v-model="_.value" type="number"></el-input>
-                            <template v-else-if="_.type === 'boolean'">
-                                <el-checkbox v-model="_.value"></el-checkbox>
-                                &emsp;
-                                <el-button title="设置值为undefined将不进行过滤" size="small"
-                                           @click="_.value = undefined">
-                                    clear!
-                                </el-button>
+            <div id="filter-area">
+                <div id="filter-switch">
+                    <div :class="filterWith === 'fields' && 'active'" @click="filterWith='fields'">字段检索</div>
+                    <div :class="filterWith === 'JMESPath' && 'active'" @click="filterWith='JMESPath'">JMESPath</div>
+                </div>
+                <div v-if="filterWith === 'fields'" id="field-area">
+                    <el-form :model="form">
+                        <el-form-item v-for="(_, k) in form" :prop="k" :label="k">
+                            <template #label>
+                                {{ k }}&emsp;
+                                <el-checkbox v-model="enumMark[k].value" title="标记enum"
+                                             :disabled="!enumMark[k].canEnum"></el-checkbox>
                             </template>
-                        </template>
-                    </el-form-item>
-                </el-form>
-                <hr>
-                <div id="help-info">
-                    <ul>
-                        <li>紧邻字段名的是enum标记</li>
-                        <li>如果enum标记不能选，则表示该项不可作为enum进行处理</li>
-                        <li>clear button是设置undefined，不进行过滤</li>
-                    </ul>
+                            <el-select v-if="enumMark[k].value" v-model="_.value">
+                                <el-option v-for="item in getEnumList(k, _.type)" :value="item"
+                                           :label="renderLabel(item)"></el-option>
+                            </el-select>
+                            <template v-else>
+                                <el-input v-if="_.type === 'string'" v-model="_.value"></el-input>
+                                <el-input v-else-if="_.type === 'number'" v-model="_.value" type="number"></el-input>
+                                <template v-else-if="_.type === 'boolean'">
+                                    <el-checkbox v-model="_.value"></el-checkbox>
+                                    &emsp;
+                                    <el-button title="设置值为undefined将不进行过滤" size="small"
+                                               @click="_.value = undefined">
+                                        clear!
+                                    </el-button>
+                                </template>
+                            </template>
+                        </el-form-item>
+                    </el-form>
+                    <hr>
+                    <div class="help-info">
+                        <ul>
+                            <li>紧邻字段名的是enum标记</li>
+                            <li>如果enum标记不能选，则表示该项不可作为enum进行处理</li>
+                            <li>clear button是设置undefined，不进行过滤</li>
+                        </ul>
+                    </div>
+                </div>
+                <div v-else id="jmespath-area">
+                    <el-input v-model="jmespathStr"></el-input>
+                    <div class="help-info">
+                        <ul>
+                            <li>
+                                <el-link href="https://jmespath.org/tutorial.html" target="_blank">About JMESPath</el-link>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div id="input-area">
@@ -46,7 +62,7 @@
             </div>
             <div id="output-area">
                 <div>
-                    <span>共：{{ readyToRender ? outputData.length : "_" }} 条</span>
+                    <span v-if="outputData instanceof Array">共：{{ readyToRender ? outputData.length : "_" }} 条</span>
                 </div>
                 <pre><code ref="refCode" class="language-json"></code></pre>
             </div>
@@ -67,12 +83,16 @@ export default {
 import HeadRender from "@/components/head-render.vue";
 import {computed, nextTick, onMounted, ref, watch} from "vue";
 
+const jmespath = require("jmespath")
 const prismJs = require("prismjs")
 
 const sampleData = [
     {name: "jack", age: 20, gender: "male", birthday: "1996-01-01", hasTicket: true},
     {name: "rose", age: 20, gender: "female", birthday: "1996-01-01", hasTicket: true},
 ]
+
+const filterWith = ref<"fields" | "JMESPath">("fields")
+const jmespathStr = ref("")
 const inputValue = ref(JSON.stringify(sampleData, null, 4))
 
 const readyToRender = computed(() => {
@@ -143,23 +163,36 @@ const refCode = ref()
 const outputData = computed(() => {
     if (!readyToRender.value) return ""
     const dataList = JSON.parse(inputValue.value) as { [index: string]: any }[]
-    return dataList.filter(item => {
-        for (let k in form.value) {
-            const {value, type} = form.value[k]
-            const _value = item[k]
-            if (type === "string") {
-                if (!_value.includes(value)) return
-            } else if (type === "number") {
-                if (typeof value === "undefined") continue
-                if (isNaN(parseInt(value))) continue
-                if (_value !== parseInt(value)) return
-            } else if (type === "boolean") {
-                if (typeof value === "undefined") continue
-                if (value !== _value) return
-            }
+    if(filterWith.value === "JMESPath") {
+        if(!jmespathStr.value) return ""
+        try {
+            // 使用jmespath之后，输出结果就不是单纯的多少条了，也有可能是对象
+            return jmespath.search(dataList, jmespathStr.value)
         }
-        return true
-    })
+        catch (e) {
+            console.warn(e)
+            return ""
+        }
+    }
+    else {
+        return dataList.filter(item => {
+            for (let k in form.value) {
+                const {value, type} = form.value[k]
+                const _value = item[k]
+                if (type === "string") {
+                    if (!_value.includes(value)) return
+                } else if (type === "number") {
+                    if (typeof value === "undefined") continue
+                    if (isNaN(parseInt(value))) continue
+                    if (_value !== parseInt(value)) return
+                } else if (type === "boolean") {
+                    if (typeof value === "undefined") continue
+                    if (value !== _value) return
+                }
+            }
+            return true
+        })
+    }
 })
 const outputValue = computed(() => {
     return outputData.value ? JSON.stringify(outputData.value, null, 4) : ""
@@ -207,11 +240,39 @@ onMounted(() => {
         border-right: 1px solid #999;
     }
 }
-
-#field-area {
+#filter-area {
     flex-shrink: 0;
     width: 320px;
+    min-height: 250px;
     padding: 12px;
+    display: flex;
+    flex-direction: column;
+    > hr {
+        width: 100%;
+        margin: 1em 0;
+    }
+}
+#filter-switch{
+    width: 100%;
+    border-bottom: 1px solid #999;
+    margin-bottom: 16px;
+
+    > div{
+        display: inline-block;
+        width: 50%;
+        box-sizing: border-box;
+        height: 38px;
+        line-height: 38px;
+        user-select: none;
+        transition: all linear .08s;
+
+        &:hover, &.active {
+            background-color: #0077aa;
+            color: #fff;
+        }
+    }
+}
+#field-area {
     display: flex;
     flex-direction: column;
 
@@ -222,15 +283,15 @@ onMounted(() => {
     > hr {
         width: 100%;
     }
+}
 
-    > div:last-child {
-        flex-grow: 0;
-        flex-shrink: 0;
-        text-align: left;
+.help-info {
+    flex-grow: 0;
+    flex-shrink: 0;
+    text-align: left;
 
-        li {
-            line-height: 1.5;
-        }
+    li {
+        line-height: 1.5;
     }
 }
 
