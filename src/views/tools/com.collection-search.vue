@@ -47,7 +47,8 @@
                     <div class="help-info">
                         <ul>
                             <li>
-                                <el-link href="https://jmespath.org/tutorial.html" target="_blank">About JMESPath</el-link>
+                                <el-link href="https://jmespath.org/tutorial.html" target="_blank">About JMESPath
+                                </el-link>
                             </li>
                         </ul>
                     </div>
@@ -82,6 +83,7 @@ export default {
 
 import HeadRender from "@/components/head-render.vue";
 import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {syncRef} from "@/utils";
 
 const jmespath = require("jmespath")
 const prismJs = require("prismjs")
@@ -99,10 +101,9 @@ const readyToRender = computed(() => {
     const logErr = (e: any) => console.warn("Not Ready to Render: ", e)
     try {
         const data = JSON.parse(inputValue.value)
-        if(filterWith.value === "fields" && !(data instanceof Array)) {
+        if (filterWith.value === "fields" && !(data instanceof Array)) {
             logErr(new Error("非对象数组"))
-        }
-        else return true
+        } else return true
     } catch (e) {
         logErr(e)
         return false
@@ -116,7 +117,7 @@ const form = ref<{
 const enumMark = ref<{ [index: string]: { value: boolean, canEnum: boolean } }>({})
 const buildForm = () => {
     if (!readyToRender.value) return
-    if(filterWith.value === "JMESPath") return
+    if (filterWith.value === "JMESPath") return
     const dataList = JSON.parse(inputValue.value) as { [index: string]: any }[]
     dataList.forEach((item) => {
         for (let k in item) {
@@ -154,6 +155,9 @@ const renderLabel = (label: any) => {
     return label
 }
 
+watch(() => filterWith.value, v => {
+    if (v === "fields") buildForm()
+})
 watch(() => inputValue.value, () => {
     buildForm()
 })
@@ -165,18 +169,16 @@ const refCode = ref()
 const outputData = computed(() => {
     if (!readyToRender.value) return ""
     const dataList = JSON.parse(inputValue.value) as { [index: string]: any }[]
-    if(filterWith.value === "JMESPath") {
-        if(!jmespathStr.value) return ""
+    if (filterWith.value === "JMESPath") {
+        if (!jmespathStr.value) return ""
         try {
             // 使用jmespath之后，输出结果就不是单纯的多少条了，也有可能是对象
             return jmespath.search(dataList, jmespathStr.value)
-        }
-        catch (e) {
+        } catch (e) {
             console.warn(e)
             return ""
         }
-    }
-    else {
+    } else {
         return dataList.filter(item => {
             for (let k in form.value) {
                 const {value, type} = form.value[k]
@@ -199,6 +201,10 @@ const outputData = computed(() => {
 const outputValue = computed(() => {
     return outputData.value ? JSON.stringify(outputData.value, null, 4) : ""
 })
+
+// 注意sync的位置，避免触发不必要的watch
+syncRef(filterWith, "com.collection-search.filterWith")
+
 watch(() => outputValue.value, () => {
     update()
 })
@@ -208,6 +214,7 @@ const update = () => {
         prismJs.highlightAll()
     })
 }
+
 onMounted(() => {
     buildForm()
     update()
@@ -242,6 +249,7 @@ onMounted(() => {
         border-right: 1px solid #999;
     }
 }
+
 #filter-area {
     flex-shrink: 0;
     width: 320px;
@@ -249,17 +257,19 @@ onMounted(() => {
     padding: 12px;
     display: flex;
     flex-direction: column;
+
     > hr {
         width: 100%;
         margin: 1em 0;
     }
 }
-#filter-switch{
+
+#filter-switch {
     width: 100%;
     border-bottom: 1px solid #999;
     margin-bottom: 16px;
 
-    > div{
+    > div {
         display: inline-block;
         width: 50%;
         box-sizing: border-box;
@@ -274,6 +284,7 @@ onMounted(() => {
         }
     }
 }
+
 #field-area {
     display: flex;
     flex-direction: column;

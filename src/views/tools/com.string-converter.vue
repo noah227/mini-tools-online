@@ -29,10 +29,12 @@ export default {
 import * as changeCase from "change-case"
 import {computed, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
+import {syncRef} from "@/utils";
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 
 const convertMethod = ref("camelCase")
+syncRef(convertMethod, "com.string-converter.convertMethod")
 watch(() => convertMethod.value, v => console.log((changeCase as any)[convertMethod.value]))
 const inputValue = ref("")
 const converter = computed<(...args: any) => string>(() => (changeCase as any)[convertMethod.value])

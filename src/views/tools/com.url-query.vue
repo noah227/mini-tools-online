@@ -37,6 +37,7 @@ import HeadRender from "@/components/head-render.vue"
 import "prismjs/plugins/toolbar/prism-toolbar.js"
 import "prismjs/themes/prism-coy.min.css"
 import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {syncRef} from "@/utils";
 
 const prismJs = require("prismjs")
 const refCode = ref()
@@ -45,6 +46,10 @@ const decodeTimes = ref(1)
 const compressOutput = ref("")
 const inputValue = ref("https://www.iconfont.cn/search/index?searchType=icon&q=%E6%B5%8B%E8%AF%95&message=%25E4%25BD%25A0%25E5%25A5%25BD")
 const decodeMethod = ref<"decodeURI" | "decodeURIComponent">("decodeURIComponent")
+
+syncRef(decodeValue, "com.url-query.decodeValue")
+syncRef(compressOutput, "com.url-query.compressOutput")
+syncRef(decodeMethod, "com.url-query.decodeMethod")
 
 const getUrlQuery = (url: string) => {
     const query: { [index: string]: any } = {}

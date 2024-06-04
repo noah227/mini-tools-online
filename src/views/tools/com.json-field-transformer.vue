@@ -28,6 +28,7 @@ import "prismjs/plugins/toolbar/prism-toolbar.js"
 import "prismjs/themes/prism-coy.min.css"
 import {computed, nextTick, onMounted, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
+import {syncRef} from "@/utils";
 
 const prismJs = require("prismjs")
 const refCode = ref()
@@ -98,6 +99,8 @@ const update = () => {
     })
 }
 
+syncRef(reverseSplit, "com.json-field-transformer.reverseSplit")
+syncRef(compressOutput, "com.json-field-transformer.compressOutput")
 onMounted(() => update())
 </script>
 
