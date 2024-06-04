@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div v-else id="jmespath-area">
-                    <el-input v-model="jmespathStr"></el-input>
+                    <el-input v-model="jmespathStr" placeholder="search expression"></el-input>
                     <div class="help-info">
                         <ul>
                             <li>
@@ -98,10 +98,11 @@ const inputValue = ref(JSON.stringify(sampleData, null, 4))
 const readyToRender = computed(() => {
     const logErr = (e: any) => console.warn("Not Ready to Render: ", e)
     try {
-        if (JSON.parse(inputValue.value) instanceof Array) return true
-        else {
+        const data = JSON.parse(inputValue.value)
+        if(filterWith.value === "fields" && !(data instanceof Array)) {
             logErr(new Error("非对象数组"))
         }
+        else return true
     } catch (e) {
         logErr(e)
         return false
@@ -115,6 +116,7 @@ const form = ref<{
 const enumMark = ref<{ [index: string]: { value: boolean, canEnum: boolean } }>({})
 const buildForm = () => {
     if (!readyToRender.value) return
+    if(filterWith.value === "JMESPath") return
     const dataList = JSON.parse(inputValue.value) as { [index: string]: any }[]
     dataList.forEach((item) => {
         for (let k in item) {
