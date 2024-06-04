@@ -209,6 +209,7 @@ div#control-panel {
     }
 
     > #footer {
+        flex-shrink: 0;
         display: flex;
         justify-content: center;
         align-items: center;
