@@ -79,7 +79,7 @@ onMounted(() => {
         }
         // 防止想操作清除输入框的误操作
         else if (e.code === "KeyU") {
-            e.preventDefault()
+            if(e.ctrlKey) e.preventDefault()
         }
     })
 })
