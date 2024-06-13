@@ -368,6 +368,7 @@ textarea, pre {
 
         > * {
             width: 100%;
+            height: fit-content;
         }
     }
     #field-area {
