@@ -21,6 +21,7 @@
     },
     "devDependencies": {
         "@types/node": "^20.14.2",
+        "@types/webpack-env": "^1.18.5",
         "@vue/cli-plugin-babel": "~5.0.0",
         "@vue/cli-plugin-router": "~5.0.0",
         "@vue/cli-plugin-typescript": "~5.0.0",
