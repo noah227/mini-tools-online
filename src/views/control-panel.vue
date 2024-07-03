@@ -232,7 +232,7 @@ a {
 }
 
 @media screen and (max-width: 660px) {
-    #item-list {
+    #control-panel > div {
         width: 90%!important;
     }
 }
