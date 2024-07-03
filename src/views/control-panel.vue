@@ -231,6 +231,12 @@ a {
     text-decoration: none;
 }
 
+@media screen and (max-width: 660px) {
+    #item-list {
+        width: 90%!important;
+    }
+}
+
 @media screen and (max-width: 520px) {
     #item-list {
         display: grid !important;
