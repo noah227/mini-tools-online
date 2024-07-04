@@ -412,6 +412,9 @@ textarea, pre {
             height: fit-content;
         }
     }
+    #filter-area {
+        min-height: auto;
+    }
     #field-area {
         height: fit-content;
     }
