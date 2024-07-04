@@ -57,7 +57,11 @@
             <div id="input-area">
                 <div>
                     <span>共：{{ readyToRender ? inputData.length : "_" }} 条</span>
-                    <span>{{ readyToRender ? "✅" : "❌" }}</span>
+                    <div class="buttons-wrapper">
+                        <el-button @click="readFromClipboard">读取剪贴板</el-button>
+                        <el-button @click="clearInput">清空内容</el-button>
+                    </div>
+                    <span title="输入数据有效状态">{{ readyToRender ? "✅" : "❌" }}</span>
                 </div>
                 <el-input v-model="inputValue" type="textarea" placeholder="{}[]"></el-input>
             </div>
@@ -84,6 +88,7 @@ export default {
 import HeadRender from "@/components/head-render.vue";
 import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {syncRef} from "@/utils";
+import {ElMessage} from "element-plus";
 
 const jmespath = require("jmespath")
 const prismJs = require("prismjs")
@@ -96,6 +101,19 @@ const sampleData = [
 const filterWith = ref<"fields" | "JMESPath">("fields")
 const jmespathStr = ref("")
 const inputValue = ref(JSON.stringify(sampleData, null, 4))
+
+const readFromClipboard = () => {
+    navigator.clipboard.readText().then(text => {
+        if(text) inputValue.value = text
+    }).catch(e => {
+        console.warn("读取失败", e)
+        ElMessage.error("读取剪贴板失败！请手动粘贴到输入框！")
+    })
+}
+
+const clearInput = () => {
+    inputValue.value = ""
+}
 
 const readyToRender = computed(() => {
     const logErr = (e: any) => console.warn("Not Ready to Render: ", e)
@@ -334,6 +352,29 @@ onMounted(() => {
         justify-content: space-between;
         align-content: center;
         user-select: none;
+        overflow: hidden;
+        > span:first-child {
+            flex-grow: 1;
+            text-align: left;
+        }
+        > .buttons-wrapper {
+            display: flex;
+            align-items: center;
+            .el-button {
+                border: none;
+                border-left: 1px solid #d0d0d0;
+                border-radius: 0;
+                margin: 0;
+                &:last-child {
+                    border-right: 1px solid #d0d0d0;
+                }
+            }
+        }
+        /* 展示输入有效处理状态的 */
+        > span:last-child {
+            padding-left: 12px;
+            cursor: help;
+        }
     }
 
     > div:last-child {
