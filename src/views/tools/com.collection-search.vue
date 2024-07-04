@@ -15,13 +15,13 @@
                                 <el-checkbox v-model="enumMark[k].value" title="标记enum"
                                              :disabled="!enumMark[k].canEnum"></el-checkbox>
                             </template>
-                            <el-select v-if="enumMark[k].value" v-model="_.value">
+                            <el-select v-if="enumMark[k].value" v-model="_.value" clearable>
                                 <el-option v-for="item in getEnumList(k, _.type)" :value="item"
                                            :label="renderLabel(item)"></el-option>
                             </el-select>
                             <template v-else>
-                                <el-input v-if="_.type === 'string'" v-model="_.value"></el-input>
-                                <el-input v-else-if="_.type === 'number'" v-model="_.value" type="number"></el-input>
+                                <el-input v-if="_.type === 'string'" v-model="_.value" :placeholder="_.type"></el-input>
+                                <el-input v-else-if="_.type === 'number'" v-model="_.value" type="number" :placeholder="_.type"></el-input>
                                 <template v-else-if="_.type === 'boolean'">
                                     <el-checkbox v-model="_.value"></el-checkbox>
                                     &emsp;
@@ -98,6 +98,7 @@ const prismJs = require("prismjs")
 const sampleData = [
     {name: "jack", age: 20, gender: "male", birthday: "1996-01-01", hasTicket: true},
     {name: "rose", age: 20, gender: "female", birthday: "1996-01-01", hasTicket: true},
+    {name: "unnamed", age: 20, gender: "male", birthday: "1996-01-01", hasTicket: false},
 ]
 
 const filterWith = ref<"fields" | "JMESPath">("fields")
@@ -216,23 +217,36 @@ const outputData = computed(() => {
     } else {
         return (dataList as { [index: string]: any }[]).filter(item => {
             for (let k in form.value) {
-                const {value, type} = form.value[k]
+                const {value: v, type} = form.value[k]
+                const value = processValue(v, type)
                 const _value = item[k]
-                if (type === "string") {
-                    if (!_value.includes(value)) return
-                } else if (type === "number") {
-                    if (typeof value === "undefined") continue
-                    if (isNaN(parseInt(value))) continue
-                    if (_value !== parseInt(value)) return
-                } else if (type === "boolean") {
-                    if (typeof value === "undefined") continue
-                    if (value !== _value) return
+                // 枚举需要等值判断
+                if(enumMark.value[k].value) {
+                    console.log(_value, value, "<<<<", type, k)
+                    if(typeof value !== "number" && !value) continue
+                    if(typeof value === "undefined") continue
+                    if(value !== _value) return
+                }
+                else {
+                    if (type === "string") {
+                        if (!_value.includes(value)) return
+                    } else if (type === "number") {
+                        if (isNaN(value)) continue
+                        if (_value !== value) return
+                    } else if (type === "boolean") {
+                        if(typeof value === "undefined") continue
+                        if (value !== _value) return
+                    }
                 }
             }
             return true
         })
     }
 })
+const processValue = (value: any, type: any) => {
+    return type === "number" ? parseFloat(value) : value
+}
+
 const outputValue = computed(() => {
     return outputData.value ? JSON.stringify(outputData.value, null, 4) : ""
 })
