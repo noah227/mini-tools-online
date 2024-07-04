@@ -4,8 +4,8 @@
         <div id="content-area">
             <div id="filter-area">
                 <div id="filter-switch">
-                    <div :class="filterWith === 'fields' && 'active'" @click="filterWith='fields'">字段检索</div>
-                    <div :class="filterWith === 'JMESPath' && 'active'" @click="filterWith='JMESPath'">JMESPath</div>
+                    <div :class="filterWith === 'fields' && 'active'" @click="switchFilter('fields')">字段检索</div>
+                    <div :class="filterWith === 'JMESPath' && 'active'" @click="switchFilter('JMESPath')">JMESPath</div>
                 </div>
                 <div v-if="filterWith === 'fields'" id="field-area">
                     <el-form :model="form">
@@ -89,6 +89,8 @@ import HeadRender from "@/components/head-render.vue";
 import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {syncRef} from "@/utils";
 import {ElMessage} from "element-plus";
+import {useRoute} from "vue-router";
+import router from "@/router";
 
 const jmespath = require("jmespath")
 const prismJs = require("prismjs")
@@ -101,6 +103,20 @@ const sampleData = [
 const filterWith = ref<"fields" | "JMESPath">("fields")
 const jmespathStr = ref("")
 const inputValue = ref(JSON.stringify(sampleData, null, 4))
+
+const switchFilter = (filter: "fields" | "JMESPath") => {
+    if(filterWith.value === filter) return
+    filterWith.value = filter
+    // 更新query，使其不受页面刷新影响
+    const route = router.currentRoute.value
+    router.push({
+        path: route.path,
+        query: {
+            ...route.query,
+            filterWith: filter
+        }
+    })
+}
 
 const readFromClipboard = () => {
     navigator.clipboard.readText().then(text => {
@@ -233,6 +249,10 @@ const update = () => {
         prismJs.highlightAll()
     })
 }
+
+// 如果参数指定了过滤模式，那么将使用指定的模式
+const {filterWith: _} = useRoute().query as any
+if(["fields", "JMESPath"].includes(_)) filterWith.value = _
 
 onMounted(() => {
     buildForm()
