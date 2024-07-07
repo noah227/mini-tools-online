@@ -2,6 +2,8 @@ import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
 
 const loadTools = () => {
     const context = require.context("@/views/tools")
+
+    return context.keys().filter(k => k.indexOf("collection") < 0).filter(k => /\.\/com.*\.vue/.test(k)).map(k => require(`@/views/tools/${k.replace("./", "").replace(".vue", "")}.vue`).default)
     return context.keys().filter(k => /\.\/com.*\.vue/.test(k)).map(k => require(`@/views/tools/${k.replace("./", "").replace(".vue", "")}.vue`).default)
 }
 
