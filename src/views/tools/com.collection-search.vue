@@ -221,7 +221,7 @@ const outputData = computed(() => {
                 const value = processValue(v, type)
                 const _value = item[k]
                 // 枚举需要等值判断
-                if(enumMark.value[k].value) {
+                if(enumMark.value[k.value) {
                     console.log(_value, value, "<<<<", type, k)
                     if(typeof value !== "number" && !value) continue
                     if(typeof value === "undefined") continue
