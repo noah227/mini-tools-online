@@ -30,6 +30,7 @@ export default {
 import * as changeCase from "change-case"
 import {ref} from "vue";
 import HeadRender from "@/components/head-render.vue"
+import {ElMessage} from "element-plus";
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 const inputValue = ref("once upon a time")
@@ -39,7 +40,11 @@ const getCaseChanged = (c: string) => {
 }
 
 const copyToClipboard = (key: string) => {
-    navigator.clipboard.writeText((changeCase as any)[key](inputValue.value))
+    navigator.clipboard.writeText((changeCase as any)[key](inputValue.value)).then(() => {
+        ElMessage.success("已复制到剪贴板")
+    }).catch(e => {
+        ElMessage.error(e.message || e.toString || "复制失败，请手动重试！")
+    })
 }
 </script>
 
