@@ -10,7 +10,7 @@
                     <b>{{ value }}</b>
                     <i class="iconfont icon-copy" title="复制" @click="copyToClipboard(value)"></i>
                     <span>
-                        {{ changeCase[value](inputValue) }}
+                        {{ getCaseChanged(value) }}
                     </span>
                 </div>
             </div>
@@ -33,6 +33,10 @@ import HeadRender from "@/components/head-render.vue"
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 const inputValue = ref("once upon a time")
+
+const getCaseChanged = (c: string) => {
+    return (changeCase as any)[c](inputValue.value)
+}
 
 const copyToClipboard = (key: string) => {
     navigator.clipboard.writeText((changeCase as any)[key](inputValue.value))
