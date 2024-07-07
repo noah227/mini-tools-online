@@ -13,8 +13,7 @@ permissions:
 jobs:
     deploy:
         runs-on: ubuntu-latest
-        env:
-            ACTIONS_STEP_DEBUG: true
+
         steps:
             -   uses: actions/checkout@v4
                 with:
@@ -40,6 +39,8 @@ jobs:
             # 运行构建脚本
             -   name: Build Dist
                 run: pnpm build
+                env:
+                    ACTIONS_STEP_DEBUG: true
 
             # 查看 workflow 的文档来获取更多信息
             # @see https://github.com/crazy-max/ghaction-github-pages
