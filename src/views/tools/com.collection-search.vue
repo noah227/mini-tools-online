@@ -72,6 +72,7 @@
                 <pre><code ref="refCode" class="language-json"></code></pre>
             </div>
         </div>
+        <SiteFooter></SiteFooter>
     </div>
 </template>
 <script lang="ts">
@@ -86,6 +87,7 @@ export default {
 <script setup lang="ts">
 
 import HeadRender from "@/components/head-render.vue";
+import SiteFooter from "@/components/site-footer.vue"
 import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {syncRef} from "@/utils";
 import {ElMessage} from "element-plus";
@@ -439,6 +441,7 @@ textarea, pre {
 
 @media screen and (max-width: 820px) {
     #content-area {
+        height: auto;
         flex-direction: column;
 
         > * {

@@ -24,17 +24,13 @@
             <router-link id="back" class="iconfont icon-back" to="/control-panel"></router-link>
             <router-view/>
         </div>
-        <footer id="footer">
-            <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-tools-online" target="_blank">
-                mini-online-tools
-            </el-link>
-            <!-- <el-link class="" href="javascript:void(0)">toxicu.com</el-link> -->
-        </footer>
+        <SiteFooter :is-home="!showContent"></SiteFooter>
     </div>
 </template>
 
 <script lang="ts" setup>
 import ComSvgLoader from "@/components/svg-loader.vue"
+import SiteFooter from "@/components/site-footer.vue"
 import {computed, onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import {tools} from "@/router";
@@ -205,22 +201,6 @@ div#control-panel {
                 background-color: rgb(140 116 255);
                 color: #fff;
             }
-        }
-    }
-
-    > #footer {
-        flex-shrink: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 5rem;
-        font-size: 1.5rem !important;
-        box-shadow: 0 -8px 6px -6px #aaa;
-
-        .el-link {
-            color: #6af;
-            text-indent: .5rem;
-            margin: 0 .5rem
         }
     }
 }

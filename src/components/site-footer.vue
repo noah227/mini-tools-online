@@ -14,6 +14,7 @@
 
 <style lang="scss" scoped>
 .site-footer {
+    width: 100%!important;
     flex-shrink: 0;
     display: flex;
     justify-content: center;
