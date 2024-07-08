@@ -68,6 +68,10 @@
             <div id="output-area">
                 <div>
                     <span v-if="outputData instanceof Array">共：{{ readyToRender ? outputData.length : "_" }} 条</span>
+                    <span></span>
+                    <div class="buttons-wrapper">
+                        <el-button @click="_copyToClipboard" :disabled="!readyToRender">复制内容</el-button>
+                    </div>
                 </div>
                 <pre><code ref="refCode" class="language-json"></code></pre>
             </div>
@@ -89,7 +93,7 @@ export default {
 import HeadRender from "@/components/head-render.vue";
 import SiteFooter from "@/components/site-footer.vue"
 import {computed, nextTick, onMounted, ref, watch} from "vue";
-import {syncRef} from "@/utils";
+import {copyToClipboard, syncRef} from "@/utils";
 import {ElMessage} from "element-plus";
 import {useRoute} from "vue-router";
 import router from "@/router";
@@ -252,6 +256,10 @@ const processValue = (value: any, type: any) => {
 const outputValue = computed(() => {
     return outputData.value ? JSON.stringify(outputData.value, null, 4) : ""
 })
+
+const _copyToClipboard = () => {
+    copyToClipboard(outputValue.value)
+}
 
 // 注意sync的位置，避免触发不必要的watch
 syncRef(filterWith, "com.collection-search.filterWith")
