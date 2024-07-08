@@ -7,6 +7,7 @@ import "element-plus/dist/index.css"
 import "@/assets/fonts/iconfont.css"
 import "@/assets/fonts/iconfont"
 import "@/styles/index.scss"
+import "./main.extra"
 
 const app = createApp(App)
 app.use(ElementPlus)
