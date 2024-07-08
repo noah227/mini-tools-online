@@ -22,7 +22,7 @@
     {
       "icon_id": "10789858",
       "name": "转换_操作_jurassic",
-      "font_class": "json-field-transformer",
+      "font_class": "json-structure-transformer",
       "unicode": "e6d1",
       "unicode_decimal": 59089
     },

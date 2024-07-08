@@ -7,8 +7,8 @@
             </el-link>
             <span class="divider"></span>
         </template>
-        <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-tools-online" target="_blank">
-            mini-online-tools
+        <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-tools-online/issues" target="_blank">
+            issues
         </el-link>
     </div>
 </template>

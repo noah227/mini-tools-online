@@ -1,5 +1,5 @@
 <template>
-    <div id="json-field-connector">
+    <div id="json-structure-connector">
         <HeadRender></HeadRender>
         <div id="filter-area">
             <el-checkbox v-model="reverseSplit" label="逆向拆分"></el-checkbox>
@@ -17,9 +17,9 @@
 </template>
 <script lang="ts">
 export default {
-    name: "json-field-transformer",
-    text: "JSON字段转换",
-    icon: "json-field-transformer",
+    name: "json-structure-transformer",
+    text: "JSON结构转换",
+    icon: "json-structure-transformer",
     description: "对json进行拍平/逆拍平"
 }
 </script>
@@ -102,13 +102,13 @@ const update = () => {
     })
 }
 
-syncRef(reverseSplit, "com.json-field-transformer.reverseSplit")
-syncRef(compressOutput, "com.json-field-transformer.compressOutput")
+syncRef(reverseSplit, "com.json-structure-transformer.reverseSplit")
+syncRef(compressOutput, "com.json-structure-transformer.compressOutput")
 onMounted(() => update())
 </script>
 
 <style lang="scss">
-div#json-field-connector {
+div#json-structure-connector {
     overflow: hidden;
 
     > div#filter-area {
