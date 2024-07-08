@@ -1,7 +1,7 @@
 <template>
     <div class="site-footer">
         <template v-if="!isHome">
-            <el-link class="iconfont" href="/" target="_blank">
+            <el-link class="iconfont" href="/" :title="siteTitle" target="_blank">
                 <img src="/favicon.png" alt="" style="width: 16px;">
                 <span>Home</span>
             </el-link>
@@ -17,6 +17,8 @@
 defineProps({
     isHome: Boolean
 })
+
+const siteTitle = location.origin
 </script>
 
 <style lang="scss" scoped>
