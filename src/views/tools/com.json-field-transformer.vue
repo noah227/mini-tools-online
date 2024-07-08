@@ -7,7 +7,7 @@
         </div>
         <div id="content-area">
             <div id="input">
-                <el-input v-model.trim="inputValue" type="textarea" placeholder="输入要处理的对象"></el-input>
+                <el-input v-model.trim="inputValue" type="textarea" :placeholder="inputPlaceholder"></el-input>
             </div>
             <div id="output">
                 <pre><code ref="refCode" class="language-json"></code></pre>
@@ -69,9 +69,12 @@ const splitField = (jsonObj: { [index: string]: any }) => {
     return ret
 }
 
+const sampleData = {"a": {"b": {"c": "9999"}}}
+
 const reverseSplit = ref(false)
 const compressOutput = ref(false)
 const inputValue = ref("")
+const inputPlaceholder = "输入要处理的对象，如：" + JSON.stringify(sampleData)
 const outputValue = computed(() => {
     try {
         if (inputValue.value) {
