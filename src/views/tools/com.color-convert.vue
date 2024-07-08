@@ -67,7 +67,7 @@ const updateInputMap = (basedKey: string) => {
 }
 buildInputMap()
 updateInputMap("rgb")
-console.log(convert.rgb.hex([100, 100, 10]))
+// console.log(convert.rgb.hex([100, 100, 10]))
 // hex/hsl/hwb lch/oklch/lab/oklab
 </script>
 
