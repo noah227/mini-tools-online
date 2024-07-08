@@ -458,5 +458,8 @@ textarea, pre {
     #input-area, #output-area {
         min-height: 220px;
     }
+    #input-area > div:first-child {
+        box-shadow: 0 0 3px #999;
+    }
 }
 </style>
