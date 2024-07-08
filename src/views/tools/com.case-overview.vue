@@ -8,7 +8,7 @@
             <div>
                 <div v-for="({value}) in options" class="case-item" :key="value">
                     <b>{{ value }}</b>
-                    <i class="iconfont icon-copy" title="复制" @click="copyToClipboard(value)"></i>
+                    <i class="iconfont icon-copy" title="复制" @click="_copyToClipboard(value)"></i>
                     <span>
                         {{ getCaseChanged(value) }}
                     </span>
@@ -30,7 +30,7 @@ export default {
 import * as changeCase from "change-case"
 import {ref} from "vue";
 import HeadRender from "@/components/head-render.vue"
-import {ElMessage} from "element-plus";
+import {copyToClipboard} from "@/utils";
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 const inputValue = ref("once upon a time")
@@ -39,12 +39,8 @@ const getCaseChanged = (c: string) => {
     return (changeCase as any)[c](inputValue.value)
 }
 
-const copyToClipboard = (key: string) => {
-    navigator.clipboard.writeText((changeCase as any)[key](inputValue.value)).then(() => {
-        ElMessage.success("已复制到剪贴板")
-    }).catch(e => {
-        ElMessage.error(e.message || e.toString || "复制失败，请手动重试！")
-    })
+const _copyToClipboard = (key: string) => {
+    copyToClipboard((changeCase as any)[key](inputValue.value))
 }
 </script>
 
