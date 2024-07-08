@@ -1,7 +1,12 @@
 <template>
     <div class="site-footer">
-        <el-link class="iconfont" href="/" target="_blank">Home</el-link>
-        <span class="divider"></span>
+        <template v-if="!isHome">
+            <el-link class="iconfont" href="/" target="_blank">
+                <img src="/favicon.png" alt="" style="width: 16px;">
+                <span>Home</span>
+            </el-link>
+            <span class="divider"></span>
+        </template>
         <el-link class="iconfont icon-github" href="https://github.com/noah227/mini-tools-online" target="_blank">
             mini-online-tools
         </el-link>
@@ -9,7 +14,9 @@
 </template>
 
 <script lang="ts" setup>
-
+defineProps({
+    isHome: Boolean
+})
 </script>
 
 <style lang="scss" scoped>
