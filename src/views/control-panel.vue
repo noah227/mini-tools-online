@@ -70,7 +70,7 @@ onMounted(() => {
     window.addEventListener("keydown", e => {
         if (e.code === "Slash") {
             setTimeout(() => {
-                refFilterInput.value.focus()
+                refFilterInput.value?.focus()
             }, 0)
         }
         // 防止想操作清除输入框的误操作
