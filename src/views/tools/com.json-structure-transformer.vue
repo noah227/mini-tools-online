@@ -10,7 +10,7 @@
                 <el-input v-model.trim="inputValue" type="textarea" :placeholder="inputPlaceholder"></el-input>
             </div>
             <div id="output">
-                <pre><code ref="refCode" class="language-json"></code></pre>
+                <JsonHighlight :code="outputValue"></JsonHighlight>
             </div>
         </div>
     </div>
@@ -24,14 +24,11 @@ export default {
 }
 </script>
 <script lang="ts" setup>
-import "prismjs/plugins/toolbar/prism-toolbar.js"
-import "prismjs/themes/prism-coy.min.css"
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {computed, ref} from "vue";
 import HeadRender from "@/components/head-render.vue"
+import JsonHighlight from "@/components/json-highlight.vue"
 import {syncRef} from "@/utils";
 
-const prismJs = require("prismjs")
-const refCode = ref()
 const isObject = (o: any) => Object.prototype.toString.call(o) === "[object Object]"
 /**
  * 连接键，一级提升
@@ -91,20 +88,8 @@ const outputValue = computed(() => {
     }
 })
 
-watch(() => outputValue.value, () => {
-    update()
-})
-
-const update = () => {
-    refCode.value.innerHTML = outputValue.value
-    nextTick(() => {
-        prismJs.highlightAll()
-    })
-}
-
 syncRef(reverseSplit, "com.json-structure-transformer.reverseSplit")
 syncRef(compressOutput, "com.json-structure-transformer.compressOutput")
-onMounted(() => update())
 </script>
 
 <style lang="scss">

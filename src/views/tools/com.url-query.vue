@@ -19,7 +19,7 @@
                 <el-input v-model.trim="inputValue" type="textarea" placeholder="输入要提取参数的URL地址"></el-input>
             </div>
             <div id="output">
-                <pre><code ref="refCode" class="language-json"></code></pre>
+                <JsonHighlight :code="outputValue"></JsonHighlight>
             </div>
         </div>
     </div>
@@ -34,13 +34,10 @@ export default {
 </script>
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
-import "prismjs/plugins/toolbar/prism-toolbar.js"
-import "prismjs/themes/prism-coy.min.css"
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import JsonHighlight from "@/components/json-highlight.vue"
+import {computed, ref} from "vue";
 import {syncRef} from "@/utils";
 
-const prismJs = require("prismjs")
-const refCode = ref()
 const decodeValue = ref(false)
 const decodeTimes = ref(1)
 const compressOutput = ref("")
@@ -75,7 +72,7 @@ const getUrlQuery = (url: string) => {
  * 多次解码
  */
 const decodeMultiTimes = (m: (v: string) => string, v: string, t: number): string => {
-    if(t === 0) return v
+    if (t === 0) return v
     else return decodeMultiTimes(m, m(v), t - 1)
 }
 
@@ -90,17 +87,6 @@ const outputValue = computed(() => {
     }
     return data
 })
-
-watch(() => outputValue.value, () => {
-    update()
-})
-const update = () => {
-    refCode.value.innerHTML = outputValue.value
-    nextTick(() => {
-        prismJs.highlightAll()
-    })
-}
-onMounted(() => update())
 </script>
 
 <style lang="scss">

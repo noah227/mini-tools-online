@@ -73,7 +73,7 @@
                         <el-button @click="_copyToClipboard" :disabled="!readyToRender">复制内容</el-button>
                     </div>
                 </div>
-                <pre><code ref="refCode" class="language-json"></code></pre>
+                <JsonHighlight :code="outputValue"></JsonHighlight>
             </div>
         </div>
         <SiteFooter></SiteFooter>
@@ -91,15 +91,15 @@ export default {
 <script setup lang="ts">
 
 import HeadRender from "@/components/head-render.vue";
+import JsonHighlight from "@/components/json-highlight.vue"
 import SiteFooter from "@/components/site-footer.vue"
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {copyToClipboard, syncRef} from "@/utils";
 import {ElMessage} from "element-plus";
 import {useRoute} from "vue-router";
 import router from "@/router";
 
 const jmespath = require("jmespath")
-const prismJs = require("prismjs")
 
 const sampleData = [
     {name: "jack", age: 20, gender: "male", birthday: "1996-01-01", hasTicket: true},
@@ -206,7 +206,6 @@ watch(() => inputValue.value, () => {
 const inputData = computed<any[]>(() => {
     return readyToRender.value ? JSON.parse(inputValue.value) : []
 })
-const refCode = ref()
 const outputData = computed(() => {
     if (!readyToRender.value) return ""
     const dataList = JSON.parse(inputValue.value) as any
@@ -264,23 +263,12 @@ const _copyToClipboard = () => {
 // 注意sync的位置，避免触发不必要的watch
 syncRef(filterWith, "com.collection-search.filterWith")
 
-watch(() => outputValue.value, () => {
-    update()
-})
-const update = () => {
-    refCode.value.innerHTML = outputValue.value
-    nextTick(() => {
-        prismJs.highlightAll()
-    })
-}
-
 // 如果参数指定了过滤模式，那么将使用指定的模式
 const {filterWith: _} = useRoute().query as any
 if(["fields", "JMESPath"].includes(_)) filterWith.value = _
 
 onMounted(() => {
     buildForm()
-    update()
 })
 
 </script>
