@@ -426,7 +426,7 @@ onMounted(() => {
     }
 }
 
-textarea, pre {
+textarea {
     outline: none;
     box-sizing: border-box;
     border: 0;

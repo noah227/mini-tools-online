@@ -137,12 +137,6 @@ div#url-query {
             overflow: auto;
             flex-grow: 1;
 
-            > pre {
-                height: 100%;
-                box-sizing: border-box;
-                margin: 0;
-            }
-
             &:hover > .icon-copy {
                 display: inline-block;
             }

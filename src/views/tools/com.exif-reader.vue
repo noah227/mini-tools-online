@@ -39,7 +39,8 @@
                     </div>
                 </div>
                 <div id="img-exif-details">
-                    <pre ref="refDetailView">{{ renderExifDetail }}</pre>
+<!--                    <pre ref="refDetailView">{{ renderExifDetail }}</pre>-->
+                    <JsonHighlight ref="refDetailView" :code="renderExifDetail"></JsonHighlight>
                 </div>
             </div>
         </div>
@@ -55,6 +56,7 @@ export default {
 </script>
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
+import JsonHighlight from "@/components/json-highlight.vue"
 import {computed, ref} from "vue";
 
 const readFileList = ref<File[]>([])
@@ -332,13 +334,6 @@ const setCurrent = ({file: img, blobUrl}: TRenderItem, exifData: object) => {
     font-size: 14px;
     box-sizing: border-box;
     overflow: hidden;
-    > pre {
-        height: 100%;
-        background-color: #fff;
-        overflow: auto;
-        padding: 12px;
-        box-sizing: border-box;
-        margin: 0;
-    }
+    flex-grow: 1;
 }
 </style>

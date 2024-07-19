@@ -34,5 +34,9 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
+.json-highlight {
+    height: 100%;
+    overflow: auto;
+    margin: 0;
+}
 </style>
