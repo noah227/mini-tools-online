@@ -232,8 +232,11 @@ const setCurrent = ({file: img, blobUrl}: TRenderItem, exifData: object) => {
         border-bottom: 1px solid #0000;
 
         > img {
-            height: 38px;
+            width: 128px;
+            height: 72px;
             object-fit: cover;
+            flex-shrink: 0;
+            background-color: #f0f0f0;
         }
 
         > .image-name {
