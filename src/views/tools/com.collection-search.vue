@@ -328,6 +328,7 @@ onMounted(() => {
         line-height: 38px;
         user-select: none;
         transition: all linear .08s;
+        text-align: center;
 
         &:hover, &.active {
             background-color: #0077aa;
