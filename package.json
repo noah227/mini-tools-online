@@ -18,7 +18,8 @@
         "uuid": "^8.3.2",
         "vue": "^3.2.13",
         "vue-router": "^4.0.3",
-        "vuex": "^4.0.0"
+        "vuex": "^4.0.0",
+        "xbbcode-parser": "^0.2.2"
     },
     "devDependencies": {
         "@types/node": "^20.14.2",
