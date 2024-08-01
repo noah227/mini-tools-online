@@ -23,7 +23,8 @@ const faqList = computed(() => (route.meta.faqList || []) as any[])
     text-align: left;
     display: flex;
     background-color: #f0f0f0;
-
+    font-size: 14px;
+    
     > b {
         display: inline-block;
         width: 1rem;
