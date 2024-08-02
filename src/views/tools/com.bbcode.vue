@@ -1,6 +1,9 @@
 <template>
     <div id="bbcode">
         <HeadRender></HeadRender>
+        <div id="filter-area">
+            <el-checkbox v-model="addInLineBreaks" label="识别换行符"></el-checkbox>
+        </div>
         <div id="content-area">
             <div id="input">
                 <el-input v-model="inputValue" type="textarea" placeholder="输入bbcode代码"></el-input>
@@ -22,8 +25,7 @@ export default {
             link: "https://www.bbcode.org/reference.php"
         },
         {
-            title: "颜色要使用十六进制的",
-            link: ""
+            title: "bbcode在不同的平台上的支持可能还不是很一致"
         }
     ]
 }
@@ -31,16 +33,31 @@ export default {
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
 import FAQRender from "@/components/faq-render.vue"
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
+import {syncRef} from "@/utils";
 
 const sampleContent = `[url=https://www.bbcode.org/reference.php][b][color=#f780ff]b[/color][color=#e4a3ff]b[/color][color=#d0c6ff]c[/color][color=#bde9ff]d[/color][/b][/url]
 
 [color=#ffa500]hello[/color]
+[color=orange]hello[/color]
+
 [img]https://avatars.githubusercontent.com/u/0?v=4[/img]
 `
 const inputValue = ref(sampleContent)
 const renderContent = ref("")
 
+const removeMisalignedTags = ref(false)
+// 识别换行符
+const addInLineBreaks = ref(false)
+
+syncRef(addInLineBreaks, "com.bbcode.addInLineBreaks")
+
+const processConfig = computed(() => ({
+    removeMisalignedTags: removeMisalignedTags.value,
+    addInLineBreaks: addInLineBreaks.value,
+}))
+
+watch(() => processConfig.value, () => update())
 watch(() => inputValue.value, () => {
     update()
 })
@@ -52,9 +69,7 @@ const update = () => {
     // })
     const result = xBBCode.process({
         text: inputValue.value,
-        removeMisalignedTags: false,
-        // 识别换行符
-        addInLineBreaks: false
+        ...processConfig.value
     })
     if(result.error) console.error(result.error)
     else renderContent.value = result.html
@@ -75,7 +90,23 @@ div#bbcode {
         text-underline: none;
     }
 
+    > div#filter-area {
+        width: 100%;
+        padding: 1rem 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-bottom: 1px solid #aaa;
+        border-top: 1px solid #aaa;
+        font-size: 14px;
+
+        > * {
+            margin: 0 .8rem;
+        }
+    }
+
     > div#content-area {
+        height: 0;
         flex-grow: 1;
         display: flex;
         flex-direction: column-reverse;
