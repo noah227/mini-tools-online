@@ -202,11 +202,15 @@ const setCurrent = ({file: img, blobUrl}: TRenderItem, exifData: object) => {
 
         &:first-child {
             border-right: 1px solid #999;
+            display: flex;
+            flex-direction: column;
+
         }
     }
 }
 
 #controls {
+    flex-shrink: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
