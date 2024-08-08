@@ -15,14 +15,29 @@ export const CookieSet = (key: string, value: any) => {
 /**
  * 同步初始化和监听保存ref值
  */
-export const syncRef = (refTarget: Ref<any>, key: string, initDefault?: any) => {
-    const value = CookieGet(key, initDefault) || refTarget.value
+export const syncRef = (refTarget: Ref<any>, key: string, initDefault?: any, config?: {
+    onLoad?: (value: string | undefined, callback: Function) => void
+    onSave?: (value: any, callback: Function) => void
+}) => {
+    let value = CookieGet(key, initDefault) ?? refTarget.value
     // 目前没有存储number的sync，所以不做额外的处理
-    refTarget.value = value === "true" ? true : value === "false" ? false : value
+    value = value === "true" ? true : value === "false" ? false : value
+    if(config?.onLoad) {
+        config.onLoad(value, (value: any) => {
+            console.log(value, "<<<<")
+            refTarget.value = value
+        })
+    }
+    else refTarget.value = value
     // console.log(refTarget.value)
     watch(() => refTarget.value, v => {
-        CookieSet(key, v)
-    })
+        if(config?.onSave) {
+            config.onSave(v, (value: any) => {
+                CookieSet(key, value)
+            })
+        }
+        else CookieSet(key, v)
+    }, {deep: true})
 }
 
 /**
