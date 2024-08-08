@@ -43,9 +43,48 @@
                     </div>
                 </div>
                 <div v-else id="jmespath-area">
-                    <el-input v-model="jmespathStr" placeholder="search expression"></el-input>
+                    <div>
+                        <el-autocomplete
+                            v-model="jmespathStr" placeholder="search expression"
+                            :fetch-suggestions="fetchSuggestions"
+                            @keydown.ctrl="handleCommonCtrl"
+                            @keydown.ctrl.shift.enter="removeAllCommonlyUsed"
+                            @keydown.ctrl.enter="triggerAddEvent"
+                            clearable
+                        >
+                            <template #default="{item,index, $index}">
+                                <div class="suggest-item-wrapper">
+                                    <div>
+                                        <div :title="item.value">{{item.value}}</div>
+                                        <div>
+                                            <el-button
+                                                class="iconfont" type="primary" size="small" plain circle
+                                                @click.stop="appendFromCommonlyUsed(item)"
+                                                title="追加条件"
+                                            >+</el-button>
+                                            <el-button
+                                                class="iconfont icon-delete" type="danger" size="small" plain circle
+                                                @click.stop.prevent="removeFromCommonlyUsed(item)"
+                                                title="从存储中移除"
+                                            ></el-button>
+                                        </div>
+                                    </div>
+                                    <div :title="item.comment">{{item.comment}}</div>
+                                </div>
+                            </template>
+                        </el-autocomplete>
+<!--                        <el-input v-model="jmespathStr" placeholder="search expression"></el-input>-->
+                        &nbsp;
+                        <el-button
+                            type="primary" title="把当前查询条件存储下来，方便以后快速输入；内容存储在Cookie中"
+                            plain @click="addToCommonlyUsed" :disabled="!jmespathStr"
+                        >+</el-button>
+                    </div>
                     <div class="help-info">
                         <ul>
+                            <li>
+                                <el-link href="javascript:void(0);" @click="viewInputHelpMessage">条件输入说明（首次使用，建议查看）</el-link>
+                            </li>
                             <li>
                                 <el-link href="https://jmespath.org/tutorial.html" target="_blank">About JMESPath
                                 </el-link>
@@ -95,7 +134,7 @@ import JsonHighlight from "@/components/json-highlight.vue"
 import SiteFooter from "@/components/site-footer.vue"
 import {computed, onMounted, ref, watch} from "vue";
 import {copyToClipboard, syncRef} from "@/utils";
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 import {useRoute} from "vue-router";
 import router from "@/router";
 
@@ -123,6 +162,116 @@ const switchFilter = (filter: "fields" | "JMESPath") => {
             filterWith: filter
         }
     })
+}
+
+const commonUsedJMESPathQueryList = ref<{value: string, comment: string}[]>([])
+syncRef(
+    commonUsedJMESPathQueryList, "com.collection-search.commonUsedJMESPathQueryList",
+    "",
+    {
+        onLoad(value, callback){
+            callback(value ? JSON.parse(value) : [])
+        },
+        onSave(value, callback){
+            callback(JSON.stringify(value))
+        }
+    }
+)
+/**
+ * 把当前查询条件存储下来，方便以后快速输入；内容存储在Cookie中
+ */
+const addToCommonlyUsed = () => {
+    const value = jmespathStr.value.trim()
+    const filterResult = commonUsedJMESPathQueryList.value.filter(item => item.value === value)
+    if(filterResult.length) {
+        return ElMessageBox.alert(undefined, {
+            message: [
+                "<strong/>已存在同条件的记录！</strong>",
+                `<pre>${JSON.stringify(filterResult, null, 4)}</pre>`
+            ].join(""),
+            dangerouslyUseHTMLString: true
+        }).catch(() =>{})
+    }
+    ElMessageBox.prompt(undefined, {
+        title: "添加备注",
+        confirmButtonText: "添加", cancelButtonText: "取消",
+        dangerouslyUseHTMLString: true,
+        message: `添加：<b>${value}</b>`,
+        inputPlaceholder: "请输入备注"
+    }).then(res => {
+        if(res.action === "confirm") {
+            commonUsedJMESPathQueryList.value.push({
+                value,
+                comment: res.value
+            })
+        }
+    }).catch(() => {})
+}
+
+/**
+ * 追加查询条件（字符串拼接）
+ * @param item
+ */
+const appendFromCommonlyUsed = (item: any) => {
+    jmespathStr.value = jmespathStr.value + item.value
+}
+
+const removeFromCommonlyUsed = (item: any) => {
+    const index = commonUsedJMESPathQueryList.value.findIndex(_ => _.value.includes(item.value))
+    commonUsedJMESPathQueryList.value.splice(index, 1)
+}
+
+const removeAllCommonlyUsed = () => {
+    ElMessageBox.confirm("提示", {
+        type: "warning",
+        message: "将移除所有已记录查询条件，是否继续",
+        confirmButtonText: "继续",
+        cancelButtonText: "取消",
+    }).then(() => {
+        commonUsedJMESPathQueryList.value = []
+        ElMessage.success("已移除！")
+    }).catch(() => {})
+}
+
+const fetchSuggestions = (s: string, cb: Function) => {
+    s = s.trim()
+    // 如果要过滤，使用特殊符号起始，进行搜索
+    if(s.startsWith(":")) cb(commonUsedJMESPathQueryList.value.filter(item => item.value.includes(s.slice(1))))
+    else cb(commonUsedJMESPathQueryList.value)
+}
+const handleCommonCtrl = (e: KeyboardEvent) => {
+    if(e.code === "KeyU") {
+        jmespathStr.value = ""
+        e.preventDefault()
+    }
+}
+
+const triggerAddEvent = (e: KeyboardEvent) => {
+    if(e.shiftKey) return
+    if(!jmespathStr.value.trim()) return
+    addToCommonlyUsed()
+}
+
+const viewInputHelpMessage = () => {
+    ElMessageBox.alert(undefined, {
+        title: "条件输入说明",
+        type: "info",
+        dangerouslyUseHTMLString: true,
+        customStyle: {
+            width: "600px",
+            maxWidth: "unset"
+        },
+        message: [
+            "<ul>",
+            "<li><b>Ctrl+U</b>清空输入框</li>",
+            "<li>输入框下拉提示支持两种模式：<b>条件追加</b>和<b>条件设定</b>；直接点击下拉选项为赋值，点击下拉选项中的加号按钮则是追加条件</li>",
+            "<li>点击输入框右侧的加号按钮，可以记录当前的查询条件（输入框<b>Ctrl+Enter</b>也可触发该操作）</li>",
+            "<li>以冒号（<b>:</b>）起始输入，筛选已记录的条件</li>",
+            "<li>如果需要清空记录，清除Cookie或者清除Cookie中对应<b>Name</b>为<b>com.collection-search.commonUsedJMESPathQueryList</b>条目即可</li>",
+            "<li>输入框<b>Ctrl+Shift+Enter</b>也可进入清空记录的确认界面</li>",
+            "</ul>"
+        ].join("")
+    }).catch(() => {})
 }
 
 const readFromClipboard = () => {
@@ -350,6 +499,12 @@ onMounted(() => {
     }
 }
 
+#jmespath-area {
+    > div:first-child {
+        display: flex;
+    }
+}
+
 .help-info {
     flex-grow: 0;
     flex-shrink: 0;
@@ -434,6 +589,30 @@ textarea {
     width: 100%;
     height: 100%;
     margin: 0 !important;
+}
+
+.suggest-item-wrapper {
+    line-height: normal;
+    padding: 3px 0;
+    box-sizing: border-box;
+
+    > div:first-child{
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
+    }
+    > div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    > div:nth-child(2) {
+        color: #999;
+    }
+    > .el-button {
+
+    }
 }
 
 @media screen and (max-width: 820px) {
