@@ -24,7 +24,6 @@ export const syncRef = (refTarget: Ref<any>, key: string, initDefault?: any, con
     value = value === "true" ? true : value === "false" ? false : value
     if(config?.onLoad) {
         config.onLoad(value, (value: any) => {
-            console.log(value, "<<<<")
             refTarget.value = value
         })
     }
