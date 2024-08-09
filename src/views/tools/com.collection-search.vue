@@ -86,6 +86,10 @@
                                 <el-link href="javascript:void(0);" @click="viewInputHelpMessage">条件输入说明（首次使用，建议查看）</el-link>
                             </li>
                             <li>
+                                <el-link href="https://jmespath.org/tutorial.html#filter-projections" target="_blank">JMESPath条件过滤
+                                </el-link>
+                            </li>
+                            <li>
                                 <el-link href="https://jmespath.org/tutorial.html" target="_blank">About JMESPath
                                 </el-link>
                             </li>
