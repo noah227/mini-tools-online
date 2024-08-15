@@ -113,7 +113,8 @@
                     <span v-if="outputData instanceof Array">共：{{ readyToRender ? outputData.length : "_" }} 条</span>
                     <span></span>
                     <div class="buttons-wrapper">
-                        <el-button @click="_copyToClipboard" :disabled="!readyToRender">复制内容</el-button>
+                        <el-button @click="_copyToClipboard" :disabled="!readyToCopy">复制内容</el-button>
+                        <el-button title="导出到json文件" @click="_exportContent" :disabled="!readyToExport">导出</el-button>
                     </div>
                 </div>
                 <JsonHighlight :code="outputValue"></JsonHighlight>
@@ -409,8 +410,18 @@ const outputValue = computed(() => {
     return outputData.value ? JSON.stringify(outputData.value, null, 4) : ""
 })
 
+const readyToCopy = computed(() => readyToRender.value && outputValue.value)
+const readyToExport = computed(() => readyToCopy.value)
+
 const _copyToClipboard = () => {
     copyToClipboard(outputValue.value)
+}
+
+const _exportContent = () => {
+    const a = document.createElement("a")
+    a.href = window.URL.createObjectURL(new Blob([outputValue.value]))
+    a.download = `${Math.random().toString(16).slice(2)}.json`
+    a.click()
 }
 
 // 注意sync的位置，避免触发不必要的watch
