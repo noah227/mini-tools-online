@@ -102,7 +102,7 @@
                     <span>共：{{ readyToRender ? inputData.length : "_" }} 条</span>
                     <div class="buttons-wrapper">
                         <el-button @click="readFromClipboard">读取剪贴板</el-button>
-                        <el-button @click="clearInput">清空内容</el-button>
+                        <el-button @click="clearInput" :disabled="!canClearInput">清空内容</el-button>
                     </div>
                     <span title="输入数据有效状态">{{ readyToRender ? "✅" : "❌" }}</span>
                 </div>
@@ -288,6 +288,7 @@ const readFromClipboard = () => {
     })
 }
 
+const canClearInput = computed(() => inputValue.value)
 const clearInput = () => {
     inputValue.value = ""
 }
