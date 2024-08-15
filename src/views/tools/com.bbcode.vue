@@ -18,7 +18,7 @@ export default {
     name: "bbcode",
     text: "bbcode",
     icon: "code",
-    description: "bbcode",
+    description: "bbcode在线编辑与预览",
     faqList: [
         {
             title: "关于bbcode",
