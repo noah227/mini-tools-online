@@ -38,9 +38,9 @@
                         <el-button :disabled="!renderExifDetail" size="small" @click="exportDetail">导出</el-button>
                     </div>
                 </div>
-                <div id="img-exif-details">
+                <div id="img-exif-details" ref="refDetailView">
 <!--                    <pre ref="refDetailView">{{ renderExifDetail }}</pre>-->
-                    <JsonHighlight ref="refDetailView" :code="renderExifDetail"></JsonHighlight>
+                    <JsonHighlight :code="renderExifDetail"></JsonHighlight>
                 </div>
             </div>
         </div>
