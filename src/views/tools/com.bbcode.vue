@@ -3,8 +3,12 @@
         <HeadRender></HeadRender>
         <div id="filter-area">
             <el-checkbox v-model="addInLineBreaks" label="识别换行符"></el-checkbox>
+            <el-select v-model="displayOrient" style="width: 128px;">
+                <el-option value="horizontal" label="横向"></el-option>
+                <el-option value="vertical" label="纵向"></el-option>
+            </el-select>
         </div>
-        <div id="content-area">
+        <div id="content-area" :class="[`display-${displayOrient}`]">
             <div id="input">
                 <el-input v-model="inputValue" type="textarea" placeholder="输入bbcode代码"></el-input>
             </div>
@@ -49,8 +53,10 @@ const renderContent = ref("")
 const removeMisalignedTags = ref(false)
 // 识别换行符
 const addInLineBreaks = ref(false)
+const displayOrient = ref<"horizontal" | "vertical">("horizontal")
 
 syncRef(addInLineBreaks, "com.bbcode.addInLineBreaks")
+syncRef(displayOrient, "com.bbcode.displayOrient")
 
 const processConfig = computed(() => ({
     removeMisalignedTags: removeMisalignedTags.value,
@@ -109,21 +115,33 @@ div#bbcode {
         height: 0;
         flex-grow: 1;
         display: flex;
-        flex-direction: column-reverse;
         overflow: hidden;
-        border-top: 1px solid #aaa;
+
+        &.display-horizontal {
+            > div {
+                width: 50%;
+                height: 100%;
+            }
+        }
+
+        &.display-vertical {
+            flex-direction: column-reverse;
+            > div {
+                width: 100%;
+                height: 50%;
+            }
+            #input {
+                border-top: 1px solid #aaa;
+            }
+        }
 
         > div {
-            width: 100%;
-            height: 50%;
             box-sizing: border-box;
             overflow: auto;
             flex-shrink: 0;
         }
 
         #input {
-            border-top: 1px solid #aaa;
-
             .el-textarea {
                 width: 100%;
                 height: 100%;
