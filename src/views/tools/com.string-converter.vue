@@ -1,12 +1,12 @@
 <template>
     <div id="string-converter">
         <HeadRender></HeadRender>
-        <div id="filter-area">
+        <FilterRender>
             <label>目标格式</label>
             <el-select v-model="convertMethod">
                 <el-option v-for="{value} in options" :key="value" :value="value"></el-option>
             </el-select>
-        </div>
+        </FilterRender>
         <div id="content-area">
             <div id="input">
                 <el-input v-model="inputValue" type="textarea" placeholder="输入要转换的内容"></el-input>
@@ -29,6 +29,7 @@ export default {
 import * as changeCase from "change-case"
 import {computed, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
+import FilterRender from "@/components/filter-render.vue"
 import {syncRef} from "@/utils";
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
@@ -45,23 +46,6 @@ const outputValue = computed(() => {
 
 <style lang="scss">
 div#string-converter {
-    > div#filter-area {
-        width: 100%;
-        padding: 1rem 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-bottom: 1px solid #aaa;
-        border-top: 1px solid #aaa;
-        > label {
-            flex-shrink: 0;
-        }
-        .el-select {
-            margin-left: 1rem;
-            flex-grow: 1;
-        }
-    }
-
     > div#content-area {
         flex-grow: 1;
         display: flex;
