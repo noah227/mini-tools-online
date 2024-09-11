@@ -43,6 +43,7 @@ export const syncRef = (refTarget: Ref<any>, key: string, initDefault?: any, con
  * 复制内容到剪贴板
  */
 export const copyToClipboard = (text: string, errorMessage?: string) => {
+    if(!text) return ElMessage.info("没有要复制的内容！")
     navigator.clipboard.writeText(text).then(() => {
         ElMessage.success("已复制到剪贴板")
     }).catch(e => {
