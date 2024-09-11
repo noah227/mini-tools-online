@@ -1,7 +1,7 @@
 <template>
     <div id="url-query">
         <HeadRender></HeadRender>
-        <div id="filter-area">
+        <FilterRender>
             <el-checkbox v-model="decodeValue" label="解码参数值"></el-checkbox>
             <template v-if="decodeValue">
                 <el-select v-model="decodeMethod" style="width: 168px;" size="small">
@@ -13,7 +13,7 @@
                 </el-select>
             </template>
             <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
-        </div>
+        </FilterRender>
         <div id="content-area">
             <div id="input">
                 <el-input v-model.trim="inputValue" type="textarea" placeholder="输入要提取参数的URL地址"></el-input>
@@ -34,6 +34,7 @@ export default {
 </script>
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
+import FilterRender from "@/components/filter-render.vue"
 import JsonHighlight from "@/components/json-highlight.vue"
 import {computed, ref} from "vue";
 import {syncRef} from "@/utils";
@@ -92,21 +93,6 @@ const outputValue = computed(() => {
 <style lang="scss">
 div#url-query {
     overflow: hidden;
-
-    > div#filter-area {
-        width: 100%;
-        padding: 1rem 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-bottom: 1px solid #aaa;
-        border-top: 1px solid #aaa;
-        font-size: 14px;
-
-        > * {
-            margin: 0 .8rem;
-        }
-    }
 
     > div#content-area {
         flex-grow: 1;

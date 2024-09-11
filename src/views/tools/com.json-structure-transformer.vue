@@ -1,10 +1,10 @@
 <template>
     <div id="json-structure-connector">
         <HeadRender></HeadRender>
-        <div id="filter-area">
+        <FilterRender>
             <el-checkbox v-model="reverseSplit" label="逆向拆分"></el-checkbox>
             <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
-        </div>
+        </FilterRender>
         <div id="content-area">
             <div id="input">
                 <el-input v-model.trim="inputValue" type="textarea" :placeholder="inputPlaceholder"></el-input>
@@ -26,6 +26,8 @@ export default {
 <script lang="ts" setup>
 import {computed, ref} from "vue";
 import HeadRender from "@/components/head-render.vue"
+import FilterRender from "@/components/filter-render.vue"
+
 import JsonHighlight from "@/components/json-highlight.vue"
 import {syncRef} from "@/utils";
 
@@ -95,20 +97,6 @@ syncRef(compressOutput, "com.json-structure-transformer.compressOutput")
 <style lang="scss">
 div#json-structure-connector {
     overflow: hidden;
-
-    > div#filter-area {
-        width: 100%;
-        padding: 1rem 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-bottom: 1px solid #aaa;
-        border-top: 1px solid #aaa;
-
-        .el-select {
-            margin-left: 2rem;
-        }
-    }
 
     > div#content-area {
         flex-grow: 1;

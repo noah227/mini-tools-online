@@ -1,13 +1,13 @@
 <template>
     <div id="bbcode">
         <HeadRender></HeadRender>
-        <div id="filter-area">
+        <FilterRender>
             <el-checkbox v-model="addInLineBreaks" label="识别换行符"></el-checkbox>
             <el-select v-model="displayOrient" style="width: 128px;">
                 <el-option value="horizontal" label="横向"></el-option>
                 <el-option value="vertical" label="纵向"></el-option>
             </el-select>
-        </div>
+        </FilterRender>
         <div id="content-area" :class="[`display-${displayOrient}`]">
             <div id="input">
                 <el-input v-model="inputValue" type="textarea" placeholder="输入bbcode代码"></el-input>
@@ -36,6 +36,7 @@ export default {
 </script>
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
+import FilterRender from "@/components/filter-render.vue"
 import FAQRender from "@/components/faq-render.vue"
 import {computed, ref, watch} from "vue";
 import {syncRef} from "@/utils";
@@ -94,21 +95,6 @@ div#bbcode {
 
     a {
         text-underline: none;
-    }
-
-    > div#filter-area {
-        width: 100%;
-        padding: 1rem 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-bottom: 1px solid #aaa;
-        border-top: 1px solid #aaa;
-        font-size: 14px;
-
-        > * {
-            margin: 0 .8rem;
-        }
     }
 
     > div#content-area {
