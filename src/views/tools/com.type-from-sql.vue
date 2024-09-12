@@ -8,6 +8,7 @@
             </el-select>
             <el-checkbox v-model="instantConvert" label="实时转换" title="随输入内容变化实时进行转换提取"></el-checkbox>
             <el-button type="primary" plain @click="doConvert" size="small">类型提取</el-button>
+            <el-button type="primary" plain @click="clearInput" size="small">清空输入</el-button>
             <el-button type="primary" plain @click="copyConverted" size="small">复制结果</el-button>
         </FilterRender>
         <div id="content-area">
@@ -118,6 +119,10 @@ watch(() => inputValue.value, () => {
 
 const doConvert = () => {
     convertValue()
+}
+
+const clearInput = () => {
+    inputValue.value = ""
 }
 
 const copyConverted = () => {
