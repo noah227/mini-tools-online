@@ -28,7 +28,7 @@ const siteTitle = location.origin
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 5rem;
+    height: 3.8rem;
     font-size: 1.5rem !important;
     box-shadow: 0 -8px 6px -6px #aaa;
     z-index: 333;

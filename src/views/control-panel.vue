@@ -1,6 +1,6 @@
 <template>
     <div id="control-panel">
-        <h3 id="title">迷你小工具</h3>
+        <SiteHeader></SiteHeader>
         <div v-if="!showContent" id="filter-area">
             <el-input
                 ref="refFilterInput" v-model.trim="filterStr"
@@ -30,6 +30,7 @@
 
 <script lang="ts" setup>
 import ComSvgLoader from "@/components/svg-loader.vue"
+import SiteHeader from "@/components/site-header.vue"
 import SiteFooter from "@/components/site-footer.vue"
 import {computed, onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
@@ -85,17 +86,10 @@ onMounted(() => {
 div#control-panel {
     width: 100%;
     height: 100vh;
-    padding: 3rem 0 0;
+    padding: 1.2rem 0 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-
-    > #title {
-        text-align: center;
-        padding-bottom: 1rem;
-        box-sizing: border-box;
-        box-shadow: 0 8px 6px -6px #aaa;
-    }
 
     > div {
         width: 75%;
