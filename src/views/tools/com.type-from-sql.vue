@@ -6,6 +6,11 @@
             <el-select v-model="sqlType" style="width: 120px">
                 <el-option v-for="{value} in options" :key="value" :value="value"></el-option>
             </el-select>
+            <label>转换风格</label>
+            <el-select v-model="caseOption" style="width: 168px">
+                <el-option v-for="item in caseOptions" :key="item.value" :value="item.value">{{ item.value }}
+                </el-option>
+            </el-select>
             <el-checkbox v-model="instantConvert" label="实时转换" title="随输入内容变化实时进行转换提取"></el-checkbox>
             <el-button type="primary" plain @click="doConvert" size="small">类型提取</el-button>
             <el-button type="primary" plain @click="clearInput" size="small">清空输入</el-button>
@@ -36,14 +41,18 @@ import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import {copyToClipboard, syncRef} from "@/utils";
 
+const caseOptions = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
+
 const options = [
     {value: "mysql"}
 ]
 
 const sqlType = ref("mysql")
+const caseOption = ref("camelCase")
 const instantConvert = ref(true)
 
 syncRef(sqlType, "com.type-from-sql.sqlType")
+syncRef(sqlType, "com.type-from-sql.caseOption")
 syncRef(instantConvert, "com.type-from-sql.instantConvert")
 
 const sampleInput = `id\tint
@@ -99,7 +108,7 @@ const convertValue = () => {
         const t = filedConvertMap[fieldType]
         if (t) {
             dataGroup.push({
-                filed: changeCase.camelCase(fieldName),
+                filed: (changeCase as any)[caseOption.value](fieldName),
                 type: t
             })
         }
@@ -114,6 +123,10 @@ watch(() => instantConvert.value, (v) => {
 })
 
 watch(() => inputValue.value, () => {
+    instantConvert.value && convertValue()
+})
+
+watch(() => caseOption.value, () => {
     instantConvert.value && convertValue()
 })
 
