@@ -36,7 +36,7 @@
 export default {
     name: "type-from-sql",
     text: "sql字段ts提取",
-    icon: "url-query",
+    icon: "data-and-sql",
     description: "从sql字段定义获取typescript类型定义"
 }
 </script>
