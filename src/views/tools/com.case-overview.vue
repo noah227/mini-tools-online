@@ -1,10 +1,10 @@
 <template>
     <div id="case-overview">
         <HeadRender></HeadRender>
-        <hr style="width: 100%;">
+        <FilterRender>
+            <el-input v-model="inputValue" placeholder="请输入"></el-input>
+        </FilterRender>
         <div id="content-area">
-            <el-input v-model="inputValue"></el-input>
-            <hr style="width: 100%;">
             <div>
                 <div v-for="({value}) in options" class="case-item" :key="value">
                     <b>{{ value }}</b>
@@ -30,6 +30,7 @@ export default {
 import * as changeCase from "change-case"
 import {ref} from "vue";
 import HeadRender from "@/components/head-render.vue"
+import FilterRender from "@/components/filter-render.vue"
 import {copyToClipboard} from "@/utils";
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
