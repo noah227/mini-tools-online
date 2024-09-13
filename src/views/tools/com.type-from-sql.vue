@@ -12,7 +12,7 @@
                 </el-option>
             </el-select>
             <el-checkbox v-model="instantConvert" label="实时转换" title="随输入内容变化实时进行转换提取"></el-checkbox>
-            <el-button type="primary" plain @click="doConvert" size="small">类型提取</el-button>
+            <el-button type="primary" plain @click="doConvert" size="small">内容转换</el-button>
             <el-button type="primary" plain @click="clearInput" size="small">清空输入</el-button>
             <el-button type="primary" plain @click="copyConverted" size="small">复制结果</el-button>
         </FilterRender>
@@ -21,7 +21,13 @@
                 <el-input v-model="inputValue" type="textarea" placeholder="输入要转换的内容"></el-input>
             </div>
             <div id="output">
-                <el-input v-model="outputValue" type="textarea" placeholder="输出的内容"></el-input>
+                <div id="output-mode">
+                    <div :class="outputMode === 'type' && 'current'" @click="outputMode = 'type'">类型提取</div>
+                    <div :class="outputMode === 'init' && 'current'" @click="outputMode = 'init'">数据初始化</div>
+                </div>
+                <el-input v-if="outputMode === 'type'" v-model="outputValue" type="textarea"
+                          placeholder="输出的内容"></el-input>
+                <el-input v-else v-model="outputDataInitValue" type="textarea" placeholder="输出的内容"></el-input>
             </div>
         </div>
     </div>
@@ -72,15 +78,16 @@ V05\tvarchar
 const inputValue = ref(sampleInput)
 
 type TConvertedItem = {
-    filed: string
+    field: string
     type: string
+    init: any
 }
 
 /**
  * mysql类型向typescript类型转换映射
  * 这里只写了前端可能会用到的常用数据类型
  */
-const filedConvertMap: { [index: string]: string } = {
+const fieldConvertMap: { [index: string]: string } = {
     // Number
     int: "number",
     tinyint: "number",
@@ -98,24 +105,52 @@ const filedConvertMap: { [index: string]: string } = {
     // 待续
 }
 
+const initConvertMap: { [index: string]: any } = {
+    // Number
+    int: 0,
+    tinyint: 0,
+    bigint: 0,
+    float: 0,
+    double: 0,
+    decimal: 0,
+    // String
+    varchar: '""',
+    char: '""',
+    text: '""',
+    tinytext: '""',
+    // 其他
+    datetime: '""',
+    // 待续
+}
+
+const outputMode = ref<"type" | "init">("type")
 const outputValue = ref("")
+const outputDataInitValue = ref("")
 
 const convertValue = () => {
-    outputValue.value = inputValue.value.split("\n").reduce((dataGroup, s) => {
+
+    const outputValueList = inputValue.value.split("\n").reduce((dataGroup, s) => {
         // s: id\tint
         const _ = s.split("\t")
         const fieldName = _[0], fieldType = _[1]
-        const t = filedConvertMap[fieldType]
+        const t = fieldConvertMap[fieldType]
         if (t) {
             dataGroup.push({
-                filed: (changeCase as any)[caseOption.value](fieldName),
-                type: t
+                field: (changeCase as any)[caseOption.value](fieldName),
+                type: t,
+                init: initConvertMap[fieldType] ?? null
             })
         }
         return dataGroup
-    }, [] as TConvertedItem[]).map(item => {
-        return `${item.filed}: ${item.type}`
+    }, [] as TConvertedItem[])
+
+    outputValue.value = outputValueList.map(item => {
+        return `${item.field}: ${item.type}`
     }).join("\n")
+
+    outputDataInitValue.value = outputValueList.map(item => {
+        return `${item.field}: ${item.init}`
+    }).join(",\n")
 }
 
 watch(() => instantConvert.value, (v) => {
@@ -173,5 +208,40 @@ div#type-from-sql {
         }
     }
 
+}
+
+#output {
+    display: flex;
+    flex-direction: column;
+
+    > div {
+        &:first-child {
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+
+        &:last-child {
+            flex-shrink: 1;
+            flex-grow: 1;
+        }
+    }
+}
+
+#output-mode {
+    display: flex;
+
+    > div {
+        width: 50%;
+        padding: 8px 16px;
+        box-sizing: border-box;
+        text-align: center;
+        font-size: 14px;
+        user-select: none;
+
+        &.current, &:hover {
+            background-color: #0077aa;
+            color: #fff;
+        }
+    }
 }
 </style>
