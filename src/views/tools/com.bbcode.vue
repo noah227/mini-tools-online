@@ -46,7 +46,7 @@ const sampleContent = `[url=https://www.bbcode.org/reference.php][b][color=#f780
 [color=#ffa500]hello[/color]
 [color=orange]hello[/color]
 
-[img]https://avatars.githubusercontent.com/u/0?v=4[/img]
+[img]https://i0.wp.com/www.bbcode.org/wp-content/uploads/2022/03/bbcode_example.jpg?resize=150%2C150&ssl=1[/img]
 `
 const inputValue = ref(sampleContent)
 const renderContent = ref("")
@@ -150,6 +150,10 @@ div#bbcode {
 
             &:hover > .icon-copy {
                 display: inline-block;
+            }
+
+            img {
+                width: fit-content;
             }
         }
     }
