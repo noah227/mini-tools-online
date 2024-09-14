@@ -2,7 +2,7 @@
     <div id="bbcode">
         <HeadRender></HeadRender>
         <FilterRender>
-            <el-checkbox v-model="addInLineBreaks" label="识别换行符"></el-checkbox>
+            <el-checkbox v-model="addInLineBreaks" label="识别空白行"></el-checkbox>
             <el-select v-model="displayOrient" style="width: 128px;">
                 <el-option value="horizontal" label="横向"></el-option>
                 <el-option value="vertical" label="纵向"></el-option>
@@ -52,7 +52,7 @@ const inputValue = ref(sampleContent)
 const renderContent = ref("")
 
 const removeMisalignedTags = ref(false)
-// 识别换行符
+// 识别空白行
 const addInLineBreaks = ref(false)
 const displayOrient = ref<"horizontal" | "vertical">("horizontal")
 
