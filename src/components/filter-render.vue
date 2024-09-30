@@ -25,7 +25,7 @@ const renderItemSpace = computed(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .filter-render {
     padding: 1rem 12px;
     box-sizing: border-box;
@@ -36,27 +36,25 @@ const renderItemSpace = computed(() => {
     border-top: 1px solid #aaa;
     font-size: 14px;
 
-    :deep{
-        > label {
-            flex-shrink: 0;
-        }
-        > *:not(:last-child) {
-            margin-right: v-bind(renderItemSpace);
-        }
+    > label {
+        flex-shrink: 0;
+    }
+    > *:not(:last-child) {
+        margin-right: v-bind(renderItemSpace);
+    }
 
-        > .el-button {
-            margin-left: 0;
-        }
+    > .el-button {
+        margin-left: 0;
+    }
 
-        .el-input__wrapper {
-            box-shadow: 0 3px 3px -3px #d0d0d0;
-            border-bottom: 1px solid #d0d0d0;
-            border-radius: 0;
-            transition: all linear .12s;
-            &.is-focus {
-                box-shadow: 0 3px 3px -3px #a0a0a0;
-                border-bottom: 1px solid #a0a0a0;
-            }
+    .el-input__wrapper {
+        box-shadow: 0 3px 3px -3px #d0d0d0;
+        border-bottom: 1px solid #d0d0d0;
+        border-radius: 0;
+        transition: all linear .12s;
+        &.is-focus {
+            box-shadow: 0 3px 3px -3px #a0a0a0;
+            border-bottom: 1px solid #a0a0a0;
         }
     }
 }
