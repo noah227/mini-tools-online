@@ -40,7 +40,7 @@ const renderItemSpace = computed(() => {
         flex-shrink: 0;
     }
     > *:not(:last-child) {
-        margin-right: v-bind(renderItemSpace);
+        margin-right: v-bind(renderItemSpace)!important;
     }
 
     > .el-button {
