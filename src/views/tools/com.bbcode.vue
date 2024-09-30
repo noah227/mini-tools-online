@@ -90,6 +90,7 @@ const tipList = [
 </script>
 
 <style lang="scss">
+@import "xbbcode-parser/xbbcode.css";
 div#bbcode {
     overflow: hidden;
 
