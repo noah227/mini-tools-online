@@ -48,6 +48,19 @@ const _copyToClipboard = (key: string) => {
 <style lang="scss" scoped>
 #case-overview {
     text-align: left;
+    :deep(.filter-render .el-input__wrapper){
+        box-shadow: 0 3px 3px -3px #d0d0d0;
+        border-bottom: 1px solid #d0d0d0;
+        border-radius: 0;
+        transition: all linear .12s;
+        &:hover {
+            box-shadow: 0 3px 3px -3px #d0d0d0;
+        }
+        &.is-focus {
+            box-shadow: 0 3px 3px -3px #a0a0a0;
+            border-bottom: 1px solid #a0a0a0;
+        }
+    }
 }
 
 #content-area {

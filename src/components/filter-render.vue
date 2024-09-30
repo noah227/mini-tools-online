@@ -46,16 +46,5 @@ const renderItemSpace = computed(() => {
     > .el-button {
         margin-left: 0;
     }
-
-    .el-input__wrapper {
-        box-shadow: 0 3px 3px -3px #d0d0d0;
-        border-bottom: 1px solid #d0d0d0;
-        border-radius: 0;
-        transition: all linear .12s;
-        &.is-focus {
-            box-shadow: 0 3px 3px -3px #a0a0a0;
-            border-bottom: 1px solid #a0a0a0;
-        }
-    }
 }
 </style>
