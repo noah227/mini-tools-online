@@ -57,7 +57,7 @@ export default {
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
 import JsonHighlight from "@/components/json-highlight.vue"
-import {computed, ref} from "vue";
+import {computed, nextTick, ref, watch} from "vue";
 
 const readFileList = ref<File[]>([])
 
@@ -71,6 +71,12 @@ const renderFileList = computed<TRenderItem[]>(() => {
             file: img,
             blobUrl: window.URL.createObjectURL(new Blob([img]))
         }
+    })
+})
+
+watch(() => renderFileList.value.length, (l) => {
+    l && nextTick(() => {
+        readEXIF(renderFileList.value[l - 1])
     })
 })
 
