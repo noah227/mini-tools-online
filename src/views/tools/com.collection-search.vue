@@ -46,6 +46,7 @@
                     <div>
                         <el-autocomplete
                             v-model="jmespathStr" placeholder="search expression"
+                            type="textarea"
                             :fetch-suggestions="fetchSuggestions"
                             @keydown.ctrl="handleCommonCtrl"
                             @keydown.ctrl.shift.enter="removeAllCommonlyUsed"
@@ -521,6 +522,9 @@ onMounted(() => {
 #jmespath-area {
     > div:first-child {
         display: flex;
+        > .el-button {
+            height: auto;
+        }
     }
 }
 
