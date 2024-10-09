@@ -1,5 +1,9 @@
 <template>
-    <div class="common-title" :title="renderBindTitle">{{ renderTitle }}</div>
+    <div class="common-title" :title="renderBindTitle">
+        <slot name="title-before"></slot>
+        {{ renderTitle }}
+        <slot name="title-after"></slot>
+    </div>
 </template>
 
 <script lang="ts" setup>
