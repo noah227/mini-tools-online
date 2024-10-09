@@ -100,7 +100,7 @@
             <div id="input-area">
                 <div>
                     <span>共：{{ readyToRender ? inputData.length : "_" }} 条</span>
-                    <div class="buttons-wrapper">
+                    <div class="conditions-wrapper">
                         <el-button @click="readFromClipboard">读取剪贴板</el-button>
                         <el-button @click="clearInput" :disabled="!canClearInput">清空内容</el-button>
                     </div>
@@ -112,7 +112,8 @@
                 <div>
                     <span v-if="outputData instanceof Array">共：{{ readyToRender ? outputData.length : "_" }} 条</span>
                     <span></span>
-                    <div class="buttons-wrapper">
+                    <div class="conditions-wrapper">
+                        <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
                         <el-button @click="_copyToClipboard" :disabled="!readyToCopy">复制内容</el-button>
                         <el-button title="导出到json文件" @click="_exportContent" :disabled="!readyToExport">导出</el-button>
                     </div>
@@ -408,11 +409,13 @@ const processValue = (value: any, type: any) => {
 }
 
 const outputValue = computed(() => {
-    return outputData.value ? JSON.stringify(outputData.value, null, 4) : ""
+    return outputData.value ? JSON.stringify(outputData.value, null, compressOutput.value ? 0 : 4) : ""
 })
 
 const readyToCopy = computed(() => readyToRender.value && outputValue.value)
 const readyToExport = computed(() => readyToCopy.value)
+
+const compressOutput = ref(false)
 
 const _copyToClipboard = () => {
     copyToClipboard(outputValue.value)
@@ -561,14 +564,16 @@ onMounted(() => {
             flex-grow: 1;
             text-align: left;
         }
-        > .buttons-wrapper {
+        > .conditions-wrapper {
             display: flex;
             align-items: center;
-            .el-button {
+            > * {
                 border: none;
                 border-left: 1px solid #d0d0d0;
                 border-radius: 0;
                 margin: 0;
+                /* 和el-button默认的一样 */
+                padding: 8px 15px;
                 &:last-child {
                     border-right: 1px solid #d0d0d0;
                 }
