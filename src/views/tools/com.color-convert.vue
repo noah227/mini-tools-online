@@ -1,13 +1,17 @@
 <template>
     <div id="color-converter">
-        <HeadRender></HeadRender>
+        <HeadRender>
+            <template #title-after>
+                <span v-show="convertError" class="err-display" title="转换出错！">❗</span>
+            </template>
+        </HeadRender>
         <div id="input-area">
 
         </div>
         <div id="output-area" :style="outputAreaBindStyle">
             <div v-for="k in convertKeys" :key="k">
                 <label :for="`input-${k}`">{{ k }}</label>
-                <el-input :id="`input-${k}`" v-model="inputMap[k].value" @input="updateInputMap(k)"></el-input>
+                <el-input :id="`input-${k}`" v-model="inputMap[k].value" @input="handleInput(k)"></el-input>
             </div>
         </div>
         <FAQRender></FAQRender>
@@ -34,14 +38,16 @@ import {computed, ref} from "vue";
 
 const convert = require("color-convert")
 const convertKeys = Object.keys(convert)
-const inputMap = ref<{ [index: string]: { value: any } }>({
+
+type TInputMap = { [index: string]: { value: any } }
+const inputMap = ref<TInputMap>({
     rgb: {value: [100, 100, 0]}
 })
 
 const outputAreaBindStyle = computed(() => {
-    return {
+    return inputMap.value.rgb.value ? {
         boxShadow: `0 0 9px 3px inset rgb(${inputMap.value.rgb.value.toString()})`
-    }
+    } : {}
 })
 const buildInputMap = () => {
     convertKeys.forEach(k => {
@@ -50,19 +56,36 @@ const buildInputMap = () => {
         }
     })
 }
+
+const convertError = ref(false)
+const handleInput = (k: string) => {
+    try {
+        updateInputMap(k)
+        convertError.value = false
+    } catch (e) {
+        console.error(e)
+        convertError.value = true
+    }
+}
+
 const updateInputMap = (basedKey: string) => {
     let value = inputMap.value[basedKey].value
+
     switch (basedKey) {
         case "rgb":
             if (typeof value === "string") {
                 value = value.split(/[\s,]+/)
             }
             break
+        case "keyword":
+            break
     }
+    const tempInputMap: { [index: string]: any } = {}
     convertKeys.forEach(k => {
-        if (k !== basedKey) {
-            inputMap.value[k].value = convert[basedKey][k](value)
-        }
+        if (k !== basedKey) tempInputMap[k] = convert[basedKey][k](value)
+    })
+    convertKeys.forEach(k => {
+        if (k !== basedKey) inputMap.value[k].value = tempInputMap[k]
     })
 }
 buildInputMap()
@@ -114,5 +137,12 @@ updateInputMap("rgb")
     #output-area {
         grid-template-columns: repeat(1, auto);
     }
+}
+
+.err-display {
+    display: inline-block;
+    padding: 0 6px;
+    user-select: none;
+    cursor: help;
 }
 </style>
