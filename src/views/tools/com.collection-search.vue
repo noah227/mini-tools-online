@@ -662,5 +662,8 @@ textarea {
     #input-area > div:first-child {
         box-shadow: 0 0 3px #999;
     }
+    #output-area {
+        flex-grow: 1;
+    }
 }
 </style>
