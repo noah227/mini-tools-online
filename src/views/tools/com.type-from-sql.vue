@@ -64,16 +64,10 @@ syncRef(instantConvert, "com.type-from-sql.instantConvert")
 const sampleInput = `id\tint
 name\tvarchar
 created_by\tint
-creater_name\tvarchar
-created_time\tdatetime
+created_at\tdatetime
 updated_by\tint
-updated_time\tdatetime
-deletemark\tint
-V01\tvarchar
-V02\tvarchar
-V03\tvarchar
-V04\tvarchar
-V05\tvarchar
+updated_at\tdatetime
+is_delete\tint
 `
 const inputValue = ref(sampleInput)
 
@@ -174,7 +168,7 @@ const clearInput = () => {
 }
 
 const copyConverted = () => {
-    copyToClipboard(outputValue.value)
+    copyToClipboard(outputMode.value === "type" ? outputValue.value : outputDataInitValue.value)
 }
 </script>
 
