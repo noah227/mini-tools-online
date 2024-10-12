@@ -20,7 +20,7 @@
         "vue": "^3.2.13",
         "vue-router": "^4.0.3",
         "vuex": "^4.0.0",
-        "xbbcode-parser": "^0.2.2"
+        "xbbcode-parser": "github:noah227/Extendible-BBCode-Parser"
     },
     "devDependencies": {
         "@types/node": "^20.14.2",
