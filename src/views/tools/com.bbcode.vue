@@ -46,7 +46,7 @@ const sampleContent = `[url=https://www.bbcode.org/reference.php][b][color=#f780
 [color=#ffa500]hello[/color]
 [color=orange]hello[/color]
 
-[img]https://i0.wp.com/www.bbcode.org/wp-content/uploads/2022/03/bbcode_example.jpg?resize=150%2C150&ssl=1[/img]
+[img=200x100]https://i0.wp.com/www.bbcode.org/wp-content/uploads/2022/03/bbcode_example.jpg?resize=150%2C150&ssl=1[/img]
 `
 const inputValue = ref(sampleContent)
 const renderContent = ref("")
