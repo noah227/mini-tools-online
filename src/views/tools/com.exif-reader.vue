@@ -215,6 +215,15 @@ const setCurrent = ({file: img, blobUrl}: TRenderItem, exifData: object) => {
     }
 }
 
+@media screen and (max-width: 720px) {
+    #content-area {
+        flex-direction: column;
+        > div {
+            width: 100%;
+        }
+    }
+}
+
 #controls {
     flex-shrink: 0;
     display: flex;
