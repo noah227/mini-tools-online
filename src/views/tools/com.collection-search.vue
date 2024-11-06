@@ -417,7 +417,6 @@ const updateWatch = computed(() => {
     return [filterWith.value, inputValue.value, jmespathStr.value]
 })
 watch(() => updateWatch.value, debounce(() => {
-    console.log("update")
     updateOutput()
 }, 150), {deep: true})
 
