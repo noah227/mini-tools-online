@@ -144,6 +144,7 @@ import {copyToClipboard, syncRef} from "@/utils";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {useRoute} from "vue-router";
 import router from "@/router";
+import debounce from "debounce";
 
 const jmespath = require("jmespath")
 
@@ -363,7 +364,9 @@ watch(() => inputValue.value, () => {
 const inputData = computed<any[]>(() => {
     return readyToRender.value ? JSON.parse(inputValue.value) : []
 })
-const outputData = computed(() => {
+
+const outputData = ref<any>("")
+const computeOutputData = () => {
     if (!readyToRender.value) return ""
     const dataList = JSON.parse(inputValue.value) as any
     if (filterWith.value === "JMESPath") {
@@ -404,7 +407,20 @@ const outputData = computed(() => {
             return true
         })
     }
+}
+
+const updateOutput = () => {
+    outputData.value = computeOutputData()
+}
+
+const updateWatch = computed(() => {
+    return [filterWith.value, inputValue.value, jmespathStr.value]
 })
+watch(() => updateWatch.value, debounce(() => {
+    console.log("update")
+    updateOutput()
+}, 150), {deep: true})
+
 const processValue = (value: any, type: any) => {
     return type === "number" ? parseFloat(value) : value
 }
