@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@cynario/console.image": "^1.2.1",
+        "bowser": "^2.11.0",
         "change-case": "^5.4.4",
         "color-convert": "^2.0.1",
         "core-js": "^3.8.3",
