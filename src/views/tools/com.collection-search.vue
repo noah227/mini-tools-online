@@ -109,8 +109,8 @@
                     </div>
                     <span title="输入数据有效状态">{{ readyToRender ? "✅" : "❌" }}</span>
                 </div>
-                <el-input v-if="dontShowInput" type="textarea" placeholder="已关闭输入显示" readonly></el-input>
-                <el-input v-else v-model="inputValue" type="textarea" placeholder="{}[]"></el-input>
+                <el-input v-if="dontShowInput" type="textarea" placeholder="已关闭输入显示" readonly resize="none"></el-input>
+                <el-input v-else v-model="inputValue" type="textarea" placeholder="{}[]" resize="none"></el-input>
             </div>
             <div id="output-area">
                 <div>
