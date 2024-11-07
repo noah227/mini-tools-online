@@ -100,7 +100,8 @@
             </div>
             <div id="input-area">
                 <div>
-                    <span>共：{{ readyToRender ? inputData.length : "_" }} 条</span>
+                    <span v-if="inputData instanceof Array">共：{{ readyToRender ? inputData.length : "_" }} 条</span>
+                    <span v-else></span>
                     <div class="conditions-wrapper">
                         <el-button @click="readFromClipboard">读取剪贴板</el-button>
                         <el-button @click="clearInput" :disabled="!canClearInput">清空内容</el-button>
@@ -114,7 +115,7 @@
             <div id="output-area">
                 <div>
                     <span v-if="outputData instanceof Array">共：{{ readyToRender ? outputData.length : "_" }} 条</span>
-                    <span></span>
+                    <span v-else></span>
                     <div class="conditions-wrapper">
                         <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
                         <el-button @click="_copyToClipboard" :disabled="!readyToCopy">复制内容</el-button>
