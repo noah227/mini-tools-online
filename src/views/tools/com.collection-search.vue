@@ -104,10 +104,12 @@
                     <div class="conditions-wrapper">
                         <el-button @click="readFromClipboard">读取剪贴板</el-button>
                         <el-button @click="clearInput" :disabled="!canClearInput">清空内容</el-button>
+                        <el-checkbox v-model="dontShowInput" label="不显示输入" title="当数据量过大时，显示会造成浏览器卡顿，可以勾选此项取消输入内容的显示"></el-checkbox>
                     </div>
                     <span title="输入数据有效状态">{{ readyToRender ? "✅" : "❌" }}</span>
                 </div>
-                <el-input v-model="inputValue" type="textarea" placeholder="{}[]"></el-input>
+                <el-input v-if="dontShowInput" type="textarea" placeholder="已关闭输入显示" readonly></el-input>
+                <el-input v-else v-model="inputValue" type="textarea" placeholder="{}[]"></el-input>
             </div>
             <div id="output-area">
                 <div>
@@ -157,6 +159,7 @@ const sampleData = [
 const filterWith = ref<"fields" | "JMESPath">("fields")
 const jmespathStr = ref("")
 const inputValue = ref(JSON.stringify(sampleData, null, 4))
+const dontShowInput = ref(false)
 
 const switchFilter = (filter: "fields" | "JMESPath") => {
     if(filterWith.value === filter) return
@@ -185,6 +188,7 @@ syncRef(
         }
     }
 )
+syncRef(dontShowInput, "com.collection-search.dontShowInput")
 /**
  * 把当前查询条件存储下来，方便以后快速输入；内容存储在Cookie中
  */
