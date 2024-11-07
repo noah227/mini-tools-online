@@ -2,19 +2,25 @@
     <div id="type-from-sql">
         <HeadRender></HeadRender>
         <FilterRender>
-            <label>数据库类型</label>
-            <el-select v-model="sqlType" style="width: 120px">
-                <el-option v-for="{value} in options" :key="value" :value="value"></el-option>
-            </el-select>
-            <label>转换风格</label>
-            <el-select v-model="caseOption" style="width: 168px">
-                <el-option v-for="item in caseOptions" :key="item.value" :value="item.value">{{ item.value }}
-                </el-option>
-            </el-select>
+            <div>
+                <label>数据库类型</label>
+                <el-select v-model="sqlType" style="width: 120px">
+                    <el-option v-for="{value} in options" :key="value" :value="value"></el-option>
+                </el-select>
+            </div>
+            <div>
+                <label>转换风格</label>
+                <el-select v-model="caseOption" style="width: 168px">
+                    <el-option v-for="item in caseOptions" :key="item.value" :value="item.value">{{ item.value }}
+                    </el-option>
+                </el-select>
+            </div>
             <el-checkbox v-model="instantConvert" label="实时转换" title="随输入内容变化实时进行转换提取"></el-checkbox>
-            <el-button type="primary" plain @click="doConvert" size="small">内容转换</el-button>
-            <el-button type="primary" plain @click="clearInput" size="small">清空输入</el-button>
-            <el-button type="primary" plain @click="copyConverted" size="small">复制结果</el-button>
+            <div>
+                <el-button type="primary" plain @click="doConvert" size="small">内容转换</el-button>
+                <el-button type="primary" plain @click="clearInput" size="small">清空输入</el-button>
+                <el-button type="primary" plain @click="copyConverted" size="small">复制结果</el-button>
+            </div>
         </FilterRender>
         <div id="content-area">
             <div id="input">
@@ -175,6 +181,16 @@ const copyConverted = () => {
 <style lang="scss">
 div#type-from-sql {
 
+    .filter-render > div {
+        flex-shrink: 0;
+        display: inherit;
+        justify-content: inherit;
+        align-items: inherit;
+        > *:not(:last-child) {
+            margin-right: inherit;
+        }
+    }
+
     > div#content-area {
         flex-grow: 1;
         display: flex;
@@ -193,6 +209,12 @@ div#type-from-sql {
                     line-height: 1.2;
                 }
             }
+        }
+    }
+    @media screen and (max-width: 1080px) {
+        .filter-render {
+            flex-wrap: wrap;
+            line-height: 3.8;
         }
     }
 
