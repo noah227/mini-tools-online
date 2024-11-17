@@ -6,6 +6,13 @@
   "description": "描述-test描述-test描述-test描述-test描述-test描述-test描述-test描述-test",
   "glyphs": [
     {
+      "icon_id": "42493236",
+      "name": "client",
+      "font_class": "client",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
       "icon_id": "41858369",
       "name": "data-and-sql",
       "font_class": "data-and-sql",
