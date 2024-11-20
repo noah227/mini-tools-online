@@ -20,8 +20,8 @@
                                            :label="renderLabel(item)"></el-option>
                             </el-select>
                             <template v-else>
-                                <el-input v-if="_.type === 'string'" v-model="_.value" :placeholder="_.type"></el-input>
-                                <el-input v-else-if="_.type === 'number'" v-model="_.value" type="number" :placeholder="_.type"></el-input>
+                                <el-input v-if="_.type === 'string'" v-model="_.value" :placeholder="_.type" clearable></el-input>
+                                <el-input v-else-if="_.type === 'number'" v-model="_.value" type="number" :placeholder="_.type" clearable></el-input>
                                 <template v-else-if="_.type === 'boolean'">
                                     <el-checkbox v-model="_.value"></el-checkbox>
                                     &emsp;
