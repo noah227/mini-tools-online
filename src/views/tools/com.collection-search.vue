@@ -84,7 +84,10 @@
                     <div class="help-info">
                         <ul>
                             <li>
-                                <el-link href="javascript:void(0);" @click="viewInputHelpMessage">条件输入说明（首次使用，建议查看）</el-link>
+                                <el-link href="javascript:void(0);" @click="viewInputHelpMessage(1)">条件输入说明（首次使用，建议查看）</el-link>
+                            </li>
+                            <li>
+                                <el-link href="javascript:void(0);" @click="viewInputHelpMessage(2)">常见使用要点（推荐查看）</el-link>
                             </li>
                             <li>
                                 <el-link href="https://jmespath.org/tutorial.html#filter-projections" target="_blank">JMESPath条件过滤
@@ -265,9 +268,33 @@ const triggerAddEvent = (e: KeyboardEvent) => {
     addToCommonlyUsed()
 }
 
-const viewInputHelpMessage = () => {
+enum EHelperMessageTarget {
+    aboutToolsInput = 1,
+    aboutJmespathKeyPoint = 2
+}
+const viewInputHelpMessage = (t: EHelperMessageTarget) => {
+    let messageSource: string[]
+    switch (t) {
+        case EHelperMessageTarget.aboutToolsInput:
+            messageSource = [
+                "<li><b>Ctrl+U</b>清空输入框</li>",
+                "<li>输入框下拉提示支持两种模式：<b>条件追加</b>和<b>条件设定</b>；直接点击下拉选项为赋值，点击下拉选项中的加号按钮则是追加条件</li>",
+                "<li>点击输入框右侧的加号按钮，可以记录当前的查询条件（输入框<b>Ctrl+Enter</b>也可触发该操作）</li>",
+                "<li>以冒号（<b>:</b>）起始输入，筛选已记录的条件</li>",
+                "<li>如果需要清空记录，清除Cookie或者清除Cookie中对应<b>Name</b>为<b>com.collection-search.commonUsedJMESPathQueryList</b>条目即可</li>",
+                "<li>输入框<b>Ctrl+Shift+Enter</b>也可进入清空记录的确认界面</li>",
+            ]
+            break
+        case EHelperMessageTarget.aboutJmespathKeyPoint:
+            messageSource = [
+                "<li>数字等值判断要使用<b>反引号（`）</b>括起来</li>"
+            ]
+            break
+        default:
+            messageSource = []
+    }
     ElMessageBox.alert(undefined, {
-        title: "条件输入说明",
+        title: "输入说明",
         type: "info",
         dangerouslyUseHTMLString: true,
         customStyle: {
@@ -276,12 +303,7 @@ const viewInputHelpMessage = () => {
         },
         message: [
             "<ul>",
-            "<li><b>Ctrl+U</b>清空输入框</li>",
-            "<li>输入框下拉提示支持两种模式：<b>条件追加</b>和<b>条件设定</b>；直接点击下拉选项为赋值，点击下拉选项中的加号按钮则是追加条件</li>",
-            "<li>点击输入框右侧的加号按钮，可以记录当前的查询条件（输入框<b>Ctrl+Enter</b>也可触发该操作）</li>",
-            "<li>以冒号（<b>:</b>）起始输入，筛选已记录的条件</li>",
-            "<li>如果需要清空记录，清除Cookie或者清除Cookie中对应<b>Name</b>为<b>com.collection-search.commonUsedJMESPathQueryList</b>条目即可</li>",
-            "<li>输入框<b>Ctrl+Shift+Enter</b>也可进入清空记录的确认界面</li>",
+            ...messageSource,
             "</ul>"
         ].join("")
     }).catch(() => {})
