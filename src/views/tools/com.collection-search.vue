@@ -381,6 +381,11 @@ const renderLabel = (label: any) => {
     return label
 }
 
+watch(() => form.value, debounce(() => {
+    if(filterWith.value === "JMESPath") return
+    updateOutput()
+}), {deep: true})
+
 watch(() => filterWith.value, v => {
     if (v === "fields") buildForm()
 })
