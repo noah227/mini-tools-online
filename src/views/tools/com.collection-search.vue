@@ -8,7 +8,7 @@
                     <div :class="filterWith === 'JMESPath' && 'active'" @click="switchFilter('JMESPath')">JMESPath</div>
                 </div>
                 <div v-if="filterWith === 'fields'" id="field-area">
-                    <el-form :model="form">
+                    <el-form v-if="willRenderForm" :model="form">
                         <el-form-item v-for="(_, k) in form" :prop="k" :label="k">
                             <template #label>
                                 {{ k }}&emsp;
@@ -36,6 +36,7 @@
                             </template>
                         </el-form-item>
                     </el-form>
+                    <div v-else id="form-cant-be-used">仅当数据为对象数组时，字段检索可用</div>
                     <hr>
                     <div class="help-info">
                         <ul>
@@ -343,9 +344,15 @@ const form = ref<{
         value: any, type: string
     }
 }>({})
+const willRenderForm = computed(() => {
+    return Object.keys(form.value).length
+})
 const enumMark = ref<{ [index: string]: { value: boolean, canEnum: boolean } }>({})
 const buildForm = () => {
-    if (!readyToRender.value) return
+    if (!readyToRender.value) {
+        form.value = {}
+        return
+    }
     if (filterWith.value === "JMESPath") return
     const dataList = JSON.parse(inputValue.value) as { [index: string]: any }[]
     dataList.forEach((item) => {
@@ -576,6 +583,13 @@ onMounted(() => {
             height: auto;
         }
     }
+}
+
+#form-cant-be-used {
+    font-size: 14px;
+    padding: 32px 0;
+    text-align: center;
+    color: #999;
 }
 
 .help-info {
