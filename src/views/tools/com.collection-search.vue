@@ -23,7 +23,10 @@
                                 <el-input v-if="_.type === 'string'" v-model="_.value" :placeholder="_.type" clearable></el-input>
                                 <el-input v-else-if="_.type === 'number'" v-model="_.value" type="number" :placeholder="_.type" clearable></el-input>
                                 <template v-else-if="_.type === 'boolean'">
-                                    <el-checkbox v-model="_.value"></el-checkbox>
+                                    <el-radio-group v-model="_.value" size="small">
+                                        <el-radio-button :value="true">true</el-radio-button>
+                                        <el-radio-button :value="false">false</el-radio-button>
+                                    </el-radio-group>
                                     &emsp;
                                     <el-button title="设置值为undefined将不进行过滤" size="small"
                                                @click="_.value = undefined">
