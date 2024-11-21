@@ -111,6 +111,7 @@
                     <span v-else></span>
                     <div class="conditions-wrapper">
                         <el-button @click="readFromClipboard">读取剪贴板</el-button>
+                        <el-button @click="inputFromSampleData">样例输入</el-button>
                         <el-button @click="clearInput" :disabled="!canClearInput">清空内容</el-button>
                         <el-checkbox v-model="dontShowInput" label="不显示输入" title="当数据量过大时，显示会造成浏览器卡顿，可以勾选此项取消输入内容的显示"></el-checkbox>
                     </div>
@@ -132,6 +133,20 @@
                 <JsonHighlight :code="outputValue"></JsonHighlight>
             </div>
         </div>
+        <el-dialog v-model="showSampleSelect">
+            <el-radio-group v-model="selectedSampleDataIndex">
+                <el-radio-button v-for="(item, index) in sampleDataList" :value="index">{{item.title}}</el-radio-button>
+            </el-radio-group>
+            <el-divider></el-divider>
+            <el-card>
+                <pre v-html="renderSamplePreSelect"></pre>
+            </el-card>
+            <el-divider></el-divider>
+            <div style="text-align: right">
+                <el-button @click="showSampleSelect=false">关闭</el-button>
+                <el-button type="primary" @click="useSample">输入此样例</el-button>
+            </div>
+        </el-dialog>
         <SiteFooter></SiteFooter>
     </div>
 </template>
@@ -162,6 +177,13 @@ const sampleData = [
     {name: "jack", age: 20, gender: "male", birthday: "1996-01-01", hasTicket: true},
     {name: "rose", age: 20, gender: "female", birthday: "1996-01-01", hasTicket: true},
     {name: "unnamed", age: 20, gender: "male", birthday: "1996-01-01", hasTicket: false},
+]
+
+const sampleDataList = [
+    {title: "对象数组{}[]", data: sampleData},
+    {title: "类响应值对象内数组{data: {}[]}", data: {data: sampleData}},
+    {title: "字符串数组string[]", data: sampleData.map(item => item.name)},
+    {title: "单个对象{}", data: sampleData[0]},
 ]
 
 const filterWith = ref<"fields" | "JMESPath">("fields")
@@ -320,6 +342,24 @@ const readFromClipboard = () => {
         console.warn("读取失败", e)
         ElMessage.error("读取剪贴板失败！请手动粘贴到输入框！")
     })
+}
+
+const showSampleSelect = ref(false)
+const selectedSampleDataIndex = ref(-1)
+const renderSamplePreSelect = computed(() => {
+    const index = selectedSampleDataIndex.value
+    if(index < 0) return ""
+    return JSON.stringify(sampleDataList[index].data, null, 4)
+})
+const inputFromSampleData = () => {
+    selectedSampleDataIndex.value = 0
+    showSampleSelect.value = true
+
+}
+const useSample = () => {
+    inputValue.value = renderSamplePreSelect.value
+    showSampleSelect.value = false
+    selectedSampleDataIndex.value = -1
 }
 
 const canClearInput = computed(() => inputValue.value)
