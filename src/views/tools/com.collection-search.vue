@@ -139,6 +139,8 @@
             </el-radio-group>
             <el-divider></el-divider>
             <el-card>
+                <div>测试输入条件：{{renderSampleJMESInput}}</div>
+                <hr>
                 <pre v-html="renderSamplePreSelect"></pre>
             </el-card>
             <el-divider></el-divider>
@@ -180,15 +182,15 @@ const sampleData = [
 ]
 
 const sampleDataList = [
-    {title: "对象数组{}[]", data: sampleData},
-    {title: "类响应值对象内数组{data: {}[]}", data: {data: sampleData}},
-    {title: "字符串数组string[]", data: sampleData.map(item => item.name)},
-    {title: "单个对象{}", data: sampleData[0]},
+    {title: "对象数组{}[]", data: sampleData, inputValue: "[].name"},
+    {title: "类响应值对象内数组{data: {}[]}", data: {data: sampleData}, inputValue: "data[].name"},
+    {title: "字符串数组string[]", data: sampleData.map(item => item.name), inputValue: "[].length(@)"},
+    {title: "单个对象{}", data: sampleData[0], inputValue: "[name, age, gender == `male`]"},
 ]
 
 const filterWith = ref<"fields" | "JMESPath">("fields")
 const jmespathStr = ref("")
-const inputValue = ref(JSON.stringify(sampleData, null, 4))
+const inputValue = ref("")
 const dontShowInput = ref(false)
 
 const switchFilter = (filter: "fields" | "JMESPath") => {
@@ -351,6 +353,14 @@ const renderSamplePreSelect = computed(() => {
     if(index < 0) return ""
     return JSON.stringify(sampleDataList[index].data, null, 4)
 })
+const renderSampleJMESInput = computed(() => {
+    return getSampleJMESInput()
+})
+
+const getSampleJMESInput = () => {
+    return sampleDataList[selectedSampleDataIndex.value]?.inputValue
+}
+
 const inputFromSampleData = () => {
     selectedSampleDataIndex.value = 0
     showSampleSelect.value = true
@@ -359,6 +369,7 @@ const inputFromSampleData = () => {
 const useSample = () => {
     inputValue.value = renderSamplePreSelect.value
     showSampleSelect.value = false
+    if(!jmespathStr.value) jmespathStr.value = getSampleJMESInput() || ""
     selectedSampleDataIndex.value = -1
 }
 
