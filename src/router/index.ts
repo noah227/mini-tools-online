@@ -6,8 +6,25 @@ const loadTools = () => {
     return context.keys().filter(k => /\.\/com.*\.vue/.test(k)).map(k => require(`@/views/tools/${k.replace("./", "").replace(".vue", "")}.vue`).default)
 }
 
-export const tools = loadTools()
-const toolsAsChildren = tools.filter(tool => !tool.isLBlankPage)
+type TToolItem = {
+    name: string
+    text: string,
+    icon: string,
+    description: string
+    isBlankPage?: boolean
+    devOnly?: boolean
+    faqList?: {
+        title: string
+        link?: string
+    }[]
+}
+
+export const tools = (loadTools() as TToolItem[]).filter(tool => {
+    // 过滤仅dev显示的内容
+    return process.env.NODE_ENV === "development" ? true : !tool.devOnly
+})
+
+const toolsAsChildren = tools.filter(tool => !tool.isBlankPage)
 const toolsAsBlankPage = tools.filter(tool => tool.isBlankPage)
 
 const routes: Array<RouteRecordRaw> = [
