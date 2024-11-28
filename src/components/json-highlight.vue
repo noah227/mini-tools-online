@@ -1,5 +1,6 @@
 <template>
-    <pre class="json-highlight"><code ref="refCode" class="language-json" :data-toolbar-order="dataToolbarOrder"
+    <pre class="json-highlight"><code ref="refCode" class="language-json"
+                                      :data-toolbar-order="dataToolbarOrder"
                                       data-prismjs-copy="复制" data-prismjs-copy-error="复制失败"
                                       data-prismjs-copy-success="已复制"
                                       data-prismjs-copy-timeout="3000"
@@ -7,25 +8,39 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from "vue";
 import "prismjs/themes/prism-coy.min.css"
 import "prismjs/plugins/toolbar/prism-toolbar.min.css"
 
 const prismJs = require("prismjs")
 
-const pluginInitialized = ref(false)
+const toolbarEnabled = computed(() => {
+    return props.enableCopy || props.enableFullscreen
+})
+
 const initPluginRequirement = () => {
-    if (pluginInitialized.value) return
     require("prismjs/plugins/toolbar/prism-toolbar.js")
+}
+const initPluginCopyRequirement = () => {
     require("prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.js")
-    pluginInitialized.value = true
 }
 
 const dataToolbarOrder = computed(() => {
     const tools = []
-    if(props.enableCopy) tools.push("copy-to-clipboard")
+    if (props.enableCopy) tools.push("copy-to-clipboard")
+    if (props.enableFullscreen) tools.push("view-in-fullscreen")
     return tools.join(",")
 })
+
+const registerFullScreenButton = () => {
+    prismJs.plugins.toolbar.registerButton("view-in-fullscreen", {
+        text: "全屏",
+        onClick(env: any) {
+            // 热更新后element会丢失，仅开发模式会遇到，忽视即可
+            env.element.requestFullscreen()
+        }
+    })
+}
 
 const props = defineProps({
     code: {
@@ -34,7 +49,8 @@ const props = defineProps({
     },
     enableCopy: {
         type: Boolean
-    }
+    },
+    enableFullscreen: Boolean
 })
 
 const refCode = ref()
@@ -50,9 +66,25 @@ watch(() => props.code, () => {
     update()
 })
 
+let oldWarnFn = console.warn
+let privateWarnFn = (message: any, ...res: any) => {
+    if (typeof message === "string" && message.startsWith("There is a button with the key")) {
+        // 组件复用的重复注册警告问题暂时无法处理，所以忽略warning
+    } else oldWarnFn(message, ...res)
+}
+
 onMounted(() => {
-    props.enableCopy && initPluginRequirement()
+    console.warn = privateWarnFn
     update()
+    nextTick(() => {
+        toolbarEnabled.value && initPluginRequirement()
+        props.enableCopy && initPluginCopyRequirement()
+        props.enableFullscreen && registerFullScreenButton()
+    })
+})
+
+onUnmounted(() => {
+    console.warn = oldWarnFn
 })
 </script>
 
@@ -61,5 +93,12 @@ onMounted(() => {
     height: 100%;
     overflow: auto;
     margin: 0;
+}
+</style>
+<style lang="scss">
+.code-toolbar .toolbar-item {
+    &:not(:last-child) {
+        margin-right: 6px;
+    }
 }
 </style>
