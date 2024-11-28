@@ -1,12 +1,13 @@
 <template>
-    <pre class="json-highlight"><code ref="refCode" class="language-json"
+    <pre class="json-highlight"><code ref="refCode" class="language-json" :data-toolbar-order="dataToolbarOrder"
                                       data-prismjs-copy="复制" data-prismjs-copy-error="复制失败"
                                       data-prismjs-copy-success="已复制"
+                                      data-prismjs-copy-timeout="3000"
     ></code></pre>
 </template>
 
 <script lang="ts" setup>
-import {nextTick, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import "prismjs/themes/prism-coy.min.css"
 import "prismjs/plugins/toolbar/prism-toolbar.min.css"
 
@@ -19,6 +20,12 @@ const initPluginRequirement = () => {
     require("prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.js")
     pluginInitialized.value = true
 }
+
+const dataToolbarOrder = computed(() => {
+    const tools = []
+    if(props.enableCopy) tools.push("copy-to-clipboard")
+    return tools.join(",")
+})
 
 const props = defineProps({
     code: {
