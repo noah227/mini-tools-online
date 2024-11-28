@@ -20,7 +20,7 @@
                 <el-input v-model.trim="inputValue" type="textarea" placeholder="输入要提取参数的URL地址"></el-input>
             </div>
             <div id="output">
-                <JsonHighlight :code="outputValue"></JsonHighlight>
+                <JsonHighlight :code="outputValue" enable-copy></JsonHighlight>
             </div>
         </div>
     </div>
