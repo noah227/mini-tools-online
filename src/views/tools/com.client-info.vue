@@ -2,7 +2,7 @@
     <div id="client-info">
         <HeadRender with-bottom-border></HeadRender>
         <div id="content-area">
-            <JsonHighlight :code="clientInfoStr"></JsonHighlight>
+            <JsonHighlight :code="clientInfoStr" enable-fullscreen></JsonHighlight>
         </div>
     </div>
 </template>
