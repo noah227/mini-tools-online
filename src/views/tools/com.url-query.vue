@@ -57,7 +57,7 @@ const getUrlQuery = (url: string) => {
         argStr.split("&").forEach(item => {
             const itemSplit = item.split("=")
             if (itemSplit.length > 1) query[itemSplit[0]] = itemSplit[1]
-            else query[itemSplit[0]] = ""
+            else query[itemSplit[0]] = null
         })
         if (decodeValue.value) {
             let _decodeMethod = decodeMethod.value === "decodeURI" ? decodeURI : decodeURIComponent
