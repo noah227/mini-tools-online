@@ -72,5 +72,7 @@ div#client-info {
 
 #content-area {
     flex-grow: 1;
+    overflow: auto;
+    height: 0;
 }
 </style>
