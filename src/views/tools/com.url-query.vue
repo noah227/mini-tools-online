@@ -13,6 +13,7 @@
                 </el-select>
             </template>
             <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
+            <el-checkbox v-model="allowMultiValue" label="允许多值参数"></el-checkbox>
         </FilterRender>
         <div id="content-area">
             <div id="input">
@@ -42,39 +43,49 @@ import {syncRef} from "@/utils";
 const decodeValue = ref(false)
 const decodeTimes = ref(1)
 const compressOutput = ref("")
-const inputValue = ref("https://www.iconfont.cn/search/index?searchType=icon&q=%E6%B5%8B%E8%AF%95&message=%25E4%25BD%25A0%25E5%25A5%25BD")
+const allowMultiValue = ref(false)
+const inputValue = ref("https://www.iconfont.cn/search/index?searchType=icon&q=%E6%B5%8B%E8%AF%95&message=%25E4%25BD%25A0%25E5%25A5%25BD&say=hi&say=there!")
 const decodeMethod = ref<"decodeURI" | "decodeURIComponent">("decodeURIComponent")
 
 syncRef(decodeValue, "com.url-query.decodeValue")
 syncRef(compressOutput, "com.url-query.compressOutput")
+syncRef(allowMultiValue, "com.url-query.allowMultiValue")
 syncRef(decodeMethod, "com.url-query.decodeMethod")
 
 const getUrlQuery = (url: string) => {
-    const query: { [index: string]: any } = {}
+    const query: { [index: string]: any[] } = {}
     const urlSplit = url.split("?")
     if (urlSplit.length > 1) {
         const argStr = urlSplit[1]
         argStr.split("&").forEach(item => {
             const itemSplit = item.split("=")
-            if (itemSplit.length > 1) query[itemSplit[0]] = itemSplit[1]
-            else query[itemSplit[0]] = null
+            const name = itemSplit[0]
+            if (!query[name]) query[name] = []
+            if (itemSplit.length > 1) query[name].push(itemSplit[1])
+            else query[name].push(null)
         })
         if (decodeValue.value) {
             let _decodeMethod = decodeMethod.value === "decodeURI" ? decodeURI : decodeURIComponent
-            Object.entries(query).forEach(([k, v]) => {
-                query[k] = decodeMultiTimes(_decodeMethod, v, decodeTimes.value)
+            Object.entries(query).forEach(([k, vList]) => {
+                query[k] = decodeMultiTimes(_decodeMethod, vList, decodeTimes.value)
             })
         }
     }
-    return query
+    return Object.entries(query).reduce((query, [k, vList]) => {
+        let v: any
+        if (allowMultiValue.value && vList.length > 1) v = vList
+        else v = vList[0]
+        query[k] = v
+        return query
+    }, {} as { [index: string]: any })
 }
 
 /**
  * 多次解码
  */
-const decodeMultiTimes = (m: (v: string) => string, v: string, t: number): string => {
-    if (t === 0) return v
-    else return decodeMultiTimes(m, m(v), t - 1)
+const decodeMultiTimes = (m: (v: any) => string, vList: any[], t: number): any[] => {
+    if (t === 0) return vList
+    else return decodeMultiTimes(m, vList.map(v => m(v)), t - 1)
 }
 
 const stringifySpace = computed(() => compressOutput.value ? "" : "\t")
