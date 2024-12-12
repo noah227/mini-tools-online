@@ -11,7 +11,7 @@
                     </span>
                 </div>
                 <div id="img-container">
-                    <div class="img-item" v-for="(item, index) in renderFileList" :key="index" @click="readEXIF(item)">
+                    <div class="img-item" :class="currentItem.url=== item.blobUrl ? 'is-current' : ''" v-for="(item, index) in renderFileList" :key="index" @click="readEXIF(item)">
                         <img :src="item.blobUrl" :alt="item.file.name">
                         <span class="image-name">{{ item.file.name }}</span>
                         <span class="img-type">{{ item.file.type }}</span>
@@ -241,7 +241,7 @@ const setCurrent = ({file: img, blobUrl}: TRenderItem, exifData: object) => {
     height: 100%;
     overflow: auto;
 
-    > * {
+    > .img-item {
         width: 100%;
         display: flex;
         justify-content: space-between;
@@ -249,6 +249,7 @@ const setCurrent = ({file: img, blobUrl}: TRenderItem, exifData: object) => {
         padding: 6px 12px;
         box-sizing: border-box;
         border-bottom: 1px solid #0000;
+        transition: background-color ease-out .18s;
 
         > img {
             width: 128px;
@@ -266,7 +267,7 @@ const setCurrent = ({file: img, blobUrl}: TRenderItem, exifData: object) => {
             border-bottom-color: #999;
         }
 
-        &:hover {
+        &.is-current, &:hover {
             background-color: #ecf5ff;
         }
 
