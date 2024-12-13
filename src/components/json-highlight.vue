@@ -1,10 +1,12 @@
 <template>
-    <pre class="json-highlight"><code ref="refCode" class="language-json"
-                                      :data-toolbar-order="dataToolbarOrder"
-                                      data-prismjs-copy="复制" data-prismjs-copy-error="复制失败"
-                                      data-prismjs-copy-success="已复制"
-                                      data-prismjs-copy-timeout="3000"
-    ></code></pre>
+    <div class="json-highlight" :class="toolbarEnabled && 'toolbar-enabled'">
+        <pre><code ref="refCode" class="language-json"
+                   :data-toolbar-order="dataToolbarOrder"
+                   data-prismjs-copy="复制" data-prismjs-copy-error="复制失败"
+                   data-prismjs-copy-success="已复制"
+                   data-prismjs-copy-timeout="3000"
+        ></code></pre>
+    </div>
 </template>
 
 <script lang="ts" setup>
@@ -73,14 +75,16 @@ let privateWarnFn = (message: any, ...res: any) => {
     } else oldWarnFn(message, ...res)
 }
 
+const doInit = () => {
+    toolbarEnabled.value && initPluginRequirement()
+    props.enableCopy && initPluginCopyRequirement()
+    props.enableFullscreen && registerFullScreenButton()
+}
+
 onMounted(() => {
     console.warn = privateWarnFn
     update()
-    nextTick(() => {
-        toolbarEnabled.value && initPluginRequirement()
-        props.enableCopy && initPluginCopyRequirement()
-        props.enableFullscreen && registerFullScreenButton()
-    })
+    doInit()
 })
 
 onUnmounted(() => {
@@ -88,11 +92,35 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .json-highlight {
     height: 100%;
     overflow: auto;
-    margin: 0;
+
+    &.toolbar-enabled {
+        overflow: unset;
+    }
+
+    > .code-toolbar {
+        height: 100%;
+        overflow: auto;
+
+        > pre {
+            margin: 0;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* 没法同时处理coy主题的滚动条与toolbar按钮的位置问题，所以只能强制加个右边距 */
+        > .toolbar {
+            margin-right: 1.2em;
+        }
+    }
+
+    > pre {
+        margin: 0;
+        height: 100%;
+    }
 }
 </style>
 <style lang="scss">
