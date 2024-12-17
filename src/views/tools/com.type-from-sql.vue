@@ -48,7 +48,7 @@ export default {
 </script>
 <script lang="ts" setup>
 import * as changeCase from "change-case"
-import {ref, watch} from "vue";
+import {nextTick, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import {copyToClipboard, syncRef} from "@/utils";
@@ -75,7 +75,7 @@ updated_by\tint
 updated_at\tdatetime
 is_delete\tint
 `
-const inputValue = ref(sampleInput)
+const inputValue = ref("")
 
 type TConvertedItem = {
     field: string
@@ -176,6 +176,10 @@ const clearInput = () => {
 const copyConverted = () => {
     copyToClipboard(outputMode.value === "type" ? outputValue.value : outputDataInitValue.value)
 }
+
+nextTick(() => {
+    inputValue.value = sampleInput
+})
 </script>
 
 <style lang="scss">
