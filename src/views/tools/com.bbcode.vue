@@ -41,10 +41,18 @@ import FAQRender from "@/components/faq-render.vue"
 import {computed, ref, watch} from "vue";
 import {syncRef} from "@/utils";
 
-const sampleContent = `[url=https://www.bbcode.org/reference.php][b][color=#f780ff]b[/color][color=#e4a3ff]b[/color][color=#d0c6ff]c[/color][color=#bde9ff]d[/color][/b][/url]
+const sampleContent = `[url=https://www.bbcode.org/reference.php]bbcode.org[/url]
+[url]https://www.bbcode.org/reference.php[/url]
 
-[color=#ffa500]hello[/color]
-[color=orange]hello[/color]
+[b]粗体[/b]
+[i]斜体[/i]
+[u]下划线[/u]
+[s]删除线[/s]
+[size=18]字体大小[/size]
+
+[color=#ffa500]颜色（十六进制）[/color]
+[color=orange]颜色（名称）[/color]
+[b][color=#f780ff]渐[/color][color=#e4a3ff]变[/color][color=#d0c6ff]色[/color][color=#bde9ff]（伪）[/color][/b]
 
 [img=200x100]https://i0.wp.com/www.bbcode.org/wp-content/uploads/2022/03/bbcode_example.jpg?resize=150%2C150&ssl=1[/img]
 `
