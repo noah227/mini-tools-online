@@ -91,10 +91,6 @@ const update = () => {
 }
 
 update()
-
-const tipList = [
-    {text: "颜色要使用十六进制的"}
-]
 </script>
 
 <style lang="scss">
