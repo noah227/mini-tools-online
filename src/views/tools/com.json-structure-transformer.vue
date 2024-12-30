@@ -15,14 +15,6 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-export default {
-    name: "json-structure-transformer",
-    text: "JSON结构转换",
-    icon: "json-structure-transformer",
-    description: "对json进行拍平/逆拍平"
-}
-</script>
 <script lang="ts" setup>
 import {computed, ref} from "vue";
 import HeadRender from "@/components/head-render.vue"
@@ -30,6 +22,13 @@ import FilterRender from "@/components/filter-render.vue"
 
 import JsonHighlight from "@/components/json-highlight.vue"
 import {syncRef} from "@/utils";
+
+defineOptions({
+    name: "json-structure-transformer",
+    text: "JSON结构转换",
+    icon: "json-structure-transformer",
+    description: "对json进行拍平/逆拍平"
+})
 
 const isObject = (o: any) => Object.prototype.toString.call(o) === "[object Object]"
 /**

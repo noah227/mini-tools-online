@@ -6,20 +6,19 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-export default {
-    name: "client-info",
-    text: "客户端信息",
-    icon: "client",
-    description: "查看基础的客户端设备信息"
-}
-</script>
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
 import {computed, ref} from "vue";
 import debounce from "debounce";
 import JsonHighlight from "@/components/json-highlight.vue"
 import Bowser from "bowser";
+
+defineOptions({
+    name: "client-info",
+    text: "客户端信息",
+    icon: "client",
+    description: "查看基础的客户端设备信息"
+})
 
 const clientInfo = ref<{ [index: string]: any }>({
     body: {},

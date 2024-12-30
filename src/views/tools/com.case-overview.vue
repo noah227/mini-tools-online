@@ -18,20 +18,19 @@
     </div>
 </template>
 
-<script lang="ts">
-export default {
-    name: "case-overview",
-    text: "case一览",
-    icon: "string-converter",
-    description: "case一览、快速查看"
-}
-</script>
 <script lang="ts" setup>
 import * as changeCase from "change-case"
 import {ref} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import {copyToClipboard} from "@/utils";
+
+defineOptions({
+    name: "case-overview",
+    text: "case一览",
+    icon: "string-converter",
+    description: "case一览、快速查看"
+})
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 const inputValue = ref("once upon a time")

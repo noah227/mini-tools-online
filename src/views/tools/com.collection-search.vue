@@ -152,15 +152,6 @@
         <SiteFooter></SiteFooter>
     </div>
 </template>
-<script lang="ts">
-export default {
-    name: "collection-search",
-    text: "collection检索",
-    icon: "collection-search",
-    description: "",
-    isBlankPage: true
-}
-</script>
 <script setup lang="ts">
 
 import HeadRender from "@/components/head-render.vue";
@@ -172,6 +163,14 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {useRoute} from "vue-router";
 import router from "@/router";
 import debounce from "debounce";
+
+defineOptions({
+    name: "collection-search",
+    text: "collection检索",
+    icon: "collection-search",
+    description: "",
+    isBlankPage: true
+})
 
 const jmespath = require("jmespath")
 

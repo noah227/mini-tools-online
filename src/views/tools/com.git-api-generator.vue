@@ -46,19 +46,18 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-export default {
+<script lang="ts" setup>
+import HeadRender from "@/components/head-render.vue"
+import {computed, ref} from "vue";
+import {copyToClipboard} from "@/utils";
+
+defineOptions({
     name: "git-api-generator",
     text: "Git Api速览",
     icon: "git-api-generator",
     description: "Git常用API地址预览/生成",
     devOnly: true
-}
-</script>
-<script lang="ts" setup>
-import HeadRender from "@/components/head-render.vue"
-import {computed, ref} from "vue";
-import {copyToClipboard} from "@/utils";
+})
 
 const basicInput = ref({
     protocol: "https",

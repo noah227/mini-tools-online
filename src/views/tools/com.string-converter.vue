@@ -17,20 +17,19 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-export default {
-    name: "string-converter",
-    text: "字符格式转换",
-    icon: "string-converter",
-    description: "各种风格的字符转换"
-}
-</script>
 <script lang="ts" setup>
 import * as changeCase from "change-case"
 import {computed, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import {syncRef} from "@/utils";
+
+defineOptions({
+    name: "string-converter",
+    text: "字符格式转换",
+    icon: "string-converter",
+    description: "各种风格的字符转换"
+})
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 

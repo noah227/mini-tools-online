@@ -25,20 +25,19 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-export default {
-    name: "url-query",
-    text: "URL参数提取",
-    icon: "url-query",
-    description: "URL参数提取"
-}
-</script>
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import JsonHighlight from "@/components/json-highlight.vue"
 import {computed, ref} from "vue";
 import {syncRef} from "@/utils";
+
+defineOptions({
+    name: "url-query",
+    text: "URL参数提取",
+    icon: "url-query",
+    description: "URL参数提取"
+})
 
 const decodeValue = ref(false)
 const decodeTimes = ref(1)

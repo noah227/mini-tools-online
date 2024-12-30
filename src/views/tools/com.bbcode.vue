@@ -17,8 +17,14 @@
         <FAQRender></FAQRender>
     </div>
 </template>
-<script lang="ts">
-export default {
+<script lang="ts" setup>
+import HeadRender from "@/components/head-render.vue"
+import FilterRender from "@/components/filter-render.vue"
+import FAQRender from "@/components/faq-render.vue"
+import {computed, ref, watch} from "vue";
+import {syncRef} from "@/utils";
+
+defineOptions({
     name: "bbcode",
     text: "bbcode",
     icon: "code",
@@ -32,14 +38,7 @@ export default {
             title: "bbcode在不同的平台上的支持可能还不是很一致"
         }
     ]
-}
-</script>
-<script lang="ts" setup>
-import HeadRender from "@/components/head-render.vue"
-import FilterRender from "@/components/filter-render.vue"
-import FAQRender from "@/components/faq-render.vue"
-import {computed, ref, watch} from "vue";
-import {syncRef} from "@/utils";
+})
 
 const sampleContent = `[url=https://www.bbcode.org/reference.php]bbcode.org[/url]
 [url]https://www.bbcode.org/reference.php[/url]

@@ -46,18 +46,17 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-export default {
-    name: "exif-reader",
-    text: "EXIF读取",
-    icon: "exif-reader",
-    description: "简单的图片EXIF读取"
-}
-</script>
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
 import JsonHighlight from "@/components/json-highlight.vue"
 import {computed, nextTick, ref, watch} from "vue";
+
+defineOptions({
+    name: "exif-reader",
+    text: "EXIF读取",
+    icon: "exif-reader",
+    description: "简单的图片EXIF读取"
+})
 
 const readFileList = ref<File[]>([])
 

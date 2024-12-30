@@ -17,8 +17,12 @@
         <FAQRender></FAQRender>
     </div>
 </template>
-<script lang="ts">
-export default {
+<script lang="ts" setup>
+import HeadRender from "@/components/head-render.vue"
+import FAQRender from "@/components/faq-render.vue"
+import {computed, ref} from "vue";
+
+defineOptions({
     name: "color-converter",
     text: "颜色快速转换",
     icon: "palette",
@@ -32,12 +36,7 @@ export default {
             title: "当前模块功能尚不完整，仅部分输入转换可用"
         }
     ]
-}
-</script>
-<script lang="ts" setup>
-import HeadRender from "@/components/head-render.vue"
-import FAQRender from "@/components/faq-render.vue"
-import {computed, ref} from "vue";
+})
 
 const convert = require("color-convert")
 const convertKeys = Object.keys(convert)

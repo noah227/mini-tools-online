@@ -38,20 +38,19 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-export default {
-    name: "type-from-sql",
-    text: "sql字段ts提取",
-    icon: "data-and-sql",
-    description: "从sql字段定义获取typescript类型定义"
-}
-</script>
 <script lang="ts" setup>
 import * as changeCase from "change-case"
 import {nextTick, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import {copyToClipboard, syncRef} from "@/utils";
+
+defineOptions({
+    name: "type-from-sql",
+    text: "sql字段ts提取",
+    icon: "data-and-sql",
+    description: "从sql字段定义获取typescript类型定义"
+})
 
 const caseOptions = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 
