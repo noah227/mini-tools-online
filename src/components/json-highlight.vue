@@ -31,6 +31,7 @@ const dataToolbarOrder = computed(() => {
     const tools = []
     if (props.enableCopy) tools.push("copy-to-clipboard")
     if (props.enableFullscreen) tools.push("view-in-fullscreen")
+    if (props.enableDownload) tools.push("download-file")
     return tools.join(",")
 })
 
@@ -44,6 +45,18 @@ const registerFullScreenButton = () => {
     })
 }
 
+const registerDownloadButton = () => {
+    prismJs.plugins.toolbar.registerButton("download-file", {
+        text: "下载",
+        onClick(env: any) {
+            const a = document.createElement("a")
+            a.download = "download.json"
+            a.href = window.URL.createObjectURL(new Blob([props.code]))
+            a.click()
+        }
+    })
+}
+
 const props = defineProps({
     code: {
         type: String,
@@ -52,7 +65,8 @@ const props = defineProps({
     enableCopy: {
         type: Boolean
     },
-    enableFullscreen: Boolean
+    enableFullscreen: Boolean,
+    enableDownload: Boolean,
 })
 
 const refCode = ref()
@@ -79,6 +93,7 @@ const doInit = () => {
     toolbarEnabled.value && initPluginRequirement()
     props.enableCopy && initPluginCopyRequirement()
     props.enableFullscreen && registerFullScreenButton()
+    props.enableDownload && registerDownloadButton()
 }
 
 onMounted(() => {
