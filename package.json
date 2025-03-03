@@ -17,6 +17,8 @@
         "exifreader": "^4.23.3",
         "jmespath": "^0.16.0",
         "js-cookie": "^3.0.5",
+        "json-schema-generator": "^2.0.6",
+        "pretty-data": "^0.40.0",
         "prismjs": "^1.29.0",
         "uuid": "^8.3.2",
         "vue-router": "^4.0.3",
