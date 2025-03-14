@@ -12,8 +12,9 @@
         </div>
         <div v-if="!showContent" id="item-list">
             <router-link
-                v-for="{name, text, icon, description} in renderTools"
+                v-for="{name, text, icon, description, devOnly} in renderTools"
                 class="tool-item" :key="name" :to="{name}"
+                :class="devOnly && 'dev-only'"
                 :title="description"
             >
                 <com-svg-loader class="svg-icon" :name="icon"/>
@@ -135,6 +136,21 @@ div#control-panel {
             box-sizing: border-box;
             box-shadow: 0 0 5px #aaa;
             transition: all ease-out .12s;
+            position: relative;
+
+            &.dev-only::after {
+                content: "Dev";
+                position: absolute;
+                right: 0;
+                top: 0;
+                background: #33aaff;
+                padding: 3px 8px;
+                border-top-right-radius: inherit;
+                border-bottom-left-radius: inherit;
+                user-select: none;
+                color: #fff;
+                font-size: 12px;
+            }
 
             &:hover {
                 box-shadow: 0 0 8px #6af;
