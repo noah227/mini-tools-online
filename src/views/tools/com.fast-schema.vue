@@ -35,7 +35,7 @@ const jsonSchemaGenerator = require("json-schema-generator/lib/jsg-browser.js")
 defineOptions({
     name: "fast-schema",
     text: "fast schema",
-    icon: "json-structure-transformer",
+    icon: "fast-schema",
     description: "快速json schema生成"
 })
 

@@ -6,6 +6,13 @@
   "description": "描述-test描述-test描述-test描述-test描述-test描述-test描述-test描述-test",
   "glyphs": [
     {
+      "icon_id": "32436272",
+      "name": "JSON",
+      "font_class": "fast-schema",
+      "unicode": "e67f",
+      "unicode_decimal": 59007
+    },
+    {
       "icon_id": "42493236",
       "name": "client",
       "font_class": "client",
