@@ -4,7 +4,7 @@
         <ul>
             <li v-for="(item, index) in faqList" :key="index">
                 <el-link v-if="item.link" :href="item.link" target="_blank">{{ item.title }}</el-link>
-                <span v-else>{{ item.title }}</span>
+                <span v-else v-html="item.title"></span>
             </li>
         </ul>
     </div>
