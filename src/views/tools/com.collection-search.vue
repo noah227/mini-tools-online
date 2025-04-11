@@ -112,6 +112,7 @@
                     <div class="conditions-wrapper">
                         <el-button @click="readFromClipboard">读取剪贴板</el-button>
                         <el-button @click="inputFromSampleData">样例输入</el-button>
+                        <el-button @click="formatInput" title="JSON.stringify(JSON.parse({input}))" :disabled="!canClearInput">格式化</el-button>
                         <el-button @click="clearInput" :disabled="!canClearInput">清空内容</el-button>
                         <el-checkbox v-model="dontShowInput" label="不显示输入" title="当数据量过大时，显示会造成浏览器卡顿，可以勾选此项取消输入内容的显示"></el-checkbox>
                     </div>
@@ -363,8 +364,17 @@ const getSampleJMESInput = () => {
 const inputFromSampleData = () => {
     selectedSampleDataIndex.value = 0
     showSampleSelect.value = true
-
 }
+const formatInput = () => {
+    try {
+        inputValue.value= JSON.stringify(JSON.parse(inputValue.value), null, 4)
+    }
+    catch (e) {
+        ElMessage.error("格式化失败！")
+        console.error(e)
+    }
+}
+
 const useSample = () => {
     inputValue.value = renderSamplePreSelect.value
     showSampleSelect.value = false
