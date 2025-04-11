@@ -444,7 +444,7 @@ const buildForm = () => {
 const getEnumList = (k: any, t: string) => {
     if (!readyToRender.value) return []
     if (t === "boolean") return [true, false]
-    return inputData.value.map(item => item[k])
+    return Array.from(new Set(inputData.value.map(item => item[k])))
 }
 const renderLabel = (label: any) => {
     if (typeof label === "boolean") return label ? "true" : "false"
