@@ -12,6 +12,10 @@ const props = defineProps({
         type: String as () => "flex-start" | "center" | "space-between" | "space-around" | "flex-end" | string,
         default: "center"
     },
+    flexWrap: {
+        type: String as () => "nowrap" | "wrap",
+        default: "nowrap"
+    },
     itemSpace: {
         type: [Number, String],
         default: "12px"
@@ -32,6 +36,7 @@ const renderItemSpace = computed(() => {
     display: flex;
     align-items: center;
     justify-content: v-bind(justifyContent);
+    flex-wrap: v-bind(flexWrap);
     border-bottom: 1px solid #aaa;
     border-top: 1px solid #aaa;
     font-size: 14px;
