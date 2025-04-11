@@ -169,7 +169,7 @@ defineOptions({
     name: "collection-search",
     text: "collection检索",
     icon: "collection-search",
-    description: "",
+    description: "结构化数据检索，支持JMESPath",
     isBlankPage: true
 })
 
