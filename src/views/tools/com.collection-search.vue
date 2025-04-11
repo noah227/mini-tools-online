@@ -49,7 +49,7 @@
                 <div v-else id="jmespath-area">
                     <div>
                         <el-autocomplete
-                            v-model="jmespathStr" placeholder="search expression"
+                            v-model="jmespathStr" placeholder="Search Expression"
                             type="textarea"
                             :fetch-suggestions="fetchSuggestions"
                             @keydown.ctrl="handleCommonCtrl"
@@ -178,7 +178,7 @@ const jmespath = require("jmespath")
 const sampleData = [
     {name: "jack", age: 20, gender: "male", birthday: "1996-01-01", hasTicket: true},
     {name: "rose", age: 20, gender: "female", birthday: "1996-01-01", hasTicket: true},
-    {name: "unnamed", age: 20, gender: "male", birthday: "1996-01-01", hasTicket: false},
+    {name: "unnamed", age: 18, gender: "male", birthday: "1996-01-01", hasTicket: false},
 ]
 
 const sampleDataList = [
@@ -407,7 +407,14 @@ const form = ref<{
 const willRenderForm = computed(() => {
     return Object.keys(form.value).length
 })
-const enumMark = ref<{ [index: string]: { value: boolean, canEnum: boolean } }>({})
+const enumMark = ref<{
+    [index: string]: {
+        /* 是否枚举（枚举则驱动下拉选项） */
+        value: boolean
+        /* 标记是否允许枚举 */
+        canEnum: boolean
+    }
+}>({})
 const buildForm = () => {
     if (!readyToRender.value) {
         form.value = {}
@@ -444,7 +451,7 @@ const buildForm = () => {
 const getEnumList = (k: any, t: string) => {
     if (!readyToRender.value) return []
     if (t === "boolean") return [true, false]
-    return Array.from(new Set(inputData.value.map(item => item[k])))
+    return Array.from(new Set((inputData.value as any[]).map(item => item[k])))
 }
 const renderLabel = (label: any) => {
     if (typeof label === "boolean") return label ? "true" : "false"
