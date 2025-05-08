@@ -18,7 +18,7 @@ const route = useRoute()
 const faqList = computed(() => (route.meta.faqList || []) as any[])
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .faq-list {
     text-align: left;
     display: flex;
@@ -35,6 +35,10 @@ const faqList = computed(() => (route.meta.faqList || []) as any[])
 
     > ul {
         flex-grow: 1;
+    }
+
+    a {
+        color: cornflowerblue;
     }
 }
 </style>
