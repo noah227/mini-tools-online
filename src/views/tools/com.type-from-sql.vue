@@ -18,6 +18,7 @@
             <el-checkbox v-model="instantConvert" label="实时转换" title="随输入内容变化实时进行转换提取"></el-checkbox>
             <div>
                 <el-button type="primary" plain @click="doConvert" size="small">内容转换</el-button>
+                <el-button type="primary" plain @click="inputSample" size="small">示例输入</el-button>
                 <el-button type="primary" plain @click="clearInput" size="small">清空输入</el-button>
                 <el-button type="primary" plain @click="copyConverted" size="small">复制结果</el-button>
             </div>
@@ -27,6 +28,10 @@
                 <el-input v-model="inputValue" type="textarea" placeholder="输入要转换的内容"></el-input>
             </div>
             <div id="output">
+                <div>
+                    &nbsp;
+                    <el-checkbox v-model="regardDateAsString" label="Date视为String"></el-checkbox>
+                </div>
                 <div id="output-mode">
                     <div :class="outputMode === 'type' && 'current'" @click="outputMode = 'type'">类型提取</div>
                     <div :class="outputMode === 'init' && 'current'" @click="outputMode = 'init'">数据初始化</div>
@@ -86,7 +91,7 @@ type TConvertedItem = {
  * mysql类型向typescript类型转换映射
  * 这里只写了前端可能会用到的常用数据类型
  */
-const fieldConvertMap: { [index: string]: string } = {
+const fieldConvertMap = {
     // Number
     int: "number",
     tinyint: "number",
@@ -104,6 +109,11 @@ const fieldConvertMap: { [index: string]: string } = {
     // 待续
 }
 
+const getFieldType = (field: keyof typeof fieldConvertMap) => {
+    if(field === "datetime" && regardDateAsString.value) return "string"
+    return fieldConvertMap[field] ?? null
+}
+
 const initConvertMap: { [index: string]: any } = {
     // Number
     int: 0,
@@ -118,9 +128,17 @@ const initConvertMap: { [index: string]: any } = {
     text: '""',
     tinytext: '""',
     // 其他
-    datetime: '""',
+    datetime: 'new Date()',
     // 待续
 }
+
+const getFieldInit = (field: keyof typeof fieldConvertMap) => {
+    if(field === "datetime" && regardDateAsString.value) return '""'
+    return initConvertMap[field] ?? null
+}
+
+const regardDateAsString = ref(false)
+syncRef(regardDateAsString, "com.type-from-sql.regardDateAsString")
 
 const outputMode = ref<"type" | "init">("type")
 const outputValue = ref("")
@@ -130,14 +148,15 @@ const convertValue = () => {
 
     const outputValueList = inputValue.value.split("\n").reduce((dataGroup, s) => {
         // s: id\tint
-        const _ = s.split("\t")
-        const fieldName = _[0], fieldType = _[1]
-        const t = fieldConvertMap[fieldType]
+        const _ = s.split(/[\t\s]/)
+        const fieldName = _[0], fieldType = _[1] as keyof typeof fieldConvertMap
+        const t = getFieldType(fieldType)
+
         if (t) {
             dataGroup.push({
                 field: (changeCase as any)[caseOption.value](fieldName),
                 type: t,
-                init: initConvertMap[fieldType] ?? null
+                init: getFieldInit(fieldType)
             })
         }
         return dataGroup
@@ -164,8 +183,16 @@ watch(() => caseOption.value, () => {
     instantConvert.value && convertValue()
 })
 
+watch(() => regardDateAsString.value, () => {
+    instantConvert.value && convertValue()
+})
+
 const doConvert = () => {
     convertValue()
+}
+
+const inputSample = () => {
+    inputValue.value = sampleInput
 }
 
 const clearInput = () => {
@@ -248,6 +275,7 @@ div#type-from-sql {
 
 #output-mode {
     display: flex;
+    border-top: 1px solid #dcdcdc;
 
     > div {
         width: 50%;
