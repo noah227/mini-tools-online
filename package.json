@@ -12,6 +12,7 @@
         "change-case": "^5.4.4",
         "color-convert": "^2.0.1",
         "core-js": "^3.8.3",
+        "crypto-js": "^4.2.0",
         "debounce": "^2.2.0",
         "element-plus": "^2.8.8",
         "exifreader": "^4.23.3",
@@ -26,6 +27,7 @@
         "xbbcode-parser": "^0.3.0"
     },
     "devDependencies": {
+        "@types/crypto-js": "^4.2.2",
         "@types/node": "^20.14.2",
         "@types/webpack-env": "^1.18.5",
         "@vue/cli-plugin-babel": "~5.0.0",
