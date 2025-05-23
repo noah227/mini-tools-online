@@ -98,7 +98,9 @@ const inputRange = ref({
     end: 0
 })
 
+// todo 使用template dom绑定refInput
 const handleInputSelectChange = debounce((e: Event) => {
+    if (!refInput.value) return
     const textarea = refInput.value.textarea as HTMLTextAreaElement
     const start: number = textarea.selectionStart
     const end: number = textarea.selectionEnd
