@@ -49,7 +49,38 @@
                 <div v-else id="jmespath-area">
                     <div>
                         <el-autocomplete
-                            v-model="jmespathStr" placeholder="Search Expression"
+                            v-model.trim="preJmespathStr" placeholder="Pre Filter Expression"
+                            type="textarea"
+                            :fetch-suggestions="fetchSuggestions"
+                            clearable
+                        >
+                            <template #default="{item,index, $index}">
+                                <div class="suggest-item-wrapper">
+                                    <div>
+                                        <div :title="item.value">{{item.value}}</div>
+                                        <div>
+                                            <el-button
+                                                class="iconfont" type="primary" size="small" plain circle
+                                                @click.stop="appendFromCommonlyUsed(item)"
+                                                title="追加条件"
+                                            >+</el-button>
+                                            <el-button
+                                                class="iconfont icon-delete" type="danger" size="small" plain circle
+                                                @click.stop.prevent="removeFromCommonlyUsed(item)"
+                                                title="从存储中移除"
+                                            ></el-button>
+                                        </div>
+                                    </div>
+                                    <div :title="item.comment">{{item.comment}}</div>
+                                </div>
+                            </template>
+                        </el-autocomplete>
+                        &nbsp;
+                        <el-checkbox v-model="preFilterEnabled" title="使用前置条件"></el-checkbox>
+                    </div>
+                    <div>
+                        <el-autocomplete
+                            v-model.trim="jmespathStr" placeholder="Search Expression"
                             type="textarea"
                             :fetch-suggestions="fetchSuggestions"
                             @keydown.ctrl="handleCommonCtrl"
@@ -92,6 +123,9 @@
                             </li>
                             <li>
                                 <el-link href="javascript:void(0);" @click="viewInputHelpMessage(2)">常见使用要点（推荐查看）</el-link>
+                            </li>
+                            <li>
+                                <el-link href="javascript:void(0);" style="color: darkorange" @click="viewInputHelpMessage(3)">关于前置过滤条件</el-link>
                             </li>
                             <li>
                                 <el-link href="https://jmespath.org/tutorial.html#filter-projections" target="_blank">JMESPath条件过滤
@@ -189,8 +223,16 @@ const sampleDataList = [
 ]
 
 const filterWith = ref<"fields" | "JMESPath">("fields")
+const preJmespathStr = ref("")
 const jmespathStr = ref("")
 const inputValue = ref("")
+const preFilterEnabled = ref(true)
+
+const execJmespathStr = computed(() => {
+    if(!preFilterEnabled.value) return jmespathStr.value
+    return preJmespathStr.value + jmespathStr.value
+})
+
 const dontShowInput = ref(false)
 
 const switchFilter = (filter: "fields" | "JMESPath") => {
@@ -221,11 +263,14 @@ syncRef(
     }
 )
 syncRef(dontShowInput, "com.collection-search.dontShowInput")
+syncRef(preJmespathStr, "com.collection-search.preJmespathStr")
+syncRef(preFilterEnabled, "com.collection-search.preFilterEnabled")
+
 /**
  * 把当前查询条件存储下来，方便以后快速输入；内容存储在Cookie中
  */
 const addToCommonlyUsed = () => {
-    const value = jmespathStr.value.trim()
+    const value = jmespathStr.value
     const filterResult = commonUsedJMESPathQueryList.value.filter(item => item.value === value)
     if(filterResult.length) {
         return ElMessageBox.alert(undefined, {
@@ -292,18 +337,21 @@ const handleCommonCtrl = (e: KeyboardEvent) => {
 
 const triggerAddEvent = (e: KeyboardEvent) => {
     if(e.shiftKey) return
-    if(!jmespathStr.value.trim()) return
+    if(!jmespathStr.value) return
     addToCommonlyUsed()
 }
 
 enum EHelperMessageTarget {
     aboutToolsInput = 1,
-    aboutJmespathKeyPoint = 2
+    aboutJmespathKeyPoint = 2,
+    aboutPreFilter = 3
 }
 const viewInputHelpMessage = (t: EHelperMessageTarget) => {
+    let title: string
     let messageSource: string[]
     switch (t) {
         case EHelperMessageTarget.aboutToolsInput:
+            title = "输入说明"
             messageSource = [
                 "<li><b>Ctrl+U</b>清空输入框</li>",
                 "<li>输入框下拉提示支持两种模式：<b>条件追加</b>和<b>条件设定</b>；直接点击下拉选项为赋值，点击下拉选项中的加号按钮则是追加条件</li>",
@@ -314,15 +362,26 @@ const viewInputHelpMessage = (t: EHelperMessageTarget) => {
             ]
             break
         case EHelperMessageTarget.aboutJmespathKeyPoint:
+            title = "使用要点"
             messageSource = [
                 "<li>数字等值判断要使用<b>反引号（`）</b>括起来</li>"
             ]
             break
+        case EHelperMessageTarget.aboutPreFilter:
+            title = "关于前置过滤条件"
+            messageSource = [
+                "<li><strong>前置过滤条件</strong>（如果有）与<strong>Search Expression</strong>输入字符串拼接共同作为jmespath的条件输入</li>",
+                "<li>所以使用前置条件的时候，输入就需要注意拼接符号了</li>",
+                "<li>比如想获取<code>res.data.user[age]</code>，前置已经输入了<code>res.data</code>，那么Search Expression则需要输入<code>.user[age]</code>，" +
+                "<strong>注意有个标点拼接</strong></li>",
+            ]
+            break
         default:
+            title = ""
             messageSource = []
     }
     ElMessageBox.alert(undefined, {
-        title: "输入说明",
+        title,
         type: "info",
         dangerouslyUseHTMLString: true,
         customStyle: {
@@ -479,7 +538,7 @@ const computeOutputData = () => {
     if (!readyToRender.value) return ""
     const dataList = JSON.parse(inputValue.value) as any
     if (filterWith.value === "JMESPath") {
-        const value = jmespathStr.value.trim()
+        const value = execJmespathStr.value
         if (!value) return dataList
         try {
             // 使用jmespath之后，输出结果就不是单纯的多少条了，也有可能是对象
@@ -523,7 +582,7 @@ const updateOutput = () => {
 }
 
 const updateWatch = computed(() => {
-    return [filterWith.value, inputValue.value, jmespathStr.value]
+    return [filterWith.value, inputValue.value, execJmespathStr.value]
 })
 watch(() => updateWatch.value, debounce(() => {
     updateOutput()
@@ -644,10 +703,21 @@ onMounted(() => {
 }
 
 #jmespath-area {
-    > div:first-child {
+    > div:not(:last-child) {
         display: flex;
+        margin-bottom: 16px;
+        > .el-checkbox {
+            align-self: center;
+            display: flex;
+            justify-content: center;
+        }
         > .el-button {
             height: auto;
+        }
+        > * {
+            width: 48px;
+            height: 100%;
+            flex-shrink: 0;
         }
     }
 }
