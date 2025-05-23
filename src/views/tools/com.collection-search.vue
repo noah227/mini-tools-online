@@ -38,13 +38,7 @@
                     </el-form>
                     <div v-else id="form-cant-be-used">仅当数据为对象数组时，字段检索可用</div>
                     <hr>
-                    <div class="help-info">
-                        <ul>
-                            <li>紧邻字段名的是enum标记</li>
-                            <li>如果enum标记不能选，则表示该项不可作为enum进行处理</li>
-                            <li>clear button是设置undefined，不进行过滤</li>
-                        </ul>
-                    </div>
+                    <ListHelp class="help-info" :help-list="helpInfoList__collectionSearch"></ListHelp>
                 </div>
                 <div v-else id="jmespath-area">
                     <div>
@@ -116,27 +110,7 @@
                             plain @click="addToCommonlyUsed" :disabled="!jmespathStr"
                         >+</el-button>
                     </div>
-                    <div class="help-info">
-                        <ul>
-                            <li>
-                                <el-link href="javascript:void(0);" @click="viewInputHelpMessage(1)">条件输入说明（首次使用，建议查看）</el-link>
-                            </li>
-                            <li>
-                                <el-link href="javascript:void(0);" @click="viewInputHelpMessage(2)">常见使用要点（推荐查看）</el-link>
-                            </li>
-                            <li>
-                                <el-link href="javascript:void(0);" style="color: darkorange" @click="viewInputHelpMessage(3)">关于前置过滤条件</el-link>
-                            </li>
-                            <li>
-                                <el-link href="https://jmespath.org/tutorial.html#filter-projections" target="_blank">JMESPath条件过滤
-                                </el-link>
-                            </li>
-                            <li>
-                                <el-link href="https://jmespath.org/tutorial.html" target="_blank">About JMESPath
-                                </el-link>
-                            </li>
-                        </ul>
-                    </div>
+                    <ListHelp class="help-info" :help-list="helpInfoList__jmespath" dialog-width="600px"></ListHelp>
                 </div>
             </div>
             <div id="input-area">
@@ -198,6 +172,8 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {useRoute} from "vue-router";
 import router from "@/router";
 import debounce from "debounce";
+import ListHelp, {THelpListItem} from "@/components/list-help.vue"
+
 
 defineOptions({
     name: "collection-search",
@@ -340,61 +316,50 @@ const triggerAddEvent = (e: KeyboardEvent) => {
     if(!jmespathStr.value) return
     addToCommonlyUsed()
 }
-
-enum EHelperMessageTarget {
-    aboutToolsInput = 1,
-    aboutJmespathKeyPoint = 2,
-    aboutPreFilter = 3
-}
-const viewInputHelpMessage = (t: EHelperMessageTarget) => {
-    let title: string
-    let messageSource: string[]
-    switch (t) {
-        case EHelperMessageTarget.aboutToolsInput:
-            title = "输入说明"
-            messageSource = [
-                "<li><b>Ctrl+U</b>清空输入框</li>",
-                "<li>输入框下拉提示支持两种模式：<b>条件追加</b>和<b>条件设定</b>；直接点击下拉选项为赋值，点击下拉选项中的加号按钮则是追加条件</li>",
-                "<li>点击输入框右侧的加号按钮，可以记录当前的查询条件（输入框<b>Ctrl+Enter</b>也可触发该操作）</li>",
-                "<li>以冒号（<b>:</b>）起始输入，筛选已记录的条件</li>",
-                "<li>如果需要清空记录，清除Cookie或者清除Cookie中对应<b>Name</b>为<b>com.collection-search.commonUsedJMESPathQueryList</b>条目即可</li>",
-                "<li>输入框<b>Ctrl+Shift+Enter</b>也可进入清空记录的确认界面</li>",
-            ]
-            break
-        case EHelperMessageTarget.aboutJmespathKeyPoint:
-            title = "使用要点"
-            messageSource = [
-                "<li>数字等值判断要使用<b>反引号（`）</b>括起来</li>"
-            ]
-            break
-        case EHelperMessageTarget.aboutPreFilter:
-            title = "关于前置过滤条件"
-            messageSource = [
-                "<li><strong>前置过滤条件</strong>（如果有）与<strong>Search Expression</strong>输入字符串拼接共同作为jmespath的条件输入</li>",
-                "<li>所以使用前置条件的时候，输入就需要注意拼接符号了</li>",
-                "<li>比如想获取<code>res.data.user[age]</code>，前置已经输入了<code>res.data</code>，那么Search Expression则需要输入<code>.user[age]</code>，" +
-                "<strong>注意有个标点拼接</strong></li>",
-            ]
-            break
-        default:
-            title = ""
-            messageSource = []
+const helpInfoList__collectionSearch: THelpListItem[] = [
+    "紧邻字段名的是enum标记",
+    "如果enum标记不能选，则表示该项不可作为enum进行处理",
+    "clear button是设置undefined，不进行过滤",
+]
+const helpInfoList__jmespath: THelpListItem[] = [
+    {
+        text: "条件输入说明（首次使用，建议查看）",
+        title: "输入说明",
+        helpInfo: [
+            "<li><b>Ctrl+U</b>清空输入框</li>",
+            "<li>输入框下拉提示支持两种模式：<b>条件追加</b>和<b>条件设定</b>；直接点击下拉选项为赋值，点击下拉选项中的加号按钮则是追加条件</li>",
+            "<li>点击输入框右侧的加号按钮，可以记录当前的查询条件（输入框<b>Ctrl+Enter</b>也可触发该操作）</li>",
+            "<li>以冒号（<b>:</b>）起始输入，筛选已记录的条件</li>",
+            "<li>如果需要清空记录，清除Cookie或者清除Cookie中对应<b>Name</b>为<b>com.collection-search.commonUsedJMESPathQueryList</b>条目即可</li>",
+            "<li>输入框<b>Ctrl+Shift+Enter</b>也可进入清空记录的确认界面</li>",
+        ]
+    },
+    {
+        text: "常见使用要点（推荐查看）",
+        title: "使用要点",
+        helpInfo: [
+            "<li>数字等值判断要使用<b>反引号（`）</b>括起来</li>"
+        ]
+    },
+    {
+        text: "关于前置过滤条件",
+        style: {color: "darkorange"},
+        helpInfo: [
+            "<li><strong>前置过滤条件</strong>（如果有）与<strong>Search Expression</strong>输入字符串拼接共同作为jmespath的条件输入</li>",
+            "<li>所以使用前置条件的时候，输入就需要注意拼接符号了</li>",
+            "<li>比如想获取<code>res.data.user[age]</code>，前置已经输入了<code>res.data</code>，那么Search Expression则需要输入<code>.user[age]</code>，" +
+            "<strong>注意有个标点拼接</strong></li>",
+        ]
+    },
+    {
+        text: "JMESPath条件过滤",
+        link: "https://jmespath.org/tutorial.html#filter-projections"
+    },
+    {
+        text: "About JMESPath",
+        link: "https://jmespath.org/tutorial.html"
     }
-    ElMessageBox.alert(undefined, {
-        title,
-        type: "info",
-        dangerouslyUseHTMLString: true,
-        customStyle: {
-            width: "600px",
-            maxWidth: "unset"
-        },
-        message: [
-            "<ul>",
-            ...messageSource,
-            "</ul>"
-        ].join("")
-    }).catch(() => {})
-}
+]
 
 const readFromClipboard = () => {
     navigator.clipboard.readText().then(text => {
