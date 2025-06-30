@@ -116,6 +116,7 @@ const validInputValue = computed(() => {
 })
 
 watch(() => validInputValue.value, debounce(() => computeOutput(), 100))
+watch(() => [sourceRadix.value, targetRadix.value], debounce(() => computeOutput(), 100))
 const outputValue = ref("")
 const computeOutput = () => {
     let outValue: string
