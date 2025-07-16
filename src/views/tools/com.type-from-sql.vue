@@ -9,6 +9,12 @@
                 </el-select>
             </div>
             <div>
+                <label>转换到</label>
+                <el-select v-model="convertTo" style="width: 120px">
+                    <el-option v-for="{value} in convertToList" :key="value" :value="value"></el-option>
+                </el-select>
+            </div>
+            <div>
                 <label>转换风格</label>
                 <el-select v-model="caseOption" style="width: 168px">
                     <el-option v-for="item in caseOptions" :key="item.value" :value="item.value">{{ item.value }}
@@ -45,7 +51,7 @@
 </template>
 <script lang="ts" setup>
 import * as changeCase from "change-case"
-import {nextTick, ref, watch} from "vue";
+import {computed, nextTick, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import {copyToClipboard, syncRef} from "@/utils";
@@ -54,9 +60,14 @@ defineOptions({
     name: "type-from-sql",
     text: "sql字段ts提取",
     icon: "data-and-sql",
-    description: "从sql字段定义获取typescript类型定义"
+    description: "从sql字段定义获取typescript/java类型定义"
 })
 
+type TConvertTo = "typescript" | "java"
+const convertToList: { label?: string, value: TConvertTo }[] = [
+    {value: "typescript"},
+    {value: "java"},
+]
 const caseOptions = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 
 const options = [
@@ -64,11 +75,13 @@ const options = [
 ]
 
 const sqlType = ref("mysql")
+const convertTo = ref<TConvertTo>("typescript")
 const caseOption = ref("camelCase")
 const instantConvert = ref(true)
 
 syncRef(sqlType, "com.type-from-sql.sqlType")
-syncRef(sqlType, "com.type-from-sql.caseOption")
+syncRef(convertTo, "com.type-from-sql.convertTo")
+syncRef(caseOption, "com.type-from-sql.caseOption")
 syncRef(instantConvert, "com.type-from-sql.instantConvert")
 
 const sampleInput = `id\tint
@@ -81,60 +94,112 @@ is_delete\tint
 `
 const inputValue = ref("")
 
-type TConvertedItem = {
-    field: string
-    type: string
-    init: any
-}
+type TConvertResult = { field: string, type: string, init: any }
+
 
 /**
  * mysql类型向typescript类型转换映射
  * 这里只写了前端可能会用到的常用数据类型
  */
 const fieldConvertMap = {
-    // Number
-    int: "number",
-    tinyint: "number",
-    bigint: "number",
-    float: "number",
-    double: "number",
-    decimal: "number",
-    // String
-    varchar: "string",
-    char: "string",
-    text: "string",
-    tinytext: "string",
-    // 其他
-    datetime: "Date",
-    // 待续
+    typescript: {
+        convertMap: {
+            // Number
+            int: "number",
+            tinyint: "number",
+            bigint: "number",
+            float: "number",
+            double: "number",
+            decimal: "number",
+            // String
+            varchar: "string",
+            char: "string",
+            text: "string",
+            tinytext: "string",
+            // 其他
+            date: "Date",
+            datetime: "Date",
+            // 待续
+        },
+        initMap: {
+            // Number
+            int: 0,
+            tinyint: 0,
+            bigint: 0,
+            float: 0,
+            double: 0,
+            decimal: 0,
+            // String
+            varchar: '""',
+            char: '""',
+            text: '""',
+            tinytext: '""',
+            // 其他
+            date: 'new Date()',
+            datetime: 'new Date()',
+            // 待续
+        }
+    },
+    java: {
+        convertMap: {
+            // Number
+            int: "int",
+            tinyint: "int",
+            bigint: "int",
+            float: "int",
+            double: "int",
+            decimal: "int",
+            // String
+            varchar: "String",
+            char: "String",
+            text: "String",
+            tinytext: "String",
+            // 其他
+            date: "Date",
+            datetime: "Date",
+            // 待续
+        },
+        initMap: {
+            // Number
+            int: 0,
+            tinyint: 0,
+            bigint: 0,
+            float: 0,
+            double: 0,
+            decimal: 0,
+            // String
+            varchar: '""',
+            char: '""',
+            text: '""',
+            tinytext: '""',
+            // 其他
+            date: 'new Date()',
+            datetime: 'new Date()',
+            // 待续
+        }
+    }
 }
 
-const getFieldType = (field: keyof typeof fieldConvertMap) => {
-    if(field === "datetime" && regardDateAsString.value) return "string"
-    return fieldConvertMap[field] ?? null
+
+type TFieldTypescript = keyof typeof fieldConvertMap.typescript.convertMap
+type TFieldJava = keyof typeof fieldConvertMap.java.convertMap
+type TField = TFieldTypescript | TFieldJava
+const convertMap = computed(() => {
+    return convertTo.value === "typescript" ? fieldConvertMap.typescript.convertMap : fieldConvertMap.java.convertMap
+})
+
+const initMap = computed(() => {
+    return convertTo.value === "typescript" ? fieldConvertMap.typescript.initMap : fieldConvertMap.java.initMap
+})
+
+const getFieldType = (field: TField) => {
+    if (field === "datetime" && regardDateAsString.value) return convertTo.value === "typescript" ? "string" : "String"
+    return convertMap.value[field] ?? null
 }
 
-const initConvertMap: { [index: string]: any } = {
-    // Number
-    int: 0,
-    tinyint: 0,
-    bigint: 0,
-    float: 0,
-    double: 0,
-    decimal: 0,
-    // String
-    varchar: '""',
-    char: '""',
-    text: '""',
-    tinytext: '""',
-    // 其他
-    datetime: 'new Date()',
-    // 待续
-}
-
-const getFieldInit = (field: keyof typeof fieldConvertMap) => {
-    if(field === "datetime" && regardDateAsString.value) return '""'
-    return initConvertMap[field] ?? null
+const getFieldInit = (field: TField) => {
+    if (field === "datetime" && regardDateAsString.value) return '""'
+    return initMap.value[field] ?? null
 }
 
 const regardDateAsString = ref(false)
@@ -145,11 +210,31 @@ const outputValue = ref("")
 const outputDataInitValue = ref("")
 
 const convertValue = () => {
+    const outputValueList: TConvertResult[] = _convertValue()
+    if (convertTo.value === "typescript") {
+        outputValue.value = outputValueList.map(item => {
+            return `${item.field}: ${item.type}`
+        }).join("\n")
 
-    const outputValueList = inputValue.value.split("\n").reduce((dataGroup, s) => {
+        outputDataInitValue.value = outputValueList.map(item => {
+            return `${item.field}: ${item.init}`
+        }).join(",\n")
+    } else {
+        outputValue.value = outputValueList.map(item => {
+            return `private ${item.type} ${item.field};`
+        }).join("\n")
+
+        outputDataInitValue.value = outputValueList.map(item => {
+            return `private ${item.type} ${item.field} = ${item.init};`
+        }).join("\n")
+    }
+}
+
+const _convertValue = (): TConvertResult[] => {
+    return inputValue.value.split("\n").reduce((dataGroup, s) => {
         // s: id\tint
         const _ = s.split(/[\t\s]/)
-        const fieldName = _[0], fieldType = _[1] as keyof typeof fieldConvertMap
+        const fieldName = _[0], fieldType = _[1] as TField
         const t = getFieldType(fieldType)
 
         if (t) {
@@ -160,15 +245,7 @@ const convertValue = () => {
             })
         }
         return dataGroup
-    }, [] as TConvertedItem[])
-
-    outputValue.value = outputValueList.map(item => {
-        return `${item.field}: ${item.type}`
-    }).join("\n")
-
-    outputDataInitValue.value = outputValueList.map(item => {
-        return `${item.field}: ${item.init}`
-    }).join(",\n")
+    }, [] as TConvertResult[])
 }
 
 watch(() => instantConvert.value, (v) => {
@@ -184,6 +261,10 @@ watch(() => caseOption.value, () => {
 })
 
 watch(() => regardDateAsString.value, () => {
+    instantConvert.value && convertValue()
+})
+
+watch(() => convertTo.value, () => {
     instantConvert.value && convertValue()
 })
 
@@ -216,6 +297,7 @@ div#type-from-sql {
         display: inherit;
         justify-content: inherit;
         align-items: inherit;
+
         > *:not(:last-child) {
             margin-right: inherit;
         }
@@ -241,6 +323,7 @@ div#type-from-sql {
             }
         }
     }
+
     @media screen and (max-width: 1080px) {
         .filter-render {
             flex-wrap: wrap;
