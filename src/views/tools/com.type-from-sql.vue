@@ -58,7 +58,7 @@ import {copyToClipboard, syncRef} from "@/utils";
 
 defineOptions({
     name: "type-from-sql",
-    text: "sql字段ts提取",
+    text: "sql字段提取",
     icon: "data-and-sql",
     description: "从sql字段定义获取typescript/java类型定义"
 })
