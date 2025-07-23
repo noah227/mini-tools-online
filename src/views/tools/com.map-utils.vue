@@ -77,7 +77,7 @@ const clearCachedKey = () => {
         ElMessage.success("已清除存储的key")
     }
 }
-const mapInst = shallowRef()
+const mapInst = shallowRef<AMap.Map>()
 const mapCenter = ref<[number, number]>([0, 0])
 const mapClickInfo = ref({
     lng: 0,
@@ -86,6 +86,7 @@ const mapClickInfo = ref({
 const mapClickRecord = ref<[number, number][]>([])
 const setFromClipBoard = () => {
     navigator.clipboard.readText().then(text => {
+        if (!mapInst.value) return
         const ret = text.trim().replaceAll(/\s+/g, " ").split(/[\s,]/)
         if (ret.length === 2) {
             const [_lng, _lat] = ret
@@ -105,6 +106,7 @@ const setFromClipBoard = () => {
         console.error(e)
     })
 }
+
 const output = computed(() => {
     let ret: Object = {}
 
@@ -128,7 +130,7 @@ const mapContext = {
             Loca: {
                 version: "2.0.0"
             }
-        }).then(AMap => {
+        }).then((AMap: typeof window.AMap) => {
             mapInst.value = new AMap.Map("map-container")
             ElMessage.success("地图初始化成功")
             this.initEvents()
@@ -139,6 +141,7 @@ const mapContext = {
         })
     },
     initEvents() {
+        if (!mapInst.value) return
         mapInst.value.on("click", (e: any) => {
             const {lng, lat} = e.lnglat as { lng: number, lat: number }
             mapClickInfo.value = {lng, lat}
@@ -151,7 +154,7 @@ const mapContext = {
     },
     initLocatePlugin(AMap: any) {
         AMap.plugin('AMap.Geolocation', function () {
-            var geolocation = new AMap.Geolocation({
+            const geolocation = new AMap.Geolocation({
                 // 是否使用高精度定位，默认：true
                 enableHighAccuracy: true,
                 // 设置定位超时时间，默认：无穷大
@@ -163,6 +166,7 @@ const mapContext = {
                 //  定位按钮的排放位置,  RB表示右下
                 buttonPosition: 'RB'
             })
+            if (!mapInst.value) return
             mapInst.value.addControl(geolocation)
             AMap.Event.addListener(geolocation, 'complete', onComplete)
             AMap.Event.addListener(geolocation, 'error', onError)

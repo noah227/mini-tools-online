@@ -28,6 +28,7 @@
         "xbbcode-parser": "^0.3.0"
     },
     "devDependencies": {
+        "@amap/amap-jsapi-types": "^0.0.15",
         "@types/crypto-js": "^4.2.2",
         "@types/node": "^20.14.2",
         "@types/webpack-env": "^1.18.5",

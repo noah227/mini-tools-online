@@ -15,7 +15,8 @@
         "types": [
             "@types/node",
             "@types/webpack-env",
-            "webpack-env"
+            "webpack-env",
+            "@amap/amap-jsapi-types"
         ],
         "paths": {
             "@/*": [
