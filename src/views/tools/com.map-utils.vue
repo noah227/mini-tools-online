@@ -40,6 +40,7 @@
                 </div>
             </div>
         </div>
+        <FAQRender></FAQRender>
     </div>
 </template>
 <script lang="ts" setup>
@@ -49,13 +50,19 @@ import AMapLoader from "@amap/amap-jsapi-loader"
 import {ElMessage} from "element-plus";
 import {CookieGet, CookieSet, syncRef} from "@/utils";
 import JsonHighlight from "@/components/json-highlight.vue"
+import FAQRender from "@/components/faq-render.vue"
 
 defineOptions({
     name: "map-utils",
     text: "地图工具",
     icon: "client",
     description: "基于高德地图的地图工具",
-    devOnly: true
+    devOnly: true,
+    faqList: [
+        {
+            title: "key使用cookie存储，可手动清除"
+        }
+    ]
 })
 
 const modules = [
