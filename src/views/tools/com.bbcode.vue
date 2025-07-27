@@ -53,7 +53,7 @@ const sampleContent = `[url=https://www.bbcode.org/reference.php]bbcode.org[/url
 [color=orange]颜色（名称）[/color]
 [b][color=#f780ff]渐[/color][color=#e4a3ff]变[/color][color=#d0c6ff]色[/color][color=#bde9ff]（伪）[/color][/b]
 
-[img=200x100]https://i0.wp.com/www.bbcode.org/wp-content/uploads/2022/03/bbcode_example.jpg?resize=150%2C150&ssl=1[/img]
+[img=200x100]https://developer.mozilla.org/favicon.ico[/img]
 `
 const inputValue = ref(sampleContent)
 const renderContent = ref("")
