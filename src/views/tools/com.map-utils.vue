@@ -204,7 +204,7 @@ const locateTo = () => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 div#map-utils {
 
 }
