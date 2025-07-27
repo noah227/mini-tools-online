@@ -1,7 +1,7 @@
 <template>
     <div id="type-from-sql">
         <HeadRender></HeadRender>
-        <FilterRender>
+        <FilterRender flex-wrap="wrap" style="grid-row-gap: 1em;">
             <div>
                 <label>数据库类型</label>
                 <el-select v-model="sqlType" style="width: 120px">
