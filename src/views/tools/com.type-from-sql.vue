@@ -37,6 +37,7 @@
                 <div>
                     &nbsp;
                     <el-checkbox v-model="regardDateAsString" label="Date视为String"></el-checkbox>
+                    <el-checkbox v-model="javaInitAsPublic" label="public"></el-checkbox>
                 </div>
                 <div id="output-mode">
                     <div :class="outputMode === 'type' && 'current'" @click="outputMode = 'type'">类型提取</div>
@@ -203,7 +204,9 @@ const getFieldInit = (field: TField) => {
 }
 
 const regardDateAsString = ref(false)
+const javaInitAsPublic = ref(false)
 syncRef(regardDateAsString, "com.type-from-sql.regardDateAsString")
+syncRef(javaInitAsPublic, "com.type-from-sql.javaInitAsPublic")
 
 const outputMode = ref<"type" | "init">("type")
 const outputValue = ref("")
@@ -220,12 +223,13 @@ const convertValue = () => {
             return `${item.field}: ${item.init}`
         }).join(",\n")
     } else {
+        const initType = javaInitAsPublic.value ? "public" : "private"
         outputValue.value = outputValueList.map(item => {
-            return `private ${item.type} ${item.field};`
+            return `${initType} ${item.type} ${item.field};`
         }).join("\n")
 
         outputDataInitValue.value = outputValueList.map(item => {
-            return `private ${item.type} ${item.field} = ${item.init};`
+            return `${initType} ${item.type} ${item.field} = ${item.init};`
         }).join("\n")
     }
 }
@@ -261,6 +265,10 @@ watch(() => caseOption.value, () => {
 })
 
 watch(() => regardDateAsString.value, () => {
+    instantConvert.value && convertValue()
+})
+
+watch(() => javaInitAsPublic.value, () => {
     instantConvert.value && convertValue()
 })
 
