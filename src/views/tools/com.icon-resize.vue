@@ -59,7 +59,7 @@ import {computed, ref} from "vue";
 defineOptions({
     name: "icon-resize",
     text: "ICON尺寸转换",
-    icon: "icon-resize",
+    icon: "resize",
     description: "常用及自定义转换",
     faqList: [
         {
