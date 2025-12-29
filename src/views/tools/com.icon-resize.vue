@@ -32,7 +32,7 @@
                     <fieldset>
                         <legend>操作</legend>
                         <div id="ops">
-                            <el-button type="primary" size="small" plain :disabled="!commonlyUsedChecked.length">下载已选择
+                            <el-button type="primary" size="small" plain :disabled="!commonlyUsedChecked.length" @click="downloadSelected">下载已选择
                             </el-button>
                             <el-button type="primary" size="small" plain :disabled="!srcImg" @click="downloadAll">下载所有
                             </el-button>
@@ -142,8 +142,12 @@ const switchImgSelect = (size: number) => {
     else commonlyUsedChecked.value.splice(index, 1)
 }
 
+const downloadSelected = () => {
+    downloadWidthSizes(commonlyUsedChecked.value)
+}
+
 const downloadAll = () => {
-    downloadWidthSizes([32])
+    downloadWidthSizes(commonlyUsedSizes.map(({value}) => value))
 }
 const downloadWidthSizes = (sizes: number[]) => {
     // todo 批量下载会被浏览器拒绝的问题（打包处理）
