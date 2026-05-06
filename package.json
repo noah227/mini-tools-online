@@ -22,7 +22,6 @@
         "json-schema-generator": "^2.0.6",
         "pretty-data": "^0.40.0",
         "prismjs": "^1.29.0",
-        "uuid": "^8.3.2",
         "vue-router": "^4.0.3",
         "vuex": "^4.0.0",
         "xbbcode-parser": "^0.3.0"
