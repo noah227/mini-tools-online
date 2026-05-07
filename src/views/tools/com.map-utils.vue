@@ -73,7 +73,7 @@ const modules = [
 
 const activeName = ref(modules[0].value)
 
-const apiKey = ref()
+const apiKey = ref("")
 const cacheApiKey = ref(false)
 const syncKey = "com.api-key"
 const clearCachedKey = () => {
@@ -153,8 +153,9 @@ const mapContext = {
             const {lng, lat} = e.lnglat as { lng: number, lat: number }
             mapClickInfo.value = {lng, lat}
             if (activeName.value === "ContinuousPointSelector") {
-                mapClickRecord.value.push([lng, lat])
+                this.addMarker(lng, lat)
             } else {
+                this.addMarker(lng, lat, true)
                 mapClickRecord.value = []
             }
         })
@@ -188,6 +189,55 @@ const mapContext = {
                 console.error(error)
             }
         })
+    },
+    lastMarker: ref({
+        markerType: <"continuous" | "single">"",
+        marker: <AMap.Marker | null>null
+    }),
+    markers: ref<AMap.Marker[]>([]),
+    addMarker(lng: number, lat: number, singleMarker = false) {
+        if (singleMarker) {
+            if(this.markers.value.length) mapInst.value?.remove(this.markers.value)
+            this.lastMarker.value.marker?.remove()
+        }
+        else {
+            const {markerType, marker} = this.lastMarker.value
+            if (markerType === "single") marker?.remove()
+        }
+
+        const marker = new AMap.Marker({
+            map: mapInst.value,
+            position: [lng, lat],
+        })
+
+        const markerDom = document.createElement("div")
+        markerDom.className = "customized-map-marker"
+        const markerImg = document.createElement("img")
+        markerImg.src = "/images/mark_bs.png"
+        const removeIcon = document.createElement("span")
+        removeIcon.innerText = "X"
+
+        removeIcon.onclick = () => {
+            mapInst.value?.remove(marker)
+            if (singleMarker) {
+                mapClickInfo.value = {lng: 0, lat: 0}
+            } else {
+                const markerIndex = mapClickRecord.value.findIndex(item => item.join("-") === [lng, lat].join("-"))
+                mapClickRecord.value.splice(markerIndex, 1)
+            }
+        }
+
+        markerDom.appendChild(markerImg)
+        markerDom.appendChild(removeIcon)
+        marker.setContent(markerDom)
+        this.lastMarker.value = {
+            markerType: singleMarker ? "single" : "continuous",
+            marker
+        }
+        if(!singleMarker) this.markers.value.push(marker)
+
+        marker.setMap(mapInst.value)
+        mapClickRecord.value.push([lng, lat])
     }
 }
 
@@ -264,5 +314,35 @@ div#map-utils {
     border-left: 1px solid #999;
     width: 15em;
     overflow: auto;
+}
+</style>
+
+<style lang="scss">
+.customized-map-marker {
+    position: relative;
+    user-select: none;
+    width: 26px;
+    height: 38px;
+
+    img {
+        width: 100%;
+        height: 100%;
+    }
+
+    span {
+        position: absolute;
+        right: -6px;
+        top: -6px;
+        cursor: pointer;
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        text-align: center;
+        border-radius: 8px;
+        background-color: #666;
+        color: #fff;
+        font-size: 12px;
+    }
 }
 </style>
