@@ -1,9 +1,15 @@
-import {createStore} from 'vuex'
+import {defineStore} from "pinia";
 
-export default createStore({
-    state: {},
-    getters: {},
-    mutations: {},
-    actions: {},
-    modules: {}
+
+export const useGlobalStateStore = defineStore("globalState", {
+    state(){
+        return {
+            zenMode: false
+        }
+    },
+    actions: {
+        switchZenMode(){
+            this.zenMode = !this.zenMode
+        }
+    }
 })

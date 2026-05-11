@@ -22,7 +22,10 @@
             </router-link>
         </div>
         <div v-else id="content">
-            <router-link id="back" class="iconfont icon-back" to="/control-panel"></router-link>
+            <div id="nav-wrapper">
+                <router-link id="back" class="iconfont icon-back" to="/control-panel"></router-link>
+                <a v-show="false" id="zen-mode-entry" class="iconfont icon-zen-mode" title="Zen Mode" href="javascript:void(0);" @click="switchZenMode"></a>
+            </div>
             <router-view/>
         </div>
         <SiteFooter :is-home="!showContent"></SiteFooter>
@@ -36,6 +39,7 @@ import SiteFooter from "@/components/site-footer.vue"
 import {computed, onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import {tools} from "@/router";
+import {useGlobalStateStore} from "@/store";
 
 const refFilterInput = ref()
 const filterStr = ref("")
@@ -68,6 +72,12 @@ watch(() => route.fullPath, () => {
 })
 updateStatus()
 
+const globalState = useGlobalStateStore()
+const switchZenMode = () => {
+    globalState.switchZenMode()
+}
+
+// todo: 完善zen mode
 onMounted(() => {
     window.addEventListener("keydown", e => {
         if (e.code === "Slash") {
@@ -77,7 +87,7 @@ onMounted(() => {
         }
         // 防止想操作清除输入框的误操作
         else if (e.code === "KeyU") {
-            if(e.ctrlKey) e.preventDefault()
+            if (e.ctrlKey) e.preventDefault()
         }
     })
 })
@@ -184,7 +194,7 @@ div#control-panel {
         flex-direction: column;
         align-items: flex-start;
 
-        > div {
+        > div:last-child {
             flex-grow: 1;
             width: 100%;
             margin: 0 auto;
@@ -194,7 +204,12 @@ div#control-panel {
             border-radius: .5rem;
         }
 
-        > #back {
+        #nav-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        #back, #zen-mode-entry {
             display: inline-block;
             width: 3rem;
             padding: 0 .8rem;
@@ -212,6 +227,12 @@ div#control-panel {
                 color: #fff;
             }
         }
+
+        #zen-mode-entry {
+            width: fit-content;
+            margin-left: 12px;
+            color: #666;
+        }
     }
 }
 
@@ -223,7 +244,7 @@ a {
 
 @media screen and (max-width: 660px) {
     #item-list, #content {
-        width: 90%!important;
+        width: 90% !important;
     }
 }
 
@@ -254,7 +275,7 @@ a {
     #content > div {
         width: 90% !important;
     }
-    #back {
+    #back, #zen-mode-entry {
         display: none !important;
     }
 }
