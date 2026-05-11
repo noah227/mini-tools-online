@@ -13,8 +13,11 @@
                 <div id="controls">
                     <fieldset>
                         <legend>常用尺寸</legend>
-                        <div>
-                            <el-checkbox-group v-model="commonlyUsedChecked" :disabled="!srcImg">
+                        <div id="icon-sizes">
+                            <el-checkbox v-model="sizesAllChecked" :value="true" label="全选" :disabled="!srcImg"
+                                         @change="handleAllCheckedChange"></el-checkbox>
+                            <el-checkbox-group v-model="commonlyUsedChecked" :disabled="!srcImg"
+                                               @change="updateSizesAllChecked">
                                 <el-checkbox v-for="item in commonlyUsedSizes" :key="item.value" :label="item.label"
                                              :value="item.value">
                                     <template #default>
@@ -32,7 +35,8 @@
                     <fieldset>
                         <legend>操作</legend>
                         <div id="ops">
-                            <el-button type="primary" size="small" plain :disabled="!commonlyUsedChecked.length" @click="downloadSelected">下载已选择
+                            <el-button type="primary" size="small" plain :disabled="!commonlyUsedChecked.length"
+                                       @click="downloadSelected">下载已选择
                             </el-button>
                             <el-button type="primary" size="small" plain :disabled="!srcImg" @click="downloadAll">下载所有
                             </el-button>
@@ -55,6 +59,8 @@
 import HeadRender from "@/components/head-render.vue"
 import FAQRender from "@/components/faq-render.vue"
 import {computed, ref} from "vue";
+import JSZip from "jszip";
+import {saveAs} from "file-saver"
 
 defineOptions({
     name: "icon-resize",
@@ -91,11 +97,21 @@ const commonlyUsedSizes = convertRender(
     })), 48]
 )
 
+const sizesAllChecked = ref(false)
 const commonlyUsedChecked = ref<number[]>([])
 
 const renderImgSizes = computed(() => {
     return [...commonlyUsedChecked.value].sort(createSortMethod(true))
 })
+
+const updateSizesAllChecked = () => {
+    sizesAllChecked.value = commonlyUsedChecked.value.length === commonlyUsedSizes.length
+}
+
+const handleAllCheckedChange = (allChecked: boolean) => {
+    if (allChecked) commonlyUsedChecked.value = commonlyUsedSizes.map(item => item.value)
+    else commonlyUsedChecked.value = []
+}
 
 const srcImgFile = ref<File>()
 const srcImg = ref("")
@@ -124,6 +140,7 @@ const selectImage = () => {
                     srcImgInfo.value.height = img.naturalHeight
                     const w = img.naturalWidth
                     commonlyUsedChecked.value = commonlyUsedSizes.filter(item => item.value <= w).map(({value}) => value)
+                    updateSizesAllChecked()
                 }
             }
         }
@@ -157,6 +174,7 @@ const downloadWidthSizes = (sizes: number[]) => {
         const img = new Image()
         img.src = srcImg.value
         img.onload = () => {
+            const zip = new JSZip()
             sizes.forEach(size => {
                 canvas.width = size
                 canvas.height = size
@@ -165,22 +183,21 @@ const downloadWidthSizes = (sizes: number[]) => {
                 // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement/toDataURL
                 // 但是，toBlob方法可以，但泛用性有待验证
                 // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement/toBlob
-                downloadIcon(size, canvas.toDataURL("image/ico"))
+                zip.file(
+                    `image-${size}.png`,
+                    canvas.toDataURL("image/ico").replace("data:image/png;base64,", ""),
+                    {base64: true}
+                )
+            })
+            zip.generateAsync({type: "blob"}).then(b => {
+                saveAs(b, `images.zip`)
             })
         }
     })
 }
-
-const downloadIcon = (size: number, url: string) => {
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${size}.ico`
-    a.type = "download"
-    a.click()
-}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 div#icon-resize {
     > div#content-area {
         flex-grow: 1;
@@ -192,60 +209,6 @@ div#icon-resize {
         }
     }
 
-    #input {
-        width: 168px;
-        display: flex;
-        flex-direction: column;
-        border-right: 1px solid #aaa;
-        overflow: auto;
-
-        > div:first-child {
-
-        }
-
-        > div:last-child {
-            flex-grow: 1;
-        }
-
-        #ops {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            > button {
-                margin-left: 0;
-            }
-
-            > button:not(:last-child) {
-                margin-bottom: 12px;
-            }
-        }
-    }
-
-
-    #output {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        // 为了换行
-        width: 0;
-
-        > .img-item {
-            width: fit-content;
-            height: fit-content;
-            flex-grow: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            box-sizing: border-box;
-            margin: 4px;
-            padding: 4px;
-            border: 1px solid #0000;
-        }
-    }
-
     #img-container {
         display: flex;
         justify-content: center;
@@ -253,7 +216,7 @@ div#icon-resize {
         height: 168px;
 
         img {
-            max-width: 100%;
+            max-width: 128px;
         }
     }
 
@@ -291,5 +254,56 @@ div#icon-resize {
         }
     }
 
+}
+
+#input {
+    width: 298px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #aaa;
+    overflow: auto;
+
+    > div:first-child {
+
+    }
+
+    > div:last-child {
+        flex-grow: 1;
+    }
+
+    #ops {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+}
+
+#icon-sizes > .el-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+}
+
+#output {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    // 为了换行
+    width: 0;
+    overflow: auto;
+
+    > .img-item {
+        width: fit-content;
+        height: fit-content;
+        flex-grow: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        box-sizing: border-box;
+        margin: 4px;
+        padding: 4px;
+        border: 1px solid #0000;
+    }
 }
 </style>
