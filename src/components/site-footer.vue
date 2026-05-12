@@ -33,6 +33,7 @@ const siteTitle = location.origin
     box-shadow: 0 -8px 6px -6px #aaa;
     z-index: 333;
     background-color: #fff;
+    overflow: hidden;
 
     .el-link {
         color: #6af;

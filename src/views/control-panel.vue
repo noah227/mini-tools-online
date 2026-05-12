@@ -1,5 +1,5 @@
 <template>
-    <div id="control-panel">
+    <div id="control-panel" :class="globalState.zenMode && 'zen-mode'">
         <SiteHeader></SiteHeader>
         <div v-if="!showContent" id="filter-area">
             <el-input
@@ -24,7 +24,7 @@
         <div v-else id="content">
             <div id="nav-wrapper">
                 <router-link id="back" class="iconfont icon-back" to="/control-panel"></router-link>
-                <a v-show="false" id="zen-mode-entry" class="iconfont icon-zen-mode" title="Zen Mode" href="javascript:void(0);" @click="switchZenMode"></a>
+                <a v-if="false" id="zen-mode-entry" class="iconfont icon-zen-mode" title="Zen Mode" href="javascript:void(0);" @click="switchZenMode"></a>
             </div>
             <router-view/>
         </div>
@@ -102,7 +102,7 @@ div#control-panel {
     display: flex;
     flex-direction: column;
 
-    > div {
+    >#filter-area, > #item-list, >#content {
         width: 75%;
     }
 
@@ -232,6 +232,28 @@ div#control-panel {
             width: fit-content;
             margin-left: 12px;
             color: #666;
+        }
+    }
+
+    transition: padding ease-in .18s;
+    > .site-header, >.site-footer {
+        transition: height linear .18s;
+    }
+    > #content {
+        transition: width linear .18s;
+    }
+    &.zen-mode {
+        padding: 0;
+        > .site-header {
+            height: 0;
+        }
+
+        >.site-footer {
+            height: 0;
+        }
+
+        > #content {
+            width: 80%;
         }
     }
 }
