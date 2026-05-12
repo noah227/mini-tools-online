@@ -1,0 +1,37 @@
+@media screen and (max-width: 660px) {
+    #item-list, #content {
+        width: 90% !important;
+    }
+}
+
+@media screen and (max-width: 520px) {
+    #item-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, auto) !important;
+        width: fit-content;
+    }
+}
+
+@media screen and (max-width: 520px) {
+    #control-panel {
+        padding-top: 1rem !important;
+    }
+    #footer {
+        height: 3rem !important;
+    }
+    #content {
+        width: 100% !important;
+    }
+    > div#item-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, auto);
+        width: fit-content;
+    }
+    // todo这里要不要套个通用容器，子组件全部100%
+    #content > div {
+        width: 90% !important;
+    }
+    #back, #zen-mode-entry {
+        display: none !important;
+    }
+}
