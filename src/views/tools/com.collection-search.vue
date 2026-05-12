@@ -46,6 +46,7 @@
                             v-model.trim="preJmespathStr" placeholder="Pre Filter Expression"
                             type="textarea"
                             :fetch-suggestions="fetchSuggestions"
+                            :disabled="!preFilterEnabled"
                             clearable
                         >
                             <template #default="{item,index, $index}">
@@ -679,9 +680,8 @@ onMounted(() => {
         > .el-button {
             height: auto;
         }
-        > * {
+        > *:last-child {
             width: 48px;
-            height: 100%;
             flex-shrink: 0;
         }
     }
