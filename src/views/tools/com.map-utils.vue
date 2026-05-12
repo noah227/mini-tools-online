@@ -12,7 +12,7 @@
                     <div>
                         <label for="map-key">key</label>
                         <el-input id="map-key" v-model="apiKey" style="width: 256px;"
-                                  placeholder="在此处输入地图key"></el-input>
+                                  placeholder="在此处输入地图key(AMap)"></el-input>
                         <el-button @click="handleMapInit">初始化地图</el-button>
                         <el-tooltip content="key仅存储在前端">
                             <el-checkbox v-model="cacheApiKey" label="缓存key"></el-checkbox>
