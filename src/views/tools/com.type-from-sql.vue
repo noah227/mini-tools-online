@@ -37,7 +37,7 @@
                 <div>
                     &nbsp;
                     <el-checkbox v-model="regardDateAsString" label="Date视为String"></el-checkbox>
-                    <el-checkbox v-model="javaInitAsPublic" label="public"></el-checkbox>
+                    <el-checkbox v-model="javaInitAsPublic" label="public" :disabled="convertTo !== 'java'"></el-checkbox>
                 </div>
                 <div id="output-mode">
                     <div :class="outputMode === 'type' && 'current'" @click="outputMode = 'type'">类型提取</div>
