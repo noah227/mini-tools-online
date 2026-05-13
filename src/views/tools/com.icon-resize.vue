@@ -4,13 +4,65 @@
         <div id="content-area">
             <div id="input">
                 <div id="img-container">
-                    <img v-if="renderImg" :src="renderImg" :alt="renderImg" @click="selectImage">
-                    <el-button v-else type="primary" size="small" plain @click="selectImage">添加图片</el-button>
-                </div>
-                <div id="img-info">
-                    {{ [srcImgInfo.width, srcImgInfo.height].join(" x ") }}
+                    <div>
+                        <img v-if="renderImg" :src="renderImg" :alt="renderImg" @click="selectImage">
+                        <el-button v-else type="primary" size="small" plain @click="selectImage">添加图片</el-button>
+                    </div>
+                    <div id="img-info">
+                        <b>Name: </b>
+                        <span>{{ renderImgInfo.name }}</span>
+                        <b>Size: </b>
+                        <span>{{ renderImgInfo.size }}</span>
+                        <b>Ext: </b>
+                        <span>{{ renderImgInfo.ext }}</span>
+                        <b>MIME: </b>
+                        <span>{{ renderImgInfo.mime }}</span>
+                    </div>
                 </div>
                 <div id="controls">
+                    <fieldset>
+                        <legend>自定义</legend>
+                        <div>
+                            <el-tooltip>
+                                <el-form-item label="Name">
+                                    <el-input v-model.trim="nameFormatPattern"
+                                              placeholder="e.g, [name]-[size].[ext]"></el-input>
+                                </el-form-item>
+                                <template #content>
+                                    <div>
+                                        <div>Name format pattern (Optional)</div>
+                                        <ul>
+                                            <li>
+                                                Format args
+                                                <ul>
+                                                    <li>
+                                                        name: filename
+                                                        <ul>
+                                                            <li>Optional, name part without file extension</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>
+                                                        size: selected icon size
+                                                        <ul>
+                                                            <li><b>Required</b>, to make filename unique</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>
+                                                        ext: file extension
+                                                        <ul>
+                                                            <li>
+                                                                Optional, default to input file's extension
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </template>
+                            </el-tooltip>
+                        </div>
+                    </fieldset>
                     <fieldset>
                         <legend>常用尺寸</legend>
                         <div id="icon-sizes">
@@ -28,9 +80,6 @@
                                 </el-checkbox>
                             </el-checkbox-group>
                         </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend>自定义</legend>
                     </fieldset>
                     <fieldset>
                         <legend>操作</legend>
@@ -61,6 +110,7 @@ import FAQRender from "@/components/faq-render.vue"
 import {computed, ref} from "vue";
 import JSZip from "jszip";
 import {saveAs} from "file-saver"
+import {fileTypeFromStream} from "file-type";
 
 defineOptions({
     name: "icon-resize",
@@ -72,7 +122,7 @@ defineOptions({
             title: "本模块旨在处理标准方形的icon图形文件"
         },
         {
-            title: "选择图片后会自动勾选小于该图片尺寸的选项"
+            title: "选择图片后会自动勾选不大于该图片尺寸的选项"
         },
         {
             title: "<span style='color: #E6A23C'>橙色</span>尺寸表示该尺寸已经大于原始输入图片了"
@@ -116,9 +166,23 @@ const handleAllCheckedChange = (allChecked: boolean) => {
 const srcImgFile = ref<File>()
 const srcImg = ref("")
 const srcImgInfo = ref({
+    name: "",
     width: 0,
-    height: 0
+    height: 0,
+    ext: "",
+    mime: ""
 })
+
+const renderImgInfo = computed(() => {
+    const {name, width, height, ext, mime} = srcImgInfo.value
+    return {
+        name: name || "-",
+        size: width && height ? [width, height].join(" x ") : "-",
+        ext: ext || "-",
+        mime: mime || "-"
+    }
+})
+
 const renderImg = computed(() => {
     return srcImg.value
 })
@@ -127,20 +191,32 @@ const selectImage = () => {
     const input = document.createElement("input")
     input.type = "file"
     input.accept = ".ico"
-    input.multiple = true
+    input.multiple = false
     input.onchange = () => {
-        if (input.files) {
-            for (let i = 0; i < input.files.length; i++) {
-                srcImgFile.value = input.files[0]
-                srcImg.value = window.URL.createObjectURL(new Blob([input.files[0]]))
-                const img = new Image()
-                img.src = srcImg.value
-                img.onload = () => {
-                    srcImgInfo.value.width = img.naturalWidth
-                    srcImgInfo.value.height = img.naturalHeight
-                    const w = img.naturalWidth
-                    commonlyUsedChecked.value = commonlyUsedSizes.filter(item => item.value <= w).map(({value}) => value)
-                    updateSizesAllChecked()
+        if (input.files?.length) {
+            const file = input.files[0]
+            srcImgFile.value = file
+            srcImg.value = window.URL.createObjectURL(new Blob([file]))
+            const img = new Image()
+            img.src = srcImg.value
+            img.onload = async () => {
+                srcImgInfo.value = {
+                    ...srcImgInfo.value,
+                    name: file.name,
+                    width: img.naturalWidth,
+                    height: img.naturalHeight
+                }
+                const w = img.naturalWidth
+                commonlyUsedChecked.value = commonlyUsedSizes.filter(item => item.value <= w).map(({value}) => value)
+                updateSizesAllChecked()
+
+                const result = await fileTypeFromStream(file.stream())
+                if (result) {
+                    const {ext, mime} = result
+                    srcImgInfo.value = {
+                        ...srcImgInfo.value,
+                        ext, mime
+                    }
                 }
             }
         }
@@ -159,6 +235,23 @@ const switchImgSelect = (size: number) => {
     else commonlyUsedChecked.value.splice(index, 1)
 }
 
+// todo: 同时支持ico和png的输入，且导出相应的格式
+const nameFormatPattern = ref("")
+const nameFormatFunction = computed(() => {
+    return nameFormatPattern.value ? formatNamePatterned : formatNameDefault
+})
+const formatNameDefault = (size: number) => {
+    return `image-${size}.png`
+}
+
+const formatNamePatterned = (size: number) => {
+    const {name, ext} = srcImgInfo.value
+    return nameFormatPattern.value
+        .replaceAll("[name]", name.replace(new RegExp(`.${ext}\$`), ""))
+        .replaceAll("[size]", size.toString())
+        .replaceAll("[ext]", ext)
+}
+
 const downloadSelected = () => {
     downloadWidthSizes(commonlyUsedChecked.value)
 }
@@ -175,18 +268,25 @@ const downloadWidthSizes = (sizes: number[]) => {
         img.src = srcImg.value
         img.onload = () => {
             const zip = new JSZip()
+            console.log(sizes)
+            if (sizes.length === 1) {
+                return convertImage(
+                    canvas, ctx, imgBitMap,
+                    sizes[0],
+                    (filename) => {
+                        canvas.toBlob(b => {
+                            saveAs(b, filename)
+                        })
+                    }
+                )
+            }
             sizes.forEach(size => {
-                canvas.width = size
-                canvas.height = size
-                ctx.drawImage(imgBitMap, 0, 0, size, size)
-                // todo 浏览器原生应该是不支持ico类型转换的
-                // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement/toDataURL
-                // 但是，toBlob方法可以，但泛用性有待验证
-                // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement/toBlob
-                zip.file(
-                    `image-${size}.png`,
-                    canvas.toDataURL("image/ico").replace("data:image/png;base64,", ""),
-                    {base64: true}
+                convertImage(
+                    canvas, ctx, imgBitMap,
+                    size,
+                    (filename, dataUrl) => {
+                        zip.file(filename, dataUrl, {base64: true})
+                    }
                 )
             })
             zip.generateAsync({type: "blob"}).then(b => {
@@ -194,6 +294,29 @@ const downloadWidthSizes = (sizes: number[]) => {
             })
         }
     })
+}
+
+const convertImage = (
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D,
+    imgBitMap: ImageBitmap,
+    size: number,
+    callback: (filename: string, dataUrl: string) => void
+) => {
+    canvas.width = size
+    canvas.height = size
+    ctx.drawImage(imgBitMap, 0, 0, size, size)
+    const filename = nameFormatFunction.value(size)
+    // todo 浏览器原生应该是不支持ico类型转换的
+    // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement/toDataURL
+    // 但是，toBlob方法可以，但泛用性有待验证
+    // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement/toBlob
+    const dataUrl = canvas.toDataURL("image/ico").replace("data:image/png;base64,", "")
+    callback(filename, dataUrl)
+}
+
+const downloadSingle = () => {
+
 }
 </script>
 
@@ -209,26 +332,6 @@ div#icon-resize {
         }
     }
 
-    #img-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 168px;
-
-        img {
-            max-width: 128px;
-        }
-    }
-
-    #img-info {
-        display: flex;
-        justify-content: center;
-        color: #666;
-        padding: 8px 0;
-        border-top: 1px dashed #aaa;
-        border-bottom: 1px dashed #aaa;
-    }
-
     .larger-than-natural {
         color: #E6A23C;
     }
@@ -238,7 +341,7 @@ div#icon-resize {
         line-height: 28px;
     }
 
-    @media screen and (max-width: 520px) {
+    @media screen and (max-width: 960px) {
         div#content-area {
             flex-direction: column;
 
@@ -248,23 +351,32 @@ div#icon-resize {
             }
         }
         #input {
-            flex-direction: row;
+            flex-direction: column;
             border-bottom: 1px solid #aaa;
             border-right: none;
+        }
+
+        #output {
+            min-height: 200px;
         }
     }
 
 }
 
 #input {
-    width: 298px;
+    width: 520px;
     display: flex;
     flex-direction: column;
     border-right: 1px solid #aaa;
     overflow: auto;
 
-    > div:first-child {
+    > * {
+        width: 100%;
+        flex-shrink: 0;
+    }
 
+    > div:first-child {
+        box-sizing: border-box;
     }
 
     > div:last-child {
@@ -275,6 +387,68 @@ div#icon-resize {
         display: flex;
         justify-content: space-evenly;
         align-items: center;
+    }
+}
+
+
+#img-container {
+    display: flex;
+
+    > div:first-child {
+        width: 168px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 168px;
+        border-right: 1px dashed #aaa;
+        box-sizing: border-box;
+        flex-shrink: 0;
+
+        img {
+            max-width: 128px;
+        }
+    }
+
+    > div:last-child {
+        flex-grow: 1;
+    }
+}
+
+#img-info {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    color: #666;
+    line-height: 1.8;
+    padding: 12px;
+    box-sizing: border-box;
+
+    > b {
+        display: inline-block;
+        width: 48px;
+        text-align: right;
+        margin-right: 12px;
+        color: #666;
+    }
+
+    > span {
+        word-break: break-all;
+    }
+}
+
+#controls {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    padding: 12px;
+    box-sizing: border-box;
+    border-top: 1px solid #aaa;
+
+    > * {
+        flex-grow: 1;
+    }
+
+    > fieldset:first-child {
+        grid-column-start: 1;
+        grid-column-end: 3;
     }
 }
 
