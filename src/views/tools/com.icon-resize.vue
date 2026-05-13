@@ -31,33 +31,7 @@
                                 <template #content>
                                     <div>
                                         <div>Name format pattern (Optional)</div>
-                                        <ul>
-                                            <li>
-                                                Format args
-                                                <ul>
-                                                    <li>
-                                                        name: filename
-                                                        <ul>
-                                                            <li>Optional, name part without file extension</li>
-                                                        </ul>
-                                                    </li>
-                                                    <li>
-                                                        size: selected icon size
-                                                        <ul>
-                                                            <li><b>Required</b>, to make filename unique</li>
-                                                        </ul>
-                                                    </li>
-                                                    <li>
-                                                        ext: file extension
-                                                        <ul>
-                                                            <li>
-                                                                Optional, default to input file's extension
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                        </ul>
+                                        <ListRender :data-list="namePatterHelpMessage"></ListRender>
                                     </div>
                                 </template>
                             </el-tooltip>
@@ -107,6 +81,7 @@
 <script lang="ts" setup>
 import HeadRender from "@/components/head-render.vue"
 import FAQRender from "@/components/faq-render.vue"
+import ListRender, {TListData} from "@/components/list-render.vue";
 import {computed, ref} from "vue";
 import JSZip from "jszip";
 import {saveAs} from "file-saver"
@@ -240,6 +215,25 @@ const nameFormatPattern = ref("")
 const nameFormatFunction = computed(() => {
     return nameFormatPattern.value ? formatNamePatterned : formatNameDefault
 })
+const namePatterHelpMessage: TListData = [
+    {
+        text: "Format args",
+        subDataList: [
+            {
+                text: "name: filename",
+                subDataList: [{text: "Optional, name part without file extension"}]
+            },
+            {
+                text: "size: selected icon size",
+                subDataList: [{html: "<b>Required</b>, to make filename unique"}]
+            },
+            {
+                text: "ext: file extension",
+                subDataList: [{text: "Optional, default to input file's extension"}]
+            }
+        ]
+    }
+]
 const formatNameDefault = (size: number) => {
     return `image-${size}.png`
 }
@@ -274,8 +268,8 @@ const downloadWidthSizes = (sizes: number[]) => {
                     canvas, ctx, imgBitMap,
                     sizes[0],
                     (filename) => {
-                        canvas.toBlob(b => {
-                            saveAs(b, filename)
+                        canvas.toBlob((b) => {
+                            b && saveAs(b, filename)
                         })
                     }
                 )
