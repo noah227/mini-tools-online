@@ -3,24 +3,33 @@
         <HeadRender></HeadRender>
         <FilterRender>
             <label>选中符号</label>
-            <el-select v-model="checkedChar">
-                <el-option v-for="value in checkedCharList" :key="value" :value="value"></el-option>
-            </el-select>
+            <el-autocomplete v-model="checkedChar" :fetch-suggestions="fetchSuggestions(checkedCharList)" clearable></el-autocomplete>
             <label>未选中符号</label>
-            <el-select v-model="uncheckedChar">
-                <el-option v-for="value in uncheckedCharList" :key="value" :value="value"></el-option>
-            </el-select>
-            <el-button type="primary" plain @click="exportAsMarkdown">导出Markdown</el-button>
-            <el-button type="primary" plain @click="exportAsTable">导出Table</el-button>
+            <el-autocomplete v-model="uncheckedChar" :fetch-suggestions="fetchSuggestions(uncheckedCharList)" clearable></el-autocomplete>
         </FilterRender>
         <div id="content-area">
             <div id="input">
-                <el-input v-model="inputValueX" type="text" placeholder="横轴字段，空格分隔" clearable></el-input>
-                <el-input v-if="false" v-model="inputValueY" type="text" placeholder="纵轴字段，空格分隔" clearable></el-input>
+                <div>
+                    <el-checkbox v-model="xEnabled" label="X" disabled></el-checkbox>
+                    <el-input v-model="inputValueX" id="inputValueX" type="text" placeholder="横轴字段，空格分隔"
+                              clearable></el-input>
+                </div>
+                <div>
+                    <el-checkbox v-model="yEnabled" label="Y"></el-checkbox>
+                    <el-input v-model="inputValueY" id="inputValueY" type="text" placeholder="纵轴字段，空格分隔"
+                              clearable></el-input>
+                </div>
+            </div>
+            <div id="buttons">
+                <el-button type="primary" plain @click="importJSON">导入JSON</el-button>
+                <el-button type="primary" plain @click="exportAsMarkdown">导出Markdown</el-button>
+                <el-button type="primary" plain @click="exportAsTable">导出Table</el-button>
+                <el-button type="primary" plain @click="exportAsImage">导出图片</el-button>
+                <el-button type="primary" plain @click="exportAsJSON">导出JSON</el-button>
             </div>
             <div id="action-area">
                 <div>{{ simpleMode ? "Simple" : "Complex" }}</div>
-                <table v-if="simpleMode" border="1" style="border-collapse: collapse">
+                <table v-if="simpleMode">
                     <thead>
                     <tr>
                         <th v-for="item in axisX">{{ item }}</th>
@@ -29,7 +38,26 @@
                     <tbody>
                     <tr>
                         <td v-for="item in dataModel">
-                            <el-checkbox v-model="item.checked">{{ item.checked ? checkedChar : uncheckedChar }}
+                            <el-checkbox v-model="item.checked" @change="cacheItemStatus(item)">
+                                {{ item.checked ? checkedChar : uncheckedChar }}
+                            </el-checkbox>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table v-else>
+                    <thead>
+                    <tr>
+                        <th>-</th>
+                        <th v-for="item in axisX">{{ item }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(y, yIndex) in axisY">
+                        <th>{{ y }}</th>
+                        <td v-if="modelReady" v-for="item in getAxisModelItems(yIndex)">
+                            <el-checkbox v-model="item.checked" @change="cacheItemStatus(item)">
+                                {{ item.checked ? checkedChar : uncheckedChar }}
                             </el-checkbox>
                         </td>
                     </tr>
@@ -40,10 +68,11 @@
     </div>
 </template>
 <script lang="ts" setup>
-import {computed, nextTick, ref, watch} from "vue";
+import {computed, nextTick, Ref, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import {syncRef} from "@/utils";
+import {createMdTableRowFromStringList} from "@/views/tools/com.features-check/index.utils";
 
 defineOptions({
     name: "features-check",
@@ -53,10 +82,13 @@ defineOptions({
     devOnly: true
 })
 
+const xEnabled = ref(true)
+const yEnabled = ref(true)
+
 // 横轴
 const inputValueX = ref("Windows MacOs Linux")
 // 纵轴
-const inputValueY = ref("")
+const inputValueY = ref("Feature-A Feature-B Feature-C")
 
 const axisX = computed(() => {
     return getItems(inputValueX.value)
@@ -70,33 +102,68 @@ const getItems = (s: string) => {
     return s.split(/\s+/).filter(_ => _)
 }
 
-const simpleMode = computed(() => !axisY.value.length)
+const simpleMode = computed(() => {
+    return !(yEnabled.value && axisY.value.length)
+})
 type TData = {
     x: number
     y: number
     checked: boolean
 }
 const dataModel = ref<TData[]>([])
+const modelReady = computed(() => {
+    if (simpleMode.value) return dataModel.value.length === axisX.value.length
+    else return dataModel.value.length === axisX.value.length * axisY.value.length
+})
+
 const buildDataModel = () => {
     if (simpleMode.value) {
         dataModel.value = axisX.value.map((item, x) => ({
-            x: x, y: 0, checked: false
+            x: x, y: 0, checked: getCachedChecked(x, 0) ?? false
         }))
-        console.log(dataModel.value)
     } else {
         const tempDataModel: TData[] = []
-        axisX.value.forEach((item, x) => {
-            axisY.value.forEach((itemY, y) => {
+        axisY.value.forEach((itemY, y) => {
+            axisX.value.forEach((item, x) => {
                 tempDataModel.push({
-                    x, y, checked: false
+                    x, y, checked: getCachedChecked(x, y) ?? false
                 })
             })
         })
+
         dataModel.value = [...tempDataModel]
     }
 
 }
-watch(() => inputValueX.value + inputValueY.value, () => {
+
+const getAxisModelItems = (yIndex: number) => {
+    const dataRowLength = axisX.value.length
+    const start = yIndex * dataRowLength
+    return dataModel.value.slice(start, start + dataRowLength)
+}
+
+const dataCache = ref<Record<string, boolean>>({})
+const cacheItemStatus = (item: TData) => {
+    const {x, y, checked} = item
+    const cacheKey = getCacheKey(x, y)
+    dataCache.value[cacheKey] = checked
+}
+const getCachedChecked = (x: number, y: number) => {
+    return dataCache.value[getCacheKey(x, y)]
+}
+const getCacheKey = (x: number, y: number) => {
+    if (simpleMode.value) return axisX.value[x]
+    // 缓存的key由横纵坐标轴(名称)决定
+    return [
+        axisY.value[y],
+        axisX.value[x]
+    ].join(":")
+}
+
+watch(() => [
+    inputValueX.value + inputValueY.value,
+    simpleMode.value
+], () => {
     nextTick(buildDataModel)
 })
 
@@ -104,18 +171,63 @@ buildDataModel()
 
 
 /********** ***********/
-const checkedCharList = ["是", "支持", "√", "✔", "✅", "☑"]
-const uncheckedCharList = ["否", "不支持", "×", "✖", "❎", "✖"]
+const checkedCharList = [
+    "是", "支持", "Yes",
+    "√", "✔", "✅", "☑"
+]
+const uncheckedCharList = [
+    "否", "不支持", "No",
+    "×", "✖", "❎", "✖"
+]
 const checkedChar = ref(checkedCharList[0])
 const uncheckedChar = ref(uncheckedCharList[0])
 syncRef(checkedChar, "com.features-checked.checkedChar")
 syncRef(uncheckedChar, "com.features-checked.uncheckedChar")
 
-const exportAsMarkdown = () => {
+const fetchSuggestions = (dataList: string[]) => {
+    return dataList.map(v => ({value: v}))
+}
 
+const importJSON = () => {
+
+}
+const exportAsMarkdown = () => {
+    const lines: string[][] = []
+    if (simpleMode.value) {
+        lines.push(axisX.value)
+        lines.push(new Array(axisX.value.length).fill("-".repeat(3)))
+        lines.push(dataModel.value.map((item) => {
+            return item.checked ? checkedChar.value : uncheckedChar.value
+        }))
+    } else {
+        lines.push(["-", ...axisX.value])
+        lines.push(new Array(axisX.value.length + 1).fill("-".repeat(3)))
+
+        axisY.value.forEach((itemY, y) => {
+            const l = axisX.value.length
+            const start = y * l
+            const end = start + l
+            lines.push([
+                itemY,
+                ...dataModel.value.slice(start, end).map(item => {
+                    return item.checked ? checkedChar.value : uncheckedChar.value
+                })
+            ])
+        })
+    }
+    navigator.clipboard.writeText(lines.map(l => createMdTableRowFromStringList(l)).join("\n"))
 }
 
 const exportAsTable = () => {
+
+}
+
+// html-2-canvas
+const exportAsImage = () => {
+    // hide & export
+}
+
+const exportAsJSON = () => {
 
 }
 
@@ -126,26 +238,55 @@ const exportAsTable = () => {
 #content-area {
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
 }
 
 #input {
     flex-grow: 0 !important;
     padding: 12px;
     border-bottom: 1px solid #909090;
+
+    > div {
+        display: flex;
+        align-items: center;
+
+        > .el-checkbox {
+            margin-right: 12px;
+        }
+
+        &:not(:last-child) {
+            margin-bottom: 12px;
+        }
+    }
+}
+
+#buttons {
+    display: flex;
+    padding: 12px;
+    align-items: center;
 }
 
 #action-area {
     padding: 12px;
     box-sizing: border-box;
+    overflow: auto;
+    height: 0;
+    flex-grow: 1;
 }
 
 
 table {
     width: 100%;
     text-align: center;
+    border-collapse: collapse;
+    $table-border-color: #ddd;
+    border-left: 1px solid $table-border-color;
+    border-top: 1px solid $table-border-color;
 
     th, td {
         padding: 6px 12px;
+        border-right: 1px solid $table-border-color;
+        border-bottom: 1px solid $table-border-color;
     }
 }
 </style>
