@@ -29,7 +29,7 @@
             </div>
             <div id="action-area">
                 <div>{{ simpleMode ? "Simple" : "Complex" }}</div>
-                <table v-if="simpleMode">
+                <table v-if="simpleMode" ref="refTable">
                     <thead>
                     <tr>
                         <th v-for="item in axisX">{{ item }}</th>
@@ -45,7 +45,7 @@
                     </tr>
                     </tbody>
                 </table>
-                <table v-else>
+                <table v-else ref="refTable">
                     <thead>
                     <tr>
                         <th>-</th>
@@ -56,7 +56,8 @@
                     <tr v-for="(y, yIndex) in axisY">
                         <th>{{ y }}</th>
                         <td v-if="modelReady" v-for="item in getAxisModelItems(yIndex)">
-                            <el-checkbox v-model="item.checked" @change="cacheItemStatus(item)">
+                            <span v-if="tableShowAsReadonly">{{ item.checked ? checkedChar : uncheckedChar }}</span>
+                            <el-checkbox v-else v-model="item.checked" @change="cacheItemStatus(item)">
                                 {{ item.checked ? checkedChar : uncheckedChar }}
                             </el-checkbox>
                         </td>
@@ -68,11 +69,14 @@
     </div>
 </template>
 <script lang="ts" setup>
-import {computed, nextTick, Ref, ref, watch} from "vue";
+import {computed, nextTick, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import {syncRef} from "@/utils";
 import {createMdTableRowFromStringList} from "@/views/tools/com.features-check/index.utils";
+import html2canvas from "html2canvas";
+import {saveAs} from "file-saver";
+import debounce from "debounce";
 
 defineOptions({
     name: "features-check",
@@ -135,6 +139,9 @@ const buildDataModel = () => {
     }
 
 }
+
+const refTable = ref<HTMLTableElement>()
+const tableShowAsReadonly = ref(false)
 
 const getAxisModelItems = (yIndex: number) => {
     const dataRowLength = axisX.value.length
@@ -223,9 +230,25 @@ const exportAsTable = () => {
 }
 
 // html-2-canvas
-const exportAsImage = () => {
-    // hide & export
-}
+const exportAsImage = debounce(() => {
+    const table = refTable.value
+    if(table) {
+        tableShowAsReadonly.value = true
+        nextTick(() => {
+            html2canvas(table).then(cvs => {
+                cvs.toBlob(b => {
+                    if(b) {
+                        saveAs(b, `export.png`)
+                    }
+                })
+            }).finally(() => {
+                setTimeout(() => {
+                    tableShowAsReadonly.value = false
+                }, 1000)
+            })
+        })
+    }
+})
 
 const exportAsJSON = () => {
 
