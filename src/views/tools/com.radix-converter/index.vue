@@ -3,13 +3,13 @@
         <HeadRender></HeadRender>
         <FilterRender>
 
-            <label>输入进制</label>
+            <label>{{metaContent.labels.inputRadix}}</label>
             <el-select v-model="sourceRadix">
                 <el-option v-for="item in radixList" :key="item.radix" :value="item.radix"></el-option>
             </el-select>
-            <label>输入长度：{{ inputValue.length }}</label>
-            <label>有效输入长度：{{ validInputValue.length }}</label>
-            <label>输出进制</label>
+            <label>{{ metaContent.labels.inputLength }}: {{ inputValue.length }}</label>
+            <label>{{ metaContent.labels.validInputLength }}: {{ validInputValue.length }}</label>
+            <label>{{ metaContent.labels.outputRadix }}</label>
             <el-select v-model="targetRadix">
                 <el-option v-for="item in radixList" :key="item.radix" :value="item.radix"></el-option>
             </el-select>
@@ -18,10 +18,10 @@
             <div id="input">
                 <el-input ref="refInput" v-model="inputValue" @selectionchange="handleInputSelectChange"
                           type="textarea"
-                          placeholder="输入要转换的内容"></el-input>
+                          :placeholder="i18n.t('body.common.placeholders.input')"></el-input>
             </div>
             <div id="output">
-                <el-input v-model="outputValue" type="textarea" placeholder="输出的内容" readonly></el-input>
+                <el-input v-model="outputValue" type="textarea" :placeholder="i18n.t('body.common.placeholders.output')" readonly></el-input>
             </div>
         </div>
         <FAQRender></FAQRender>
@@ -34,28 +34,15 @@ import FilterRender from "@/components/filter-render.vue"
 import FAQRender from "@/components/faq-render.vue"
 
 import debounce from "debounce";
-import {syncRef} from "@/utils";
+import {syncRef, withMetaContent} from "@/utils";
+import {withI18n} from "@/i18n/i18n";
 
 defineOptions({
-    name: "radix-converter",
-    text: "进制转换",
-    icon: "string-converter",
-    description: "各种进制之间的转换",
-    faqList: [
-        {
-            title: "可以选择输入的部分内容进行转换"
-        },
-        {
-            title: "转换可能存在精度限制，详见 <a href='https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/parseInt'>parseInt</a> 的用法说明"
-        },
-        {
-            title: "选区事件监听用到了 <a href='https://developer.mozilla.org/en-US/docs/Web/API/HTMLTextAreaElement/selectionchange_event'>selectionchange_event</a> ，旧版本浏览器和部分其他浏览器可能不生效"
-        },
-        {
-            title: "该模块当前为测试版，转换结果仅供参考"
-        }
-    ]
+    name: "radix-converter"
 })
+
+const metaContent = withMetaContent<"labels">()
+const i18n = withI18n()
 
 type TRadix = 2 | 8 | 10 | 16 | 32
 const radixList: {

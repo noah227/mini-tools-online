@@ -6,7 +6,7 @@
                 <div id="img-container">
                     <div>
                         <img v-if="renderImg" :src="renderImg" :alt="renderImg" @click="selectImage">
-                        <el-button v-else type="primary" size="small" plain @click="selectImage">添加图片</el-button>
+                        <el-button v-else type="primary" size="small" plain @click="selectImage">{{metaContent.buttons.addImage}}</el-button>
                     </div>
                     <div id="img-info">
                         <b>Name: </b>
@@ -21,7 +21,7 @@
                 </div>
                 <div id="controls">
                     <fieldset>
-                        <legend>自定义</legend>
+                        <legend>{{ metaContent.legends.customize }}</legend>
                         <div>
                             <el-tooltip>
                                 <el-form-item label="Name">
@@ -38,9 +38,9 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend>常用尺寸</legend>
+                        <legend>{{ metaContent.legends.commonSizes }}</legend>
                         <div id="icon-sizes">
-                            <el-checkbox v-model="sizesAllChecked" :value="true" label="全选" :disabled="!srcImg"
+                            <el-checkbox v-model="sizesAllChecked" :value="true" :label="metaContent.checks.all" :disabled="!srcImg"
                                          @change="handleAllCheckedChange"></el-checkbox>
                             <el-checkbox-group v-model="commonlyUsedChecked" :disabled="!srcImg"
                                                @change="updateSizesAllChecked">
@@ -56,12 +56,13 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend>操作</legend>
+                        <legend>{{ metaContent.legends.operations }}</legend>
                         <div id="ops">
                             <el-button type="primary" size="small" plain :disabled="!commonlyUsedChecked.length"
-                                       @click="downloadSelected">下载已选择
+                                       @click="downloadSelected">{{ metaContent.buttons.downloadSelected }}
                             </el-button>
-                            <el-button type="primary" size="small" plain :disabled="!srcImg" @click="downloadAll">下载所有
+                            <el-button type="primary" size="small" plain :disabled="!srcImg" @click="downloadAll">
+                                {{metaContent.buttons.downloadAll}}
                             </el-button>
                         </div>
                     </fieldset>
@@ -86,6 +87,7 @@ import {computed, ref} from "vue";
 import JSZip from "jszip";
 import {saveAs} from "file-saver"
 import {fileTypeFromStream} from "file-type";
+import {withMetaContent} from "@/utils";
 
 defineOptions({
     name: "icon-resize",
@@ -104,6 +106,8 @@ defineOptions({
         }
     ]
 })
+
+const metaContent = withMetaContent<"buttons" | "checks" | "legends">()
 
 const createSortMethod = (reverse = false) => {
     return (a: number, b: number) => (a - b > 0 ? 1 : -1) * (reverse ? -1 : 1)

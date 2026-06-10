@@ -2,8 +2,8 @@
     <div id="json-structure-connector">
         <HeadRender></HeadRender>
         <FilterRender>
-            <el-checkbox v-model="reverseSplit" label="逆向拆分"></el-checkbox>
-            <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
+            <el-checkbox v-model="reverseSplit" :label="metaContent.checks.reverseSplit"></el-checkbox>
+            <el-checkbox v-model="compressOutput" :label="metaContent.checks.compressOutput"></el-checkbox>
         </FilterRender>
         <div id="content-area">
             <div id="input">
@@ -21,14 +21,13 @@ import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 
 import JsonHighlight from "@/components/json-highlight.vue"
-import {syncRef} from "@/utils";
+import {syncRef, withMetaContent} from "@/utils";
 
 defineOptions({
-    name: "json-structure-transformer",
-    text: "JSON结构转换",
-    icon: "json-structure-transformer",
-    description: "对json进行拍平/逆拍平"
+    name: "json-structure-transformer"
 })
+
+const metaContent = withMetaContent<"checks" | "placeholders">()
 
 const isObject = (o: any) => Object.prototype.toString.call(o) === "[object Object]"
 /**
@@ -67,12 +66,15 @@ const splitField = (jsonObj: { [index: string]: any }) => {
     return ret
 }
 
-const sampleData = {"a": {"b": {"c": "9999"}}}
+const sampleData = {"a": {"b": {"c": 9999}}}
+const sampleDataSplit = {"a.b.c": 9999}
 
 const reverseSplit = ref(false)
 const compressOutput = ref(false)
 const inputValue = ref("")
-const inputPlaceholder = "输入要处理的对象，如：" + JSON.stringify(sampleData)
+const inputPlaceholder = computed(() => {
+    return metaContent.value.placeholders.input + JSON.stringify(reverseSplit.value ? sampleDataSplit : sampleData)
+})
 const outputValue = computed(() => {
     try {
         if (inputValue.value) {

@@ -2,15 +2,15 @@
     <div id="bbcode">
         <HeadRender></HeadRender>
         <FilterRender>
-            <el-checkbox v-model="addInLineBreaks" label="识别空白行"></el-checkbox>
+            <el-checkbox v-model="addInLineBreaks" :label="metaContent.checks.recognizeBlankLine"></el-checkbox>
             <el-select v-model="displayOrient" style="width: 128px;">
-                <el-option value="horizontal" label="横向"></el-option>
-                <el-option value="vertical" label="纵向"></el-option>
+                <el-option value="horizontal" :label="metaContent.options.horizontal"></el-option>
+                <el-option value="vertical" :label="metaContent.options.vertical"></el-option>
             </el-select>
         </FilterRender>
         <div id="content-area" :class="[`display-${displayOrient}`]">
             <div id="input">
-                <el-input v-model="inputValue" type="textarea" placeholder="输入bbcode代码"></el-input>
+                <el-input v-model="inputValue" type="textarea" :placeholder="i18n.t('body.common.placeholders.input')"></el-input>
             </div>
             <div id="output" v-html="renderContent"></div>
         </div>
@@ -22,23 +22,15 @@ import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import FAQRender from "@/components/faq-render.vue"
 import {computed, ref, watch} from "vue";
-import {syncRef} from "@/utils";
+import {syncRef, withMetaContent} from "@/utils";
+import {withI18n} from "@/i18n/i18n";
 
 defineOptions({
-    name: "bbcode",
-    text: "bbcode",
-    icon: "code",
-    description: "bbcode在线编辑与预览",
-    faqList: [
-        {
-            title: "关于bbcode",
-            link: "https://www.bbcode.org/reference.php"
-        },
-        {
-            title: "bbcode在不同的平台上的支持可能还不是很一致"
-        }
-    ]
+    name: "bbcode"
 })
+
+const metaContent = withMetaContent<"checks" | "options">()
+const i18n = withI18n()
 
 const sampleContent = `[url=https://www.bbcode.org/reference.php]bbcode.org[/url]
 [url]https://www.bbcode.org/reference.php[/url]
@@ -85,7 +77,7 @@ const update = () => {
         text: inputValue.value,
         ...processConfig.value
     })
-    if(result.error) console.error(result.error)
+    if (result.error) console.error(result.error)
     else renderContent.value = result.html
 }
 
@@ -94,6 +86,7 @@ update()
 
 <style lang="scss">
 @import "xbbcode-parser/xbbcode.css";
+
 div#bbcode {
     overflow: hidden;
 
@@ -116,10 +109,12 @@ div#bbcode {
 
         &.display-vertical {
             flex-direction: column-reverse;
+
             > div {
                 width: 100%;
                 height: 50%;
             }
+
             #input {
                 border-top: 1px solid #aaa;
             }

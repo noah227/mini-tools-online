@@ -3,49 +3,49 @@
         <HeadRender></HeadRender>
         <FilterRender flex-wrap="wrap" style="grid-row-gap: 1em;">
             <div>
-                <label>数据库类型</label>
+                <label>{{ metaContent.labels.databseType }}</label>
                 <el-select v-model="sqlType" style="width: 120px">
                     <el-option v-for="{value} in options" :key="value" :value="value"></el-option>
                 </el-select>
             </div>
             <div>
-                <label>转换到</label>
+                <label>{{ metaContent.labels.converTo }}</label>
                 <el-select v-model="convertTo" style="width: 120px">
                     <el-option v-for="{value} in convertToList" :key="value" :value="value"></el-option>
                 </el-select>
             </div>
             <div>
-                <label>转换风格</label>
+                <label>{{ metaContent.labels.convertStyle }}</label>
                 <el-select v-model="caseOption" style="width: 168px">
                     <el-option v-for="item in caseOptions" :key="item.value" :value="item.value">{{ item.value }}
                     </el-option>
                 </el-select>
             </div>
-            <el-checkbox v-model="instantConvert" label="实时转换" title="随输入内容变化实时进行转换提取"></el-checkbox>
+            <el-checkbox v-model="instantConvert" :label="metaContent.labels.instantConvert"></el-checkbox>
             <div>
-                <el-button type="primary" plain @click="doConvert" size="small">内容转换</el-button>
-                <el-button type="primary" plain @click="inputSample" size="small">示例输入</el-button>
-                <el-button type="primary" plain @click="clearInput" size="small">清空输入</el-button>
-                <el-button type="primary" plain @click="copyConverted" size="small">复制结果</el-button>
+                <el-button type="primary" plain @click="doConvert" size="small">{{metaContent.buttons.convert}}</el-button>
+                <el-button type="primary" plain @click="inputSample" size="small">{{ metaContent.buttons.samples }}</el-button>
+                <el-button type="primary" plain @click="clearInput" size="small">{{ metaContent.buttons.clearInput }}</el-button>
+                <el-button type="primary" plain @click="copyConverted" size="small">{{ metaContent.buttons.copyResult }}</el-button>
             </div>
         </FilterRender>
         <div id="content-area">
             <div id="input">
-                <el-input v-model="inputValue" type="textarea" placeholder="输入要转换的内容"></el-input>
+                <el-input v-model="inputValue" type="textarea" :placeholder="i18n.t('body.common.placeholders.input')" :spellcheck="false"></el-input>
             </div>
             <div id="output">
                 <div>
                     &nbsp;
-                    <el-checkbox v-model="regardDateAsString" label="Date视为String"></el-checkbox>
+                    <el-checkbox v-model="regardDateAsString" :label="metaContent.labels.regardDateAsString"></el-checkbox>
                     <el-checkbox v-model="javaInitAsPublic" label="public" :disabled="convertTo !== 'java'"></el-checkbox>
                 </div>
                 <div id="output-mode">
-                    <div :class="outputMode === 'type' && 'current'" @click="outputMode = 'type'">类型提取</div>
-                    <div :class="outputMode === 'init' && 'current'" @click="outputMode = 'init'">数据初始化</div>
+                    <div :class="outputMode === 'type' && 'current'" @click="outputMode = 'type'">{{metaContent.switches.extractTypes}}</div>
+                    <div :class="outputMode === 'init' && 'current'" @click="outputMode = 'init'">{{ metaContent.switches.dataInit }}</div>
                 </div>
                 <el-input v-if="outputMode === 'type'" v-model="outputValue" type="textarea"
-                          placeholder="输出的内容"></el-input>
-                <el-input v-else v-model="outputDataInitValue" type="textarea" placeholder="输出的内容"></el-input>
+                          :placeholder="i18n.t('body.common.placeholders.output')"></el-input>
+                <el-input v-else v-model="outputDataInitValue" type="textarea" :placeholder="i18n.t('body.common.placeholders.output')"></el-input>
             </div>
         </div>
     </div>
@@ -55,14 +55,15 @@ import * as changeCase from "change-case"
 import {computed, nextTick, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
-import {copyToClipboard, syncRef} from "@/utils";
+import {copyToClipboard, syncRef, withMetaContent} from "@/utils";
+import {withI18n} from "@/i18n/i18n";
 
 defineOptions({
-    name: "type-from-sql",
-    text: "sql字段提取",
-    icon: "data-and-sql",
-    description: "从sql字段定义获取typescript/java类型定义"
+    name: "type-from-sql"
 })
+
+const metaContent = withMetaContent()
+const i18n = withI18n()
 
 type TConvertTo = "typescript" | "java"
 const convertToList: { label?: string, value: TConvertTo }[] = [

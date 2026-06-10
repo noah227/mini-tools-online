@@ -1,8 +1,14 @@
 <template>
     <div class="site-header">
-        <strong>迷你小工具</strong>
+        <strong>{{i18n.t("head.title")}}</strong>
     </div>
 </template>
+<script lang="ts" setup>
+import {withI18n} from "@/i18n/i18n";
+
+const i18n = withI18n()
+
+</script>
 
 <style lang="scss">
 .site-header {

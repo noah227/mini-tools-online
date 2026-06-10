@@ -2,15 +2,15 @@
     <div id="fast-schema">
         <HeadRender></HeadRender>
         <FilterRender>
-            <el-button type="primary" plain size="small" @click="clearInput">清空输入</el-button>
-            <el-checkbox v-model="evalObject" label="eval对象"></el-checkbox>
+            <el-button type="primary" plain size="small" @click="clearInput">{{metaContent.buttons.clearInput}}</el-button>
+            <el-checkbox v-model="evalObject" :label="metaContent.checks.evalObject"></el-checkbox>
             <span v-show="evalObject"></span>
         </FilterRender>
         <div id="content-area">
             <div id="input">
                 <el-input v-model.trim="inputValue"
                           type="textarea"
-                          placeholder="在此处输入json内容或拖放json文件到此处"
+                          :placeholder="metaContent.placeholders.addContent"
                           @drop="handleDrop"
                 ></el-input>
             </div>
@@ -26,6 +26,7 @@ import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 
 import JsonHighlight from "@/components/json-highlight.vue"
+import {withMetaContent} from "@/utils";
 
 /**
  * 此文件的生成在vue.config.js里
@@ -38,6 +39,8 @@ defineOptions({
     icon: "fast-schema",
     description: "快速json schema生成"
 })
+
+const metaContent = withMetaContent<"buttons" | "checks" | "placeholders">()
 
 const sampleData = [
     {name: "jack", age: 22, gender: "male"},

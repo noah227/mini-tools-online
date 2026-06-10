@@ -1,7 +1,6 @@
 div#control-panel {
     width: 100%;
     height: 100vh;
-    padding: 1.2rem 0 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -12,7 +11,12 @@ div#control-panel {
 
     transition: padding ease-in .18s;
 
+    > .site-header {
+        padding-top: 1.2rem;
+        box-sizing: content-box;
+    }
     > .site-header, > .site-footer {
+        flex-shrink: 0;
         transition: height linear .18s;
     }
 
@@ -112,6 +116,7 @@ div#control-panel {
 
         .text {
             font-weight: bold;
+            white-space: nowrap;
         }
     }
 }

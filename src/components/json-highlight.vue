@@ -2,8 +2,9 @@
     <div class="json-highlight" :class="toolbarEnabled && 'toolbar-enabled'">
         <pre><code ref="refCode" class="language-json"
                    :data-toolbar-order="dataToolbarOrder"
-                   data-prismjs-copy="复制" data-prismjs-copy-error="复制失败"
-                   data-prismjs-copy-success="已复制"
+                   :data-prismjs-copy="i18n.t('body.common.buttons.copy')"
+                   :data-prismjs-copy-error="i18n.t('body.common.buttons.copyError')"
+                   :data-prismjs-copy-success="i18n.t('body.common.buttons.copySuccess')"
                    data-prismjs-copy-timeout="3000"
         ></code></pre>
     </div>
@@ -13,9 +14,11 @@
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from "vue";
 import "prismjs/themes/prism-coy.min.css"
 import "prismjs/plugins/toolbar/prism-toolbar.min.css"
+import {withI18n} from "@/i18n/i18n";
 
 const prismJs = require("prismjs")
 
+const i18n = withI18n()
 const toolbarEnabled = computed(() => {
     return props.enableCopy || props.enableFullscreen
 })
@@ -37,7 +40,7 @@ const dataToolbarOrder = computed(() => {
 
 const registerFullScreenButton = () => {
     prismJs.plugins.toolbar.registerButton("view-in-fullscreen", {
-        text: "全屏",
+        text: i18n.value.t('body.common.buttons.fullscreen'),
         onClick(env: any) {
             // 热更新后element会丢失，仅开发模式会遇到，忽视即可
             env.element.requestFullscreen()
@@ -47,7 +50,7 @@ const registerFullScreenButton = () => {
 
 const registerDownloadButton = () => {
     prismJs.plugins.toolbar.registerButton("download-file", {
-        text: "下载",
+        text: i18n.value.t('body.common.buttons.download'),
         onClick(env: any) {
             const a = document.createElement("a")
             a.download = "download.json"

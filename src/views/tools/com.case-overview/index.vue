@@ -2,16 +2,16 @@
     <div id="case-overview">
         <HeadRender></HeadRender>
         <FilterRender>
-            <el-input v-model="inputValue" placeholder="请输入"></el-input>
+            <el-input v-model="inputValue" :placeholder="i18n.t('body.common.placeholders.input')"></el-input>
         </FilterRender>
         <div id="content-area">
             <div>
                 <div v-for="({value}) in options" class="case-item" :key="value">
                     <b>{{ value }}</b>
-                    <i class="iconfont icon-copy" title="复制" @click="_copyToClipboard(value)"></i>
                     <span>
                         {{ getCaseChanged(value) }}
                     </span>
+                    <i class="iconfont icon-copy" :title="i18n.t('body.common.buttons.copy')" @click="_copyToClipboard(value)"></i>
                 </div>
             </div>
         </div>
@@ -23,19 +23,21 @@ import * as changeCase from "change-case"
 import {ref} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
-import {copyToClipboard} from "@/utils";
+import {copyToClipboard, withMetaContent} from "@/utils";
+import {useRoute} from "vue-router";
+import {withI18n} from "@/i18n/i18n";
 
 defineOptions({
-    name: "case-overview",
-    text: "case一览",
-    icon: "string-converter",
-    description: "case一览、快速查看"
+    name: "case-overview"
 })
+
+const i18n = withI18n()
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 const inputValue = ref("once upon a time")
 
 const getCaseChanged = (c: string) => {
+    if(!inputValue.value) return " - "
     return (changeCase as any)[c](inputValue.value)
 }
 

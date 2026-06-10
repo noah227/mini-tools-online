@@ -2,22 +2,22 @@
     <div id="url-query">
         <HeadRender></HeadRender>
         <FilterRender>
-            <el-checkbox v-model="decodeValue" label="解码参数值"></el-checkbox>
+            <el-checkbox v-model="decodeValue" :label="metaContent.checks.decodeParams"></el-checkbox>
             <template v-if="decodeValue">
                 <el-select v-model="decodeMethod" style="width: 168px;" size="small">
                     <el-option label="decodeURIComponent" value="decodeURIComponent"></el-option>
                     <el-option label="decodeURI" value="decodeURI"></el-option>
                 </el-select>
-                <el-select v-model="decodeTimes" style="width: 48px;" size="small" title="解码次数">
+                <el-select v-model="decodeTimes" style="width: 48px;" size="small" :title="metaContent.titles.decodeTimes">
                     <el-option v-for="i in 5" :value="i" :label="i"></el-option>
                 </el-select>
             </template>
-            <el-checkbox v-model="compressOutput" label="压缩结果"></el-checkbox>
-            <el-checkbox v-model="allowMultiValue" label="允许多值参数"></el-checkbox>
+            <el-checkbox v-model="compressOutput" :label="metaContent.checks.compressResult"></el-checkbox>
+            <el-checkbox v-model="allowMultiValue" :label="metaContent.checks.allowMultiValue"></el-checkbox>
         </FilterRender>
         <div id="content-area">
             <div id="input">
-                <el-input v-model.trim="inputValue" type="textarea" placeholder="输入要提取参数的URL地址"></el-input>
+                <el-input v-model.trim="inputValue" type="textarea" :placeholder="metaContent.placeholders.input"></el-input>
             </div>
             <div id="output">
                 <JsonHighlight :code="outputValue" enable-copy></JsonHighlight>
@@ -30,7 +30,7 @@ import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
 import JsonHighlight from "@/components/json-highlight.vue"
 import {computed, ref} from "vue";
-import {syncRef} from "@/utils";
+import {syncRef, withMetaContent} from "@/utils";
 
 defineOptions({
     name: "url-query",
@@ -38,6 +38,8 @@ defineOptions({
     icon: "url-query",
     description: "URL参数提取"
 })
+
+const metaContent = withMetaContent<"checks" | "placeholders" | "titles">()
 
 const decodeValue = ref(false)
 const decodeTimes = ref(1)

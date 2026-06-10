@@ -6,8 +6,8 @@
                 <div id="controls">
                     <span></span>
                     <span>
-                        <el-button type="primary" size="small" plain @click="selectImage">添加图片</el-button>
-                        <el-button type="primary" size="small" plain @click="clearInput">清空列表</el-button>
+                        <el-button type="primary" size="small" plain @click="selectImage">{{metaContent.buttons.addImage}}</el-button>
+                        <el-button type="primary" size="small" plain @click="clearInput">{{metaContent.buttons.clearList}}</el-button>
                     </span>
                 </div>
                 <div id="img-container">
@@ -15,7 +15,7 @@
                         <img :src="item.blobUrl" :alt="item.file.name">
                         <span class="image-name">{{ item.file.name }}</span>
                         <span class="img-type">{{ item.file.type }}</span>
-                        <span title="移除" @click.stop="removeItem(item, index)">❌</span>
+                        <span :title="metaContent.titles.remove" @click.stop="removeItem(item, index)">❌</span>
                     </div>
                 </div>
             </div>
@@ -33,9 +33,9 @@
                         <span :title="currentItem.name">{{ currentItem.name }}</span>
                     </div>
                     <div>
-                        <el-button :disabled="!renderExifDetail" size="small" @click="viewWithFullscreen">全屏</el-button>
-                        <el-button :disabled="!renderExifDetail" size="small" @click="copyDetail">复制</el-button>
-                        <el-button :disabled="!renderExifDetail" size="small" @click="exportDetail">导出</el-button>
+                        <el-button :disabled="!renderExifDetail" size="small" @click="viewWithFullscreen">{{metaContent.buttons.fullscreen}}</el-button>
+                        <el-button :disabled="!renderExifDetail" size="small" @click="copyDetail">{{metaContent.buttons.copy}}</el-button>
+                        <el-button :disabled="!renderExifDetail" size="small" @click="exportDetail">{{metaContent.buttons.export}}</el-button>
                     </div>
                 </div>
                 <div id="img-exif-details" ref="refDetailView">
@@ -50,6 +50,9 @@
 import HeadRender from "@/components/head-render.vue"
 import JsonHighlight from "@/components/json-highlight.vue"
 import {computed, nextTick, ref, watch} from "vue";
+import ExifReader from "exifreader"
+import {ElMessage} from "element-plus";
+import {withMetaContent} from "@/utils";
 
 defineOptions({
     name: "exif-reader",
@@ -57,6 +60,8 @@ defineOptions({
     icon: "exif-reader",
     description: "简单的图片EXIF读取"
 })
+
+const metaContent = withMetaContent<"buttons" | "titles">()
 
 const readFileList = ref<File[]>([])
 
@@ -156,9 +161,6 @@ const renderExifDetail = computed(() => {
     const _ = exifInfo[currentTag]
     return JSON.stringify(_ ? _ : exifInfo, null, 4)
 })
-
-import ExifReader from "exifreader"
-import {ElMessage} from "element-plus";
 
 const exifDataMap = ref<{ [index: string]: object }>({})
 const readEXIF = (item: TRenderItem) => {

@@ -1,10 +1,10 @@
 <template>
     <div id="control-panel" :class="globalState.zenMode && 'zen-mode'">
-        <SiteHeader></SiteHeader>
+        <SiteHeader v-if="!showContent"></SiteHeader>
         <div v-if="!showContent" id="filter-area">
             <el-input
                 ref="refFilterInput" v-model.trim="filterStr"
-                placeholder="/搜索 | Ctrl+U清除 | ESC退出"
+                :placeholder="i18n.t('body.search.placeholder')"
                 @keydown.stop
                 @keydown.ctrl="handleHandleIfClear"
                 @keydown.esc="blurFocus"
@@ -18,13 +18,14 @@
                 :title="description"
             >
                 <com-svg-loader class="svg-icon" :name="icon"/>
-                <span class="text">{{ text || name }}</span>
+                <span class="text" :title="text">{{ text || name }}</span>
             </router-link>
         </div>
         <div v-else id="content">
             <div id="nav-wrapper">
                 <router-link id="back" class="iconfont icon-back" to="/control-panel"></router-link>
-                <a v-if="false" id="zen-mode-entry" class="iconfont icon-zen-mode" title="Zen Mode" href="javascript:void(0);" @click="switchZenMode"></a>
+                <a v-if="false" id="zen-mode-entry" class="iconfont icon-zen-mode" title="Zen Mode"
+                   href="javascript:void(0);" @click="switchZenMode"></a>
             </div>
             <router-view/>
         </div>
@@ -37,9 +38,12 @@ import ComSvgLoader from "@/components/svg-loader.vue"
 import SiteHeader from "@/components/site-header.vue"
 import SiteFooter from "@/components/site-footer.vue"
 import {computed, onMounted, ref, watch} from "vue";
-import {useRoute} from "vue-router";
-import {tools} from "@/router";
+import {RouteMeta, useRoute} from "vue-router";
+import router from "@/router";
 import {useGlobalStateStore} from "@/store";
+import {withI18n} from "@/i18n/i18n";
+
+const i18n = withI18n()
 
 const refFilterInput = ref()
 const filterStr = ref("")
@@ -55,21 +59,30 @@ const blurFocus = () => {
 }
 
 const renderTools = computed(() => {
-    const _tools = tools.filter(tool => {
-        const {name, text} = tool
+    void useGlobalStateStore().seed
+    const tools = router.getRoutes().filter(route => route.meta?.isTool)
+    let _tools = tools.filter(tool => {
+        const {name, text} = tool.meta as RouteMeta
         return (name + text).toLowerCase().includes(filterStr.value.toLowerCase())
     })
-    return _tools.length ? _tools : tools
+    _tools = _tools.length ? _tools : tools
+    console.log("SEED", useGlobalStateStore().userLang, _tools.length)
+    // name, text, icon, description, devOnly
+    return _tools.map(item => {
+        const meta = item.meta as RouteMeta
+        return {...meta}
+    })
 })
+
 const showContent = ref(false)
 const route = useRoute()
 const updateStatus = () => {
     showContent.value = location.hash.split("/").length > 2
 }
-
 watch(() => route.fullPath, () => {
     updateStatus()
 })
+
 updateStatus()
 
 const globalState = useGlobalStateStore()

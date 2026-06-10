@@ -2,34 +2,36 @@
     <div id="string-converter">
         <HeadRender></HeadRender>
         <FilterRender>
-            <label>目标格式</label>
+            <label>{{ metaContent.labels.targetCase }}</label>
             <el-select v-model="convertMethod">
                 <el-option v-for="{value} in options" :key="value" :value="value"></el-option>
             </el-select>
         </FilterRender>
         <div id="content-area">
             <div id="input">
-                <el-input v-model="inputValue" type="textarea" placeholder="输入要转换的内容"></el-input>
+                <el-input v-model="inputValue" type="textarea" :placeholder="i18n.t('body.common.placeholders.input')"></el-input>
             </div>
             <div id="output">
-                <el-input v-model="outputValue" type="textarea" placeholder="输出的内容" readonly></el-input>
+                <el-input v-model="outputValue" type="textarea" :placeholder="i18n.t('body.common.placeholders.output')" readonly></el-input>
             </div>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
+// 此模块依然有存在的必要（大文本转换）
 import * as changeCase from "change-case"
 import {computed, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
-import {syncRef} from "@/utils";
+import {syncRef, withMetaContent} from "@/utils";
+import {withI18n} from "@/i18n/i18n";
 
 defineOptions({
-    name: "string-converter",
-    text: "字符格式转换",
-    icon: "string-converter",
-    description: "各种风格的字符转换"
+    name: "string-converter"
 })
+
+const metaContent = withMetaContent<"labels" | "placeholders">()
+const i18n = withI18n()
 
 const options = Object.keys(changeCase).map(k => ({value: k})).filter(({value: k}) => k.endsWith("Case"))
 
