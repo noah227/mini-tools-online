@@ -2,30 +2,30 @@
     <div id="string-converter">
         <HeadRender></HeadRender>
         <FilterRender>
-            <label>选中符号</label>
+            <label>{{ metaContent.labels.checkedChar }}</label>
             <el-autocomplete v-model="checkedChar" :fetch-suggestions="fetchSuggestions(checkedCharList)" clearable></el-autocomplete>
-            <label>未选中符号</label>
+            <label>{{ metaContent.labels.uncheckedChar }}</label>
             <el-autocomplete v-model="uncheckedChar" :fetch-suggestions="fetchSuggestions(uncheckedCharList)" clearable></el-autocomplete>
         </FilterRender>
         <div id="content-area">
             <div id="input">
                 <div>
                     <el-checkbox v-model="xEnabled" label="X" disabled></el-checkbox>
-                    <el-input v-model="inputValueX" id="inputValueX" type="text" placeholder="横轴字段，空格分隔"
+                    <el-input v-model="inputValueX" id="inputValueX" type="text" :placeholder="metaContent.placeholders.inputX"
                               clearable></el-input>
                 </div>
                 <div>
                     <el-checkbox v-model="yEnabled" label="Y"></el-checkbox>
-                    <el-input v-model="inputValueY" id="inputValueY" type="text" placeholder="纵轴字段，空格分隔"
+                    <el-input v-model="inputValueY" id="inputValueY" type="text" :placeholder="metaContent.placeholders.inputY"
                               clearable></el-input>
                 </div>
             </div>
             <div id="buttons">
-                <el-button type="primary" plain @click="importJSON">导入JSON</el-button>
-                <el-button type="primary" plain @click="exportAsMarkdown">导出Markdown</el-button>
-                <el-button type="primary" plain @click="exportAsTable">导出Table</el-button>
-                <el-button type="primary" plain @click="exportAsImage">导出图片</el-button>
-                <el-button type="primary" plain @click="exportAsJSON">导出JSON</el-button>
+                <el-button type="primary" plain @click="importJSON">{{metaContent.buttons.importJSON}}</el-button>
+                <el-button type="primary" plain @click="switchAxis">{{ metaContent.buttons.switchAxis }}</el-button>
+                <el-button type="primary" plain @click="exportAsMarkdown">{{metaContent.buttons.exportMarkdown}}</el-button>
+                <el-button type="primary" plain @click="exportAsImage">{{metaContent.buttons.exportImage}}</el-button>
+                <el-button type="primary" plain @click="exportAsJSON">{{metaContent.buttons.exportJSON}}</el-button>
             </div>
             <div id="action-area">
                 <div>{{ simpleMode ? "Simple" : "Complex" }}</div>
@@ -72,19 +72,17 @@
 import {computed, nextTick, ref, watch} from "vue";
 import HeadRender from "@/components/head-render.vue"
 import FilterRender from "@/components/filter-render.vue"
-import {syncRef} from "@/utils";
+import {syncRef, withMetaContent} from "@/utils";
 import {createMdTableRowFromStringList} from "@/views/tools/com.features-check/index.utils";
 import html2canvas from "html2canvas";
 import {saveAs} from "file-saver";
 import debounce from "debounce";
 
 defineOptions({
-    name: "features-check",
-    text: "选项表生成",
-    icon: "features-check",
-    description: "类兼容表生成",
-    devOnly: true
+    name: "features-check"
 })
+
+const metaContent = withMetaContent<"labels" | "buttons" | "placeholders">()
 
 const xEnabled = ref(true)
 const yEnabled = ref(true)
@@ -154,17 +152,23 @@ const cacheItemStatus = (item: TData) => {
     const {x, y, checked} = item
     const cacheKey = getCacheKey(x, y)
     dataCache.value[cacheKey] = checked
+
+    const cacheKeyReversed = getCacheKey(x, y, true)
+    if(cacheKey !== cacheKeyReversed) dataCache.value[cacheKeyReversed] = checked
 }
 const getCachedChecked = (x: number, y: number) => {
     return dataCache.value[getCacheKey(x, y)]
 }
-const getCacheKey = (x: number, y: number) => {
+
+const getCacheKey =  (x: number, y: number, tryReverse=false) => {
     if (simpleMode.value) return axisX.value[x]
     // 缓存的key由横纵坐标轴(名称)决定
-    return [
+    const keyParts = [
         axisY.value[y],
         axisX.value[x]
-    ].join(":")
+    ]
+    if(tryReverse) keyParts.reverse()
+    return keyParts.join(":")
 }
 
 watch(() => [
@@ -198,6 +202,11 @@ const fetchSuggestions = (dataList: string[]) => {
 const importJSON = () => {
 
 }
+
+const switchAxis = () => {
+    [inputValueX.value, inputValueY.value] = [inputValueY.value, inputValueX.value]
+}
+
 const exportAsMarkdown = () => {
     const lines: string[][] = []
     if (simpleMode.value) {
@@ -223,10 +232,6 @@ const exportAsMarkdown = () => {
         })
     }
     navigator.clipboard.writeText(lines.map(l => createMdTableRowFromStringList(l)).join("\n"))
-}
-
-const exportAsTable = () => {
-
 }
 
 // html-2-canvas
@@ -287,6 +292,11 @@ const exportAsJSON = () => {
     display: flex;
     padding: 12px;
     align-items: center;
+    flex-wrap: wrap;
+    grid-gap: 12px;
+    :deep(.el-button+.el-button) {
+        margin-left: 0;
+    }
 }
 
 #action-area {

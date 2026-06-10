@@ -5,5 +5,22 @@ export const meta: TMetaStatic = {
     text: "Features Checker",
     icon: "features-check",
     description: "Generate compatible tables like",
-    devOnly: true
+    devOnly: true,
+    content: {
+        labels: {
+            checkedChar: "Checked Char",
+            uncheckedChar: "Unchecked Char"
+        },
+        buttons: {
+            importJSON: "Import JSON",
+            switchAxis: "Switch Axis",
+            exportMarkdown: "Export Markdown",
+            exportImage: "Export Image",
+            exportJSON: "Export JSON"
+        },
+        placeholders: {
+            inputX: "X axis fields, use space to split",
+            inputY: "Y axis fields, use space to split"
+        }
+    }
 }
