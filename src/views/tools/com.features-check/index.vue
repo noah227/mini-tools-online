@@ -3,29 +3,34 @@
         <HeadRender></HeadRender>
         <FilterRender>
             <label>{{ metaContent.labels.checkedChar }}</label>
-            <el-autocomplete v-model="checkedChar" :fetch-suggestions="fetchSuggestions(checkedCharList)" clearable></el-autocomplete>
+            <el-autocomplete v-model="checkedChar" :fetch-suggestions="fetchSuggestions(checkedCharList)"
+                             clearable></el-autocomplete>
             <label>{{ metaContent.labels.uncheckedChar }}</label>
-            <el-autocomplete v-model="uncheckedChar" :fetch-suggestions="fetchSuggestions(uncheckedCharList)" clearable></el-autocomplete>
+            <el-autocomplete v-model="uncheckedChar" :fetch-suggestions="fetchSuggestions(uncheckedCharList)"
+                             clearable></el-autocomplete>
         </FilterRender>
         <div id="content-area">
             <div id="input">
                 <div>
                     <el-checkbox v-model="xEnabled" label="X" disabled></el-checkbox>
-                    <el-input v-model="inputValueX" id="inputValueX" type="text" :placeholder="metaContent.placeholders.inputX"
+                    <el-input v-model="inputValueX" id="inputValueX" type="text"
+                              :placeholder="metaContent.placeholders.inputX"
                               clearable></el-input>
                 </div>
                 <div>
                     <el-checkbox v-model="yEnabled" label="Y"></el-checkbox>
-                    <el-input v-model="inputValueY" id="inputValueY" type="text" :placeholder="metaContent.placeholders.inputY"
+                    <el-input v-model="inputValueY" id="inputValueY" type="text"
+                              :placeholder="metaContent.placeholders.inputY"
                               clearable></el-input>
                 </div>
             </div>
             <div id="buttons">
-                <el-button type="primary" plain @click="importJSON">{{metaContent.buttons.importJSON}}</el-button>
+                <el-button type="primary" plain @click="importJSON">{{ metaContent.buttons.importJSON }}</el-button>
                 <el-button type="primary" plain @click="switchAxis">{{ metaContent.buttons.switchAxis }}</el-button>
-                <el-button type="primary" plain @click="exportAsMarkdown">{{metaContent.buttons.exportMarkdown}}</el-button>
-                <el-button type="primary" plain @click="exportAsImage">{{metaContent.buttons.exportImage}}</el-button>
-                <el-button type="primary" plain @click="exportAsJSON">{{metaContent.buttons.exportJSON}}</el-button>
+                <el-button type="primary" plain @click="exportAsMarkdown">{{ metaContent.buttons.exportMarkdown }}
+                </el-button>
+                <el-button type="primary" plain @click="exportAsImage">{{ metaContent.buttons.exportImage }}</el-button>
+                <el-button type="primary" plain @click="exportAsJSON">{{ metaContent.buttons.exportJSON }}</el-button>
             </div>
             <div id="action-area">
                 <div>{{ simpleMode ? "Simple" : "Complex" }}</div>
@@ -77,6 +82,7 @@ import {createMdTableRowFromStringList} from "@/views/tools/com.features-check/i
 import html2canvas from "html2canvas";
 import {saveAs} from "file-saver";
 import debounce from "debounce";
+import {ElMessage} from "element-plus";
 
 defineOptions({
     name: "features-check"
@@ -154,20 +160,20 @@ const cacheItemStatus = (item: TData) => {
     dataCache.value[cacheKey] = checked
 
     const cacheKeyReversed = getCacheKey(x, y, true)
-    if(cacheKey !== cacheKeyReversed) dataCache.value[cacheKeyReversed] = checked
+    if (cacheKey !== cacheKeyReversed) dataCache.value[cacheKeyReversed] = checked
 }
 const getCachedChecked = (x: number, y: number) => {
     return dataCache.value[getCacheKey(x, y)]
 }
 
-const getCacheKey =  (x: number, y: number, tryReverse=false) => {
+const getCacheKey = (x: number, y: number, tryReverse = false) => {
     if (simpleMode.value) return axisX.value[x]
     // 缓存的key由横纵坐标轴(名称)决定
     const keyParts = [
         axisY.value[y],
         axisX.value[x]
     ]
-    if(tryReverse) keyParts.reverse()
+    if (tryReverse) keyParts.reverse()
     return keyParts.join(":")
 }
 
@@ -200,7 +206,27 @@ const fetchSuggestions = (dataList: string[]) => {
 }
 
 const importJSON = () => {
+    try {
+        const input = document.createElement("input")
+        input.type = "file"
+        input.accept = "*.json"
+        input.click()
+        input.onchange = () => {
+            if (input.files?.length) {
+                const f = input.files[0]
+                f.text().then(text => {
+                    const [inputX, inputY, _dataModel] = JSON.parse(text)
+                    inputValueX.value = inputX
+                    inputValueY.value = inputY
+                    dataModel.value = _dataModel
+                })
+            }
+        }
 
+    } catch (e) {
+        ElMessage.error("Error on import")
+        console.error(e)
+    }
 }
 
 const switchAxis = () => {
@@ -237,12 +263,12 @@ const exportAsMarkdown = () => {
 // html-2-canvas
 const exportAsImage = debounce(() => {
     const table = refTable.value
-    if(table) {
+    if (table) {
         tableShowAsReadonly.value = true
         nextTick(() => {
             html2canvas(table).then(cvs => {
                 cvs.toBlob(b => {
-                    if(b) {
+                    if (b) {
                         saveAs(b, `export.png`)
                     }
                 })
@@ -255,11 +281,18 @@ const exportAsImage = debounce(() => {
     }
 })
 
+/**
+ * 包含2个数据：
+ * 1. axisInput
+ * 2. dataModel
+ */
 const exportAsJSON = () => {
-
+    const dataToExport = [
+        inputValueX.value, inputValueY.value,
+        dataModel.value
+    ]
+    saveAs(new Blob([JSON.stringify(dataToExport, null, 4)]), "export.json")
 }
-
-// todo 支持多行，类功能特性表的模式
 </script>
 
 <style lang="scss" scoped>
@@ -294,6 +327,7 @@ const exportAsJSON = () => {
     align-items: center;
     flex-wrap: wrap;
     grid-gap: 12px;
+
     :deep(.el-button+.el-button) {
         margin-left: 0;
     }
